@@ -1,5 +1,8 @@
 ;;; level.el --- Contains the data structures relative to levels
 
+;;; Commentary:
+
+;;; Code:
 (require 'eieio)
 
 (defclass roguel-ike-level-cell ()
@@ -15,6 +18,7 @@ e.g. wall, ground, etc..."))
 (defclass roguel-ike-level-grid ()
   ((cells :initarg :cells
           :type list
+          :accessor get-cells
           :protection :private
           :documentation "A two-dimensional list of cells"))
   "A two-dimensional grid of cells")
