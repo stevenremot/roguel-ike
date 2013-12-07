@@ -1,19 +1,22 @@
 ;;; graphics.el --- In charge of drawing things
 
-
 ;;; Commentary:
 
 ;;; Code:
 
 (require 'eieio)
-(require 'roguel-ike/level)
+(require 'roguel-ike-level)
+(require 'roguel-ike-entity)
 
 (defmethod draw ((cell roguel-ike-level-cell) symbols)
   "Draws the cell on the current buffer, at the current position
 
   symbols is a hash table whose keys are cell types, and values are
   corresponding symbols"
-  (let ((character (gethash (get-type cell) symbols " ")))
+  (let* ((symbol (if (has-entity-p cell)
+                     (get-type (get-entity cell))
+                   (get-type cell)))
+         (character (gethash symbol symbols " ")))
     (insert character)))
 
 (defmethod draw ((grid roguel-ike-level-grid) symbols)
@@ -27,5 +30,5 @@
       (draw cell symbols))
     (insert "\n")))
 
-(provide 'roguel-ike/graphics)
-;;; graphics.el ends here
+(provide 'roguel-ike-graphics)
+;;; roguel-ike-graphics.el ends here

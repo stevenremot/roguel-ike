@@ -27,9 +27,15 @@
 (defvar grid)
 (setq grid (roguel-ike-level-grid "Grid" :cells cells))
 
+(defvar hero)
+(setq hero (roguel-ike-entity-hero "Hero"))
+
+(set-entity (cell-at grid 2 1) hero)
+
 (defvar symbols (make-hash-table))
 (puthash :wall "#" symbols)
 (puthash :ground "." symbols)
+(puthash :hero "@" symbols)
 
 (with-current-buffer (get-buffer-create "*roguel-ike*")
   (draw grid symbols))
