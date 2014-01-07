@@ -6,7 +6,7 @@
 
 (require 'eieio)
 
-(defclass roguel-ike-entity ()
+(defclass rlk-entity ()
   ((type :initarg :type
          :type symbol
          :accessor get-type
@@ -15,7 +15,7 @@
   "Base class for game entities"
   :abstract t)
 
-(defclass roguel-ike-entity-hero (roguel-ike-entity)
+(defclass rlk-entity-hero (rlk-entity)
   ((type :initform :hero))
   "Main character in the game")
 

@@ -2,41 +2,40 @@
 
 ;;; Commentary:
 
+;; Simple test
+
 ;;; Code:
 
-(require 'roguel-ike/graphics)
+(require 'roguel-ike-graphics)
 
 (defvar cells)
 (setq cells (list
              (list
-              (roguel-ike-level-cell "Cell" :type :wall)
-              (roguel-ike-level-cell "Cell" :type :wall)
-              (roguel-ike-level-cell "Cell" :type :wall)
-              (roguel-ike-level-cell "Cell" :type :wall))
+              (rlk-level-cell "Cell" :type :wall)
+              (rlk-level-cell "Cell" :type :wall)
+              (rlk-level-cell "Cell" :type :wall)
+              (rlk-level-cell "Cell" :type :wall))
              (list
-              (roguel-ike-level-cell "Cell" :type :wall)
-              (roguel-ike-level-cell "Cell" :type :ground)
-              (roguel-ike-level-cell "Cell" :type :ground)
-              (roguel-ike-level-cell "Cell" :type :wall))
+              (rlk-level-cell "Cell" :type :wall)
+              (rlk-level-cell "Cell" :type :ground)
+              (rlk-level-cell "Cell" :type :ground)
+              (rlk-level-cell "Cell" :type :wall))
              (list
-              (roguel-ike-level-cell "Cell" :type :wall)
-              (roguel-ike-level-cell "Cell" :type :wall)
-              (roguel-ike-level-cell "Cell" :type :wall)
-              (roguel-ike-level-cell "Cell" :type :wall))))
+              (rlk-level-cell "Cell" :type :wall)
+              (rlk-level-cell "Cell" :type :wall)
+              (rlk-level-cell "Cell" :type :wall)
+              (rlk-level-cell "Cell" :type :wall))))
 
 (defvar grid)
-(setq grid (roguel-ike-level-grid "Grid" :cells cells))
+(setq grid (rlk-level-grid "Grid" :cells cells))
 
 (defvar hero)
-(setq hero (roguel-ike-entity-hero "Hero"))
+(setq hero (rlk-entity-hero "Hero"))
 
-(set-entity (cell-at grid 2 1) hero)
+(set-entity (get-cell-at grid 2 1) hero)
+(defvar renderer)
+(setq renderer
+  (rlk-graphics-ascii-renderer "Renderer" :buffer (get-buffer-create "*rlk*")))
 
-(defvar symbols (make-hash-table))
-(puthash :wall "#" symbols)
-(puthash :ground "." symbols)
-(puthash :hero "@" symbols)
-
-(with-current-buffer (get-buffer-create "*roguel-ike*")
-  (draw grid symbols))
+(draw-grid renderer grid)
 ;;; base-test.el ends here
