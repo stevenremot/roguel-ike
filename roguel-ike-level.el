@@ -11,7 +11,7 @@
          :accessor get-type
          :writer set-type
          :type symbol
-         :protection :private
+         :protection :protected
          :documentation "The intrinsic type of the cell
 e.g. wall, ground, etc...")
    (lit :initform nil
@@ -20,12 +20,6 @@ e.g. wall, ground, etc...")
         :write set-lit
         :protection private
         :documentation "Tells wether the cell is lit or not.")
-   (entity :initform nil
-           :accessor get-entity
-           :writer set-entity
-           :type (or rlk--entity boolean)
-           :protection :private
-           :documentation "The game entity currently on the cell.")
    (grid :initarg :grid
           :accessor get-grid
           :type rlk--level-grid
@@ -43,13 +37,32 @@ e.g. wall, ground, etc...")
       :documentation "The vertical position of the cell in the grid."))
   "A class representing a level's cell")
 
-(defmethod has-entity-p ((cell rlk--level-cell))
-  "Return `t' if the cell contains an entity, nil otherwise"
-  (rlk--entity-child-p (get-entity cell)))
-
 (defmethod get-neighbour ((cell rlk--level-cell) dx dy)
   "Return the cell at position (x + dx, y + dy), or nil if it does not exists."
   (get-cell-at (get-grid cell) (+ (get-x cell) dx) (+ (get-y cell) dy)))
+
+(defmethod is-accessible ((cell rlk-level-cell))
+  "Returns t if the cell can be the destination of an entity, nil otherwise."
+  nil)
+
+(defclass rlk--level-cell-groud (rlk--level-cell)
+  ((type :initform :ground
+         :protection :protected)
+   (entity :initform nil
+           :accessor get-entity
+           :writer set-entity
+           :type (or rlk--entity boolean)
+           :protection :private
+           :documentation "The game entity currently on the cell."))
+  "A ground cell")
+
+(defmethod has-entity-p ((cell rlk--level-cell-ground))
+  "Return `t' if the cell contains an entity, nil otherwise"
+  (rlk--entity-child-p (get-entity cell)))
+
+(defmethod is-accessible ((cell rlk-level-cell-ground))
+  "Return t if cell is empty, nil otherwise."
+  (not (has-entity-p cell)))
 
 (defclass rlk--level-grid ()
   ((cells :initarg :cells
@@ -60,17 +73,17 @@ e.g. wall, ground, etc...")
   "A two-dimensional grid of cells")
 
 (defmethod width ((grid rlk--level-grid))
-  "Return the horizontal number of cells"
+  "Return the horizontal number of cells."
   (length (oref grid cells)))
 
 (defmethod height ((grid rlk--level-grid))
-  "Return the vertical number of cells"
+  "Return the vertical number of cells."
   (if (eq (width grid) 0)
       0
     (length (car (oref grid cells)))))
 
 (defmethod get-cell-at ((grid rlk--level-grid) x y)
-  "Return the cell at position x, y"
+  "Return the cell at position x, y."
   (nth x (nth y (get-cells grid))))
 
 (provide 'roguel-ike-level)
