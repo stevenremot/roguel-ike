@@ -17,7 +17,7 @@ e.g. wall, ground, etc...")
    (lit :initform nil
         :type boolean
         :accessor is-lit-p
-        :write set-lit
+        :writer set-lit
         :protection private
         :documentation "Tells wether the cell is lit or not.")
    (grid :initarg :grid
@@ -41,11 +41,11 @@ e.g. wall, ground, etc...")
   "Return the cell at position (x + dx, y + dy), or nil if it does not exists."
   (get-cell-at (get-grid cell) (+ (get-x cell) dx) (+ (get-y cell) dy)))
 
-(defmethod is-accessible ((cell rlk-level-cell))
+(defmethod is-accessible ((cell rlk--level-cell))
   "Returns t if the cell can be the destination of an entity, nil otherwise."
   nil)
 
-(defclass rlk--level-cell-groud (rlk--level-cell)
+(defclass rlk--level-cell-ground (rlk--level-cell)
   ((type :initform :ground
          :protection :protected)
    (entity :initform nil
@@ -53,14 +53,17 @@ e.g. wall, ground, etc...")
            :writer set-entity
            :type (or rlk--entity boolean)
            :protection :private
-           :documentation "The game entity currently on the cell."))
+           :documentation "The game entity currently on the cell.")
+   (grid :initarg :grid)
+   (x :initarg :x)
+   (y :initarg :y))
   "A ground cell")
 
 (defmethod has-entity-p ((cell rlk--level-cell-ground))
   "Return `t' if the cell contains an entity, nil otherwise"
   (rlk--entity-child-p (get-entity cell)))
 
-(defmethod is-accessible ((cell rlk-level-cell-ground))
+(defmethod is-accessible ((cell rlk--level-cell-ground))
   "Return t if cell is empty, nil otherwise."
   (not (has-entity-p cell)))
 
@@ -81,6 +84,14 @@ e.g. wall, ground, etc...")
   (if (eq (width grid) 0)
       0
     (length (car (oref grid cells)))))
+
+(defmethod set-cells ((grid rlk--level-grid) cells)
+  "Set the cells of the grid.
+add positionnal parameters to the cell"
+  (let ((i 0)
+        (j 0))
+                                        ; @todo was here
+    ))
 
 (defmethod get-cell-at ((grid rlk--level-grid) x y)
   "Return the cell at position x, y."

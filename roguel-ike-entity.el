@@ -26,7 +26,7 @@
     (when (rlk--level-cell-child-p old-cell)
       (set-entity old-cell nil))
     (set-entity cell entity)
-    (oref entity cell cell)))
+    (oset entity cell cell)))
 
 (defmethod try-move ((entity rlk--entity) dx dy)
   "If the entity can move to the cell (x + DX, y + DY), will move to it.
