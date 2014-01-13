@@ -7,32 +7,32 @@
 ;;; Code:
 
 (require 'roguel-ike-graphics)
-; @todo Missing grid parameter
 (defvar cells)
 (setq cells (list
              (list
-              (rlk--level-cell "Cell" :type :wall :x 0 :y 0)
-              (rlk--level-cell "Cell" :type :wall :x 1 :y 0)
-              (rlk--level-cell "Cell" :type :wall :x 2 :y 0)
-              (rlk--level-cell "Cell" :type :wall :x 3 :y 0))
+              (rlk--level-cell "Cell" :type :wall)
+              (rlk--level-cell "Cell" :type :wall)
+              (rlk--level-cell "Cell" :type :wall)
+              (rlk--level-cell "Cell" :type :wall))
              (list
-              (rlk--level-cell "Cell" :type :wall :x 0 :y 1)
-              (rlk--level-cell-ground "Cell" :x 1 :y 1)
-              (rlk--level-cell-ground "Cell" :x 2 :y 1)
-              (rlk--level-cell "Cell" :type :wall :x 3 :y 1))
+              (rlk--level-cell "Cell" :type :wall)
+              (rlk--level-cell-ground "Ground")
+              (rlk--level-cell-ground "Ground")
+              (rlk--level-cell "Cell" :type :wall))
              (list
-              (rlk--level-cell "Cell" :type :wall :x 0 :y 2)
-              (rlk--level-cell "Cell" :type :wall :x 1 :y 2)
-              (rlk--level-cell "Cell" :type :wall :x 2 :y 2)
-              (rlk--level-cell "Cell" :type :wall :x 3 :y 2))))
+              (rlk--level-cell "Cell" :type :wall)
+              (rlk--level-cell "Cell" :type :wall)
+              (rlk--level-cell "Cell" :type :wall)
+              (rlk--level-cell "Cell" :type :wall))))
 
 (defvar grid)
 (setq grid (rlk--level-grid "Grid" :cells cells))
 
 (defvar hero)
 (setq hero (rlk--entity-hero "Hero"))
+(set-grid hero grid)
+(set-pos hero 1 1)
 
-(set-cell hero (get-cell-at grid 2 1))
 (defvar renderer)
 (setq renderer
   (rlk--graphics-ascii-renderer "Renderer" :buffer (get-buffer-create "*rlk*")))

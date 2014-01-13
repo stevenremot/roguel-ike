@@ -19,31 +19,16 @@ e.g. wall, ground, etc...")
         :accessor is-lit-p
         :writer set-lit
         :protection private
-        :documentation "Tells wether the cell is lit or not.")
-   (grid :initarg :grid
-          :accessor get-grid
-          :type rlk--level-grid
-          :protection :private
-          :documentation "The grid,which contains the cell.")
-   (x :initarg :x
-      :accessor get-x
-      :type integer
-      :protection :private
-      :documentation "The horizontal position of the cell in the grid.")
-   (y :initarg :y
-      :accessor get-y
-      :type integer
-      :protection :private
-      :documentation "The vertical position of the cell in the grid."))
+        :documentation "Tells wether the cell is lit or not."))
   "A class representing a level's cell")
-
-(defmethod get-neighbour ((cell rlk--level-cell) dx dy)
-  "Return the cell at position (x + dx, y + dy), or nil if it does not exists."
-  (get-cell-at (get-grid cell) (+ (get-x cell) dx) (+ (get-y cell) dy)))
 
 (defmethod is-accessible ((cell rlk--level-cell))
   "Returns t if the cell can be the destination of an entity, nil otherwise."
   nil)
+
+(defmethod has-entity-p ((cell rlk--level-cell))
+     "Returns t if an entity stands on the cell, nil otherwise."
+     nil)
 
 (defclass rlk--level-cell-ground (rlk--level-cell)
   ((type :initform :ground
@@ -53,10 +38,7 @@ e.g. wall, ground, etc...")
            :writer set-entity
            :type (or rlk--entity boolean)
            :protection :private
-           :documentation "The game entity currently on the cell.")
-   (grid :initarg :grid)
-   (x :initarg :x)
-   (y :initarg :y))
+           :documentation "The game entity currently on the cell."))
   "A ground cell")
 
 (defmethod has-entity-p ((cell rlk--level-cell-ground))
@@ -84,14 +66,6 @@ e.g. wall, ground, etc...")
   (if (eq (width grid) 0)
       0
     (length (car (oref grid cells)))))
-
-(defmethod set-cells ((grid rlk--level-grid) cells)
-  "Set the cells of the grid.
-add positionnal parameters to the cell"
-  (let ((i 0)
-        (j 0))
-                                        ; @todo was here
-    ))
 
 (defmethod get-cell-at ((grid rlk--level-grid) x y)
   "Return the cell at position x, y."

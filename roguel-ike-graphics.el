@@ -36,14 +36,13 @@ See rlk--graphics-ascii-symbol-table for the format.")
         slot
       (symbol-value slot))))
 
+;; TODO refine it with is-lit-p
 (defmethod draw-cell ((renderer rlk--graphics-ascii-renderer) cell)
   "Draws the cell on the current buffer, at the current position
 
   symbols is a hash table whose keys are cell types, and values are
   corresponding symbols"
-  (let* ((symbol (if (and
-                      (is-lit-p cell)
-                      (has-entity-p cell))
+  (let* ((symbol (if (has-entity-p cell)
                      (get-type (get-entity cell))
                    (get-type cell)))
          (symbols (get-symbols-table renderer))
