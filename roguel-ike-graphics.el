@@ -8,16 +8,13 @@
 (require 'roguel-ike-level)
 (require 'roguel-ike-entity)
 
-(defvar rlk--graphics-ascii-symbol-table
-  '((:ground . ".")
-    (:wall . "#")
-    (:void . " ")
-    (:hero . "@"))
-  "Alist associating types to ASCII symbols.")
-
 (defclass rlk--graphics-ascii-renderer ()
   ((symbols-table :initarg :symbols-table
-                  :initform rlk--graphics-ascii-symbol-table
+                  :initform ((:ground . ".")
+                             (:wall . "#")
+                             (:void . " ")
+                             (:hero . "@"))
+                  :accessor get-symbols-table
                   :type (or list symbol)
                   :protection :private
                   :documentation "The mapping between object type and ASCII symbol.
@@ -25,16 +22,10 @@
 See rlk--graphics-ascii-symbol-table for the format.")
    (buffer :initarg :buffer
            :type buffer
+           :accessor get-target-buffer
            :protection :private
            :documentation "The buffer on which the level will be rendered."))
   "Renderer for game level")
-
-(defmethod get-symbols-table ((renderer rlk--graphics-ascii-renderer))
-  "Returns the symbols table of the renderer"
-  (let ((slot (oref renderer symbols-table)))
-    (if (listp slot)
-        slot
-      (symbol-value slot))))
 
 ;; TODO refine it with is-lit-p
 (defmethod draw-cell ((renderer rlk--graphics-ascii-renderer) cell)
@@ -54,7 +45,7 @@ See rlk--graphics-ascii-symbol-table for the format.")
 
   symbols is the hash table with cell types as key and characters
   as values"
-  (with-current-buffer (oref renderer buffer)
+  (with-current-buffer (get-target-buffer renderer)
     (erase-buffer)
     (dolist (line (get-cells grid))
       (dolist (cell line)
