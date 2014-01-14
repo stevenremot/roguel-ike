@@ -8,12 +8,58 @@
 (require 'roguel-ike-level)
 (require 'roguel-ike-entity)
 
+;;;;;;;;;;;;;;;;
+;; Game faces ;;
+;;;;;;;;;;;;;;;;
+
+(defgroup rlk-faces
+  '()
+  "Group for rlk faces"
+  :group 'emacs)
+
+(defface rlk-face-default
+  '()
+  "Standard roguel-ike face"
+  :group 'rlk-faces)
+
+(defface rlk-face-wall
+  '((((class color) (min-colors 88))
+      :inherit 'rlk-face-default))
+  "Wall face"
+  :group 'rlk-faces)
+
+(defface rlk-face-ground
+  '((((class color) (min-colors 88))
+      :inherit 'rlk-face-default
+      :foreground "gray8"))
+  "Ground face"
+  :group 'rlk-faces)
+
+(defface rlk-face-hero
+  '((((class color) (min-colors 8))
+     :inherit 'rlk-face-default
+     :foreground "yellow3"))
+  "Hero face"
+  :group 'rlk-faces)
+
+(defface rlk-face-rat
+  '((((class color) (min-colors 8))
+    :inherit 'rlk-face-default
+    :foreground "red"))
+  "Rat face"
+  :group 'rlk-faces)
+
+;;;;;;;;;;;;;;
+;; Renderer ;;
+;;;;;;;;;;;;;;
+
 (defclass rlk--graphics-ascii-renderer ()
   ((symbols-table :initarg :symbols-table
-                  :initform ((:ground . ".")
-                             (:wall . "#")
-                             (:void . " ")
-                             (:hero . "@"))
+                  :initform ((:ground . ("." . rlk-face-ground))
+                             (:wall  . ("#" . rlk-face-wall))
+                             (:void . (" " . rlk-face-default))
+                             (:hero . ("@" . rlk-face-hero))
+                             (:rat . ("r" . rlk-face-rat)))
                   :accessor get-symbols-table
                   :type (or list symbol)
                   :protection :private
@@ -37,8 +83,10 @@ See rlk--graphics-ascii-symbol-table for the format.")
                      (get-type (get-entity cell))
                    (get-type cell)))
          (symbols (get-symbols-table renderer))
-         (character (cdr (assoc symbol symbols))))
-    (insert character)))
+         (parameters (cdr (assoc symbol symbols)))
+         (character (car parameters))
+         (face (cdr parameters)))
+    (insert (propertize character 'face face))))
 
 (defmethod draw-grid ((renderer rlk--graphics-ascii-renderer) grid)
   "Draws the grid on the current buffer

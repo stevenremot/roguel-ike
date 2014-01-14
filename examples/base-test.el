@@ -41,6 +41,11 @@
 (set-grid hero grid)
 (set-pos hero 1 1)
 
+(defvar rat)
+(setq rat (rlk--entity-enemy-rat "Rat"))
+(set-grid rat grid)
+(set-pos rat 9 1)
+
 (defvar renderer)
 (setq renderer
       (rlk--graphics-ascii-renderer "Renderer" :buffer (get-buffer-create "*rlk*")))

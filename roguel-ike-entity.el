@@ -74,5 +74,19 @@ Return t if the entity could move, nil otherwise."
          :protection :protected))
   "The main character in the game.")
 
+;;;;;;;;;;;;;
+;; Enemies ;;
+;;;;;;;;;;;;;
+
+(defclass rlk--entity-enemy (rlk--entity)
+  ()
+  "Base classe for enemies."
+  :abstract t)
+
+(defclass rlk--entity-enemy-rat (rlk--entity-enemy)
+  ((type :initform :rat
+        :protection :protected))
+  "Rat is the weakest enemy.")
+
 (provide 'roguel-ike-entity)
 ;;; roguel-ike-entity.el ends here
