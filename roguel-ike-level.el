@@ -10,7 +10,7 @@
 
 (defclass rlk--level-cell ()
   ((type :initarg :type
-         :accessor get-type
+         :reader get-type
          :writer set-type
          :type symbol
          :protection :protected
@@ -18,7 +18,7 @@
 e.g. wall, ground, etc...")
    (lit :initform nil
         :type boolean
-        :accessor is-lit-p
+        :reader is-lit-p
         :writer set-lit
         :protection private
         :documentation "Tells wether the cell is lit or not."))
@@ -36,7 +36,7 @@ e.g. wall, ground, etc...")
   ((type :initform :ground
          :protection :protected)
    (entity :initform nil
-           :accessor get-entity
+           :reader get-entity
            :writer set-entity
            :type (or rlk--entity boolean)
            :protection :private
@@ -54,7 +54,7 @@ e.g. wall, ground, etc...")
 (defclass rlk--level-grid ()
   ((cells :initarg :cells
           :type list
-          :accessor get-cells
+          :reader get-cells
           :protection :private
           :documentation "A two-dimensional list of cells"))
   "A two-dimensional grid of cells")

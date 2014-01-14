@@ -62,7 +62,7 @@
                              (:void . (" " . rlk-face-default))
                              (:hero . ("@" . rlk-face-hero))
                              (:rat . ("r" . rlk-face-rat)))
-                  :accessor get-symbols-table
+                  :reader get-symbols-table
                   :type (or list symbol)
                   :protection :private
                   :documentation "The mapping between object type and ASCII symbol.
@@ -70,7 +70,7 @@
 See rlk--graphics-ascii-symbol-table for the format.")
    (buffer :initarg :buffer
            :type buffer
-           :accessor get-target-buffer
+           :reader get-target-buffer
            :protection :private
            :documentation "The buffer on which the level will be rendered."))
   "Renderer for game level")

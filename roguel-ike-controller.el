@@ -16,12 +16,12 @@
 (defclass rlk--controller-game ()
   ((game :initarg :game
          :type rlk--game
-         :accessor get-game
+         :reader get-game
          :protection :private
          :documentation "Game state.")
    (renderer :initarg :renderer
              :type rlk--graphics-ascii-renderer
-             :accessor get-renderer
+             :reader get-renderer
              :protection :private
              :documentation "Level renderer.")
    (key-bindings :initarg :key-bindings
@@ -34,7 +34,7 @@
                             ("u" . move-right-up)
                             ("n" . move-right-down))
                  :type list
-                 :accessor get-key-bindings
+                 :reader get-key-bindings
                  :protection :private
                  :documentation "Game controls."))
   "In-game controller.")

@@ -13,21 +13,21 @@
 (defclass rlk--entity ()
   ((type :initarg :type
          :type symbol
-         :accessor get-type
+         :reader get-type
          :writer set-type
          :protection :protected
          :documentation "The type of the entity.")
    (x :initform -1
       :type integer
-      :accessor get-x
+      :reader get-x
       :protection :private
       :documentation "The horizontal position of the entity in the grid.")
    (y :initform -1
       :type integer
-      :accessor get-y
+      :reader get-y
       :protection :private
       :documentation "The vertical position of the entity in the grid.")
-   (grid :accessor get-grid
+   (grid :reader get-grid
          :writer set-grid
          :protection :private
          :documentation "The grid which contains the entity."))
