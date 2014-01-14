@@ -54,7 +54,8 @@
 
 (defvar renderer)
 (setq renderer
-      (rlk--graphics-ascii-renderer "Renderer" :buffer (get-game-buffer buffer-manager)))
+      (rlk--graphics-renderer-game "Renderer"
+                                   :buffer (get-game-buffer buffer-manager)))
 
 (defvar game)
 (setq game (rlk--game "Game" :grid grid :hero hero))
@@ -62,7 +63,12 @@
 (defvar controller)
 (setq controller (rlk--controller-game "Controller" :game game :renderer renderer))
 
+(defvar stats-renderer (rlk--graphics-renderer-stats "Statistics"
+                                                     :hero hero
+                                                     :buffer (get-stats-buffer buffer-manager)))
+
 (setup-layout buffer-manager)
+(draw-stats stats-renderer)
 
 (display-message message-logger "Welcome, young adventurer !")
 

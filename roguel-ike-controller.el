@@ -20,7 +20,7 @@
          :protection :private
          :documentation "Game state.")
    (renderer :initarg :renderer
-             :type rlk--graphics-ascii-renderer
+             :type rlk--graphics-renderer-game
              :reader get-renderer
              :protection :private
              :documentation "Level renderer.")

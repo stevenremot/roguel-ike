@@ -51,11 +51,32 @@
   "Rat face"
   :group 'rlk-faces)
 
-;;;;;;;;;;;;;;
-;; Renderer ;;
-;;;;;;;;;;;;;;
+(defface rlk-face-good-stat
+  '((((class color) (min-colors 8))
+     :inherit 'rlk-face-default
+     :foreground "green"))
+  "Good statistic face"
+  :group 'rlk-faces)
 
-(defclass rlk--graphics-ascii-renderer ()
+(defface rlk-face-average-stat
+  '((((class color) (min-colors 8))
+     :inherit 'rlk-face-default
+     :foreground "yellow"))
+  "Average statistic face"
+  :group 'rlk-faces)
+
+(defface rlk-face-bad-stat
+  '((((class color) (min-colors 8))
+     :inherit 'rlk-face-default
+     :foreground "red"))
+  "Ba sstatistic face"
+  :group 'rlk-faces)
+
+;;;;;;;;;;;;;;;;;;;
+;; Game Renderer ;;
+;;;;;;;;;;;;;;;;;;;
+
+(defclass rlk--graphics-renderer-game ()
   ((symbols-table :initarg :symbols-table
                   :initform ((:ground . ("." . rlk-face-ground))
                              (:wall  . ("#" . rlk-face-wall))
@@ -76,7 +97,7 @@ See rlk--graphics-ascii-symbol-table for the format.")
   "Renderer for game level")
 
 ;; TODO refine it with is-lit-p
-(defmethod draw-cell ((renderer rlk--graphics-ascii-renderer) cell)
+(defmethod draw-cell ((renderer rlk--graphics-renderer-game) cell)
   "Draws the cell on the current buffer, at the current position
 
   symbols is a hash table whose keys are cell types, and values are
@@ -90,7 +111,7 @@ See rlk--graphics-ascii-symbol-table for the format.")
          (face (cdr parameters)))
     (insert (propertize character 'face face))))
 
-(defmethod draw-grid ((renderer rlk--graphics-ascii-renderer) grid)
+(defmethod draw-grid ((renderer rlk--graphics-renderer-game) grid)
   "Draws the grid on the current buffer
 
   symbols is the hash table with cell types as key and characters
@@ -101,6 +122,42 @@ See rlk--graphics-ascii-symbol-table for the format.")
       (dolist (cell line)
         (draw-cell renderer cell))
       (insert "\n"))))
+
+;;;;;;;;;;;;;;;;;;;;
+;; Stats renderer ;;
+;;;;;;;;;;;;;;;;;;;;
+
+(defclass rlk--graphics-renderer-stats ()
+  ((hero :initarg :hero
+         :type rlk--entity-hero
+         :protection :private
+         :documentation "Hero whise statistics are rendered.")
+   (buffer :initarg :buffer
+           :type buffer
+           :protection :private
+           :documentation "Buffer on which statistcis are renderered."))
+  "Render hero statistics")
+
+(defmethod get-stat-face ((renderer rlk--graphics-renderer-stats) stat max-stat)
+  "Return the stat's face according to its levelr elatively to te maximum of the stat."
+  (let ((ratio (/ stat max-stat)))
+    (cond
+     ((> ratio 0.75) 'rlk-face-good-stat)
+     ((> ratio 0.25) 'rlk-face-average-stat)
+     (t 'rlk-face-bad-stat))))
+
+(defmethod draw-stat ((renderer rlk--graphics-renderer-stats) stat max-stat)
+  "Draw the statistic."
+  (insert (propertize (format "%d/%d" stat max-stat) 'face (get-stat-face renderer stat max-stat))))
+
+(defmethod draw-stats ((renderer rlk--graphics-renderer-stats))
+  "Draw hero statistics on the buffer"
+  (let
+      ((hero (oref renderer hero)))
+    (with-current-buffer (oref renderer buffer)
+      (erase-buffer)
+      (insert (propertize "Health : " 'face 'rlk-face-default))
+      (draw-stat renderer (get-current-health hero) (get-max-health hero)))))
 
 (provide 'roguel-ike-graphics)
 ;;; roguel-ike-graphics.el ends here
