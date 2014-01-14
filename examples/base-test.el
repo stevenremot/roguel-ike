@@ -11,9 +11,9 @@
 (require 'roguel-ike-buffer)
 (require 'roguel-ike-message)
 
-(defvar buffer-manager (rlk--buffer-manager "Buffer manager"))
-(defvar message-logger (rlk--message-logger "Message logger"
-                                            :message-buffer (get-message-buffer buffer-manager)))
+;;;;;;;;;;;;;;;;;;;;
+;; Level creation ;;
+;;;;;;;;;;;;;;;;;;;;
 
 (defvar layout '("############"
                  "#..#####...#"
@@ -41,6 +41,9 @@
 (defvar grid)
 (setq grid (rlk--level-grid "Grid" :cells cells))
 
+;;;;;;;;;;;;;;
+;; Entities ;;
+;;;;;;;;;;;;;;
 
 (defvar hero)
 (setq hero (rlk--entity-hero "Hero" :max-health 10))
@@ -52,10 +55,30 @@
 (set-grid rat grid)
 (set-pos rat 9 1)
 
+;;;;;;;;;;;;;;;
+;; Setup GUI ;;
+;;;;;;;;;;;;;;;
+
+(defvar buffer-manager)
+(setq buffer-manager (rlk--buffer-manager "Buffer manager"))
+
+(defvar message-logger)
+(setq message-logger (rlk--message-logger "Message logger"
+                                          :message-buffer (get-message-buffer buffer-manager)))
+
 (defvar renderer)
 (setq renderer
       (rlk--graphics-renderer-game "Renderer"
                                    :buffer (get-game-buffer buffer-manager)))
+
+(defvar stats-renderer nil)
+(setq stats-renderer (rlk--graphics-renderer-stats "Statistics"
+                                                   :hero hero
+                                                   :buffer (get-stats-buffer buffer-manager)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Game and controllers ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defvar game)
 (setq game (rlk--game "Game" :grid grid :hero hero))
@@ -63,9 +86,9 @@
 (defvar controller)
 (setq controller (rlk--controller-game "Controller" :game game :renderer renderer))
 
-(defvar stats-renderer (rlk--graphics-renderer-stats "Statistics"
-                                                     :hero hero
-                                                     :buffer (get-stats-buffer buffer-manager)))
+;;;;;;;;
+;; Go ;;
+;;;;;;;;
 
 (setup-layout buffer-manager)
 (draw-stats stats-renderer)
