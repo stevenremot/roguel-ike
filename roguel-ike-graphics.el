@@ -31,7 +31,7 @@
 (defface rlk-face-ground
   '((((class color) (min-colors 88))
       :inherit 'rlk-face-default
-      :foreground "gray8"))
+      :foreground "dark gray"))
   "Ground face"
   :group 'rlk-faces)
 
