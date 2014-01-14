@@ -1,7 +1,8 @@
 ;;; roguel-ike-controller.el --- Controllers' code
 
 ;;; Commentary:
-;;
+
+;; Define roguel-ike controls system
 
 ;;; Code:
 

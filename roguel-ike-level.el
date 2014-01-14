@@ -2,6 +2,8 @@
 
 ;;; Commentary:
 
+;; Defines roguel-ike level structure
+
 ;;; Code:
 (require 'eieio)
 (require 'roguel-ike-entity)

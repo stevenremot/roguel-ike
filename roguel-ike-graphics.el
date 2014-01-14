@@ -2,6 +2,8 @@
 
 ;;; Commentary:
 
+;; In charge of roguel-ike rendering
+
 ;;; Code:
 
 (require 'eieio)

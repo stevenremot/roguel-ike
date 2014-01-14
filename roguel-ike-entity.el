@@ -2,6 +2,8 @@
 
 ;;; Commentary:
 
+;; Define roguel-ike moving entities
+
 ;;; Code:
 
 (require 'eieio)
