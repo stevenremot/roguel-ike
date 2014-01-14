@@ -9,6 +9,10 @@
 (require 'eieio)
 ; (require 'roguel-ike-level)
 
+;;;;;;;;;;;;;;;;;;;;;
+;; Abstract entity ;;
+;;;;;;;;;;;;;;;;;;;;;
+
 ;; TODO Add a type to grid
 (defclass rlk--entity ()
   ((type :initarg :type
@@ -17,6 +21,15 @@
          :writer set-type
          :protection :protected
          :documentation "The type of the entity.")
+   (max-health :initarg :max-health
+               :type integer
+               :reader get-max-health
+               :writer set-max-health
+               :protection :protected
+               :documentation "The maximum health the entity can have.")
+   (current-health :type integer
+                   :protection :private
+                   :documentation "The health the entity currently has.")
    (x :initform -1
       :type integer
       :reader get-x
@@ -71,9 +84,41 @@ Return t if the entity could move, nil otherwise."
             t)
       nil)))
 
+(defmethod entity-alive-p ((entity rlk--entity))
+  "Return t if the ENTITY is alive, nil otherwise."
+  (> (get-current-health entity) 0))
+
+(defmethod get-current-health ((entity rlk--entity))
+  "Return the ENTITY's current health."
+  (unless (slot-boundp entity 'current-health)
+    (set-current-health entity (get-max-health entity)))
+  (oref entity current-health))
+
+(defmethod set-current-health ((entity rlk--entity) health)
+  "Set ENTITY's current health to HEALTH."
+  (oset entity current-health health))
+
+(defmethod hurt ((entity rlk--entity) points)
+  "Substract to the ENTITY's heatlh POINT health points."
+  (set-current-health entity (- (get-current-health entity) points))
+  (when (< (get-current-health entity) 0)
+    (set-current-health entity 0)))
+
+(defmethod heal ((entity rlk--entity) points)
+  "Add to the ENTITY's current health POINT health points."
+  (set-current-health entity (+ (get-current-health entity) points))
+  (when (> (get-current-health entity) (get-max-health entity))
+    (set-current-health entity (get-max-health entity))))
+
+;;;;;;;;;;
+;; Hero ;;
+;;;;;;;;;;
+
 (defclass rlk--entity-hero (rlk--entity)
   ((type :initform :hero
-         :protection :protected))
+         :protection :protected)
+   (max-health :initarg :max-health
+               :protection :protected))
   "The main character in the game.")
 
 ;;;;;;;;;;;;;
@@ -87,7 +132,9 @@ Return t if the entity could move, nil otherwise."
 
 (defclass rlk--entity-enemy-rat (rlk--entity-enemy)
   ((type :initform :rat
-        :protection :protected))
+         :protection :protected)
+   (max-health :initform 3
+               :protection :protected))
   "Rat is the weakest enemy.")
 
 (provide 'roguel-ike-entity)

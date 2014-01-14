@@ -38,10 +38,15 @@ Create anew oen if not set yet."
   "Organize buffers in a layout."
   (let
       ((game-buffer (get-game-buffer manager))
-       (message-buffer (get-message-buffer manager)))
-  (delete-other-windows)
+       (message-buffer (get-message-buffer manager))
+       (game-window (get-buffer-window (current-buffer)))
+       (message-window nil))
+  (delete-other-windows game-window)
   (display-buffer-same-window game-buffer '())
-  (display-buffer-in-side-window message-buffer '((side . right)))))
+  (setq message-window (split-window game-window nil 'right))
+  (select-window message-window)
+  (display-buffer-same-window message-buffer '())
+  (select-window game-window)))
 
 (provide 'roguel-ike-buffer)
 

@@ -9,8 +9,11 @@
 (require 'roguel-ike-game)
 (require 'roguel-ike-controller)
 (require 'roguel-ike-buffer)
+(require 'roguel-ike-message)
 
 (defvar buffer-manager (rlk--buffer-manager "Buffer manager"))
+(defvar message-logger (rlk--message-logger "Message logger"
+                                            :message-buffer (get-message-buffer buffer-manager)))
 
 (defvar layout '("############"
                  "#..#####...#"
@@ -40,7 +43,7 @@
 
 
 (defvar hero)
-(setq hero (rlk--entity-hero "Hero"))
+(setq hero (rlk--entity-hero "Hero" :max-health 10))
 (set-grid hero grid)
 (set-pos hero 1 1)
 
@@ -60,6 +63,9 @@
 (setq controller (rlk--controller-game "Controller" :game game :renderer renderer))
 
 (setup-layout buffer-manager)
+
+(display-message message-logger "Welcome, young adventurer !")
+
 (draw-grid renderer grid)
 
 (setup controller)
