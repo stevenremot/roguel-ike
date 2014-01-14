@@ -8,6 +8,9 @@
 
 (require 'roguel-ike-game)
 (require 'roguel-ike-controller)
+(require 'roguel-ike-buffer)
+
+(defvar buffer-manager (rlk--buffer-manager "Buffer manager"))
 
 (defvar layout '("############"
                  "#..#####...#"
@@ -48,7 +51,7 @@
 
 (defvar renderer)
 (setq renderer
-      (rlk--graphics-ascii-renderer "Renderer" :buffer (get-buffer-create "*rlk*")))
+      (rlk--graphics-ascii-renderer "Renderer" :buffer (get-game-buffer buffer-manager)))
 
 (defvar game)
 (setq game (rlk--game "Game" :grid grid :hero hero))
@@ -56,6 +59,7 @@
 (defvar controller)
 (setq controller (rlk--controller-game "Controller" :game game :renderer renderer))
 
+(setup-layout buffer-manager)
 (draw-grid renderer grid)
 
 (setup controller)
