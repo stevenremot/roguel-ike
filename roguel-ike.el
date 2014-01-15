@@ -67,6 +67,8 @@
     (set-grid rat grid)
     (set-pos rat 9 1)
 
+    (add-enemy game rat)
+
     (add-object (get-cell-at grid 5 3) door)
 
     (setup-layout buffer-manager)

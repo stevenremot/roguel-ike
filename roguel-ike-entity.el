@@ -9,6 +9,7 @@
 (require 'eieio)
 (require 'roguel-ike-level)
 (require 'roguel-ike-message)
+(require 'roguel-ike-interactive-object)
 
 ;;;;;;;;;;;;;;;;;;;;;
 ;; Abstract entity ;;
@@ -23,6 +24,11 @@
    (current-health :type integer
                    :protection :private
                    :documentation "The health the entity currently has.")
+   (time-delay :initform 0
+               :type integer
+               :reader get-time-delay
+               :protection :protected
+               :documentation "The amount of time the entity have to wait / spend.")
    (x :initform -1
       :type integer
       :reader get-x
@@ -56,6 +62,22 @@
 (defmethod accept-other-object-p ((entity rlk--entity))
   "See rlk--level-cell-object."
   nil)
+
+(defmethod display-message ((entity rlk--entity) message)
+  "Use the message logger to display a message."
+  (display-message (get-message-logger entity) message))
+
+(defmethod add-time-delay ((entity rlk--entity) time)
+  "Add TIME to time-delay."
+  (oset entity time-delay (- (get-time-delay entity) time)))
+
+(defmethod spend-time-delay ((entity rlk--entity) time)
+  "Subtract TIME to time-delay."
+  (oset entity time-delay (+ (get-time-delay entity) time)))
+
+(defmethod can-do-action ((entity rlk--entity))
+  "Return t is the entity can do an action, nil otherwise."
+  (< (get-time-delay entity) 0))
 
 (defmethod get-cell ((entity rlk--entity))
   "Return the cell on which stands the entity."
@@ -91,8 +113,9 @@ Return t if the entity could move, nil otherwise."
     (if (and cell (is-accessible-p cell))
         (prog2
             (set-pos entity x y)
-            t)
-      nil)))
+            (spend-time-delay entity 1)
+            t))
+    nil))
 
 (defmethod entity-alive-p ((entity rlk--entity))
   "Return t if the ENTITY is alive, nil otherwise."
@@ -143,13 +166,14 @@ If not, and it has a door, will open it."
         (y (+ (get-y hero) dy))
         (cell (get-cell-at (get-grid hero) x y)))
     (if (is-accessible-p cell)
-        (set-pos hero x y)
+        (try-move hero dx dy)
       (when (is-container-p cell)
         (catch 'end
           (dolist (object (get-objects cell))
             (when (equal (get-type object) :door-closed)
               (do-action object hero :open)
-              (display-message (get-message-logger hero) "You open the door.")
+              (display-message hero "You open the door.")
+              (spend-time-delay hero 2)
               (throw 'end nil))))
         ))))
 
@@ -161,6 +185,36 @@ If not, and it has a door, will open it."
   ()
   "Base classe for enemies."
   :abstract t)
+
+(defmethod move-randomly ((enemy rlk--entity-enemy))
+  "Try to move on a random neighbour cell.
+Return t if it could move, nil otherwise."
+  (let ((accessible-cells '())
+        (grid (get-grid enemy))
+        (choosen-cell nil))
+    (dotimes (i 3)
+      (dotimes (j 3)
+        (let*
+            ((dx (- i 1))
+             (dy (- j 1))
+             (x (+ (get-x enemy) (- i 1)))
+             (y (+ (get-y enemy) (- j 1)))
+             (cell (get-cell-at grid x y)))
+          (when (is-accessible-p cell)
+            (add-to-list 'accessible-cells (cons dx dy))))))
+    (if accessible-cells
+        (progn
+          (setq choosen-cell (nth (random (length accessible-cells))
+                                  accessible-cells))
+          (try-move enemy (car choosen-cell) (cdr choosen-cell)))
+      (spend-time-delay enemy 1))))
+
+(defmethod update ((enemy rlk--entity-enemy))
+  "Update the enemy until it has no time to spend.
+Currently means moving randomly the enemy."
+  (when (can-do-action enemy)
+    (move-randomly enemy)))
+
 
 (defclass rlk--entity-enemy-rat (rlk--entity-enemy)
   ((type :initform :rat

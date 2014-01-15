@@ -63,50 +63,59 @@ BODY is the method definition."
   "Return the hero in the game associated to the CONTROLLER."
   (get-hero (get-game controller)))
 
-(defmethod call-renderer ((controller rlk--controller-game))
+(defmethod call-renderers ((controller rlk--controller-game))
   "Ask the renderer to render game's grid."
   (draw-grid (get-renderer controller)
              (get-current-grid (get-game controller))))
 
+(defmethod update-game ((controller rlk--controller-game))
+  "Update enemies, and call renderers."
+  (let* ((game (get-game controller))
+         (hero (get-hero game)))
+    (add-time-delay-enemies game (get-time-delay hero))
+    (update-enemies game)
+    (add-time-delay hero (get-time-delay hero))
+    (call-renderers controller)))
+
 (rlk--defcommand move-left ((controller rlk--controller-game))
   "Move the hero left."
   (interact-with-cell (get-hero controller) -1 0)
-  (call-renderer controller))
+  (update-game controller))
 
 (rlk--defcommand move-right ((controller rlk--controller-game))
   "Move the hero right."
   (interact-with-cell (get-hero controller) 1 0)
-  (call-renderer controller))
+  (update-game controller))
 
 (rlk--defcommand move-up ((controller rlk--controller-game))
   "Move the hero up."
   (interact-with-cell (get-hero controller) 0 -1)
-  (call-renderer controller))
+  (update-game controller))
 
 (rlk--defcommand move-down ((controller rlk--controller-game))
   "Move the hero down."
   (interact-with-cell (get-hero controller) 0 1)
-  (call-renderer controller))
+  (update-game controller))
 
 (rlk--defcommand move-left-up ((controller rlk--controller-game))
   "Move the hero left-up."
   (interact-with-cell (get-hero controller) -1 -1)
-  (call-renderer controller))
+  (update-game controller))
 
 (rlk--defcommand move-left-down ((controller rlk--controller-game))
   "Move the hero left-down."
   (interact-with-cell (get-hero controller) -1 1)
-  (call-renderer controller))
+  (update-game controller))
 
 (rlk--defcommand move-right-up ((controller rlk--controller-game))
   "Move the hero right-up."
   (interact-with-cell (get-hero controller) 1 -1)
-  (call-renderer controller))
+  (update-game controller))
 
 (rlk--defcommand move-right-down ((controller rlk--controller-game))
   "Move the hero right-down."
   (interact-with-cell (get-hero controller) 1 1)
-  (call-renderer controller))
+  (update-game controller))
 
 (rlk--defcommand quit-rlk ((controller rlk--controller-game))
   "Quit roguel-ike."
