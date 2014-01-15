@@ -6,7 +6,34 @@
 
 ;;; Code:
 (require 'eieio)
-(require 'roguel-ike-entity)
+
+;;;;;;;;;;;;
+;; Object ;;
+;;;;;;;;;;;;
+
+(defclass rlk--level-cell-object ()
+  ((type :reader get-type
+         :type symbol
+         :protection :protected
+         :documentation "The intrisic type of the object.")
+   (layer :reader get-layer
+          :type integer
+          :protection :protected
+          :documentation "The objects with higher layer values will be drown over the others."))
+  "Represent an object lying on a cell."
+  :abstract t)
+
+(defmethod is-entity-p ((object rlk--level-cell-object))
+  "Return t if the object is an entity, nil otherwise."
+  nil)
+
+(defmethod accept-other-object-p ((object rlk--level-cell-object))
+  "Return t if another object can stand on the cell, nil otherwise."
+  (error "Method accept-other-object-p must be overriden"))
+
+;;;;;;;;;;
+;; Cell ;;
+;;;;;;;;;;
 
 (defclass rlk--level-cell ()
   ((type :initarg :type
@@ -35,21 +62,56 @@ e.g. wall, ground, etc...")
 (defclass rlk--level-cell-ground (rlk--level-cell)
   ((type :initform :ground
          :protection :protected)
-   (entity :initform nil
-           :reader get-entity
-           :writer set-entity
-           :type (or rlk--entity boolean)
-           :protection :private
-           :documentation "The game entity currently on the cell."))
+   (objects :initform ()
+            :reader get-objects
+            :writer set-objects
+            :type list
+            :protection :private
+            :documentation "All the objects lying on the cell."))
   "A ground cell")
+
+(defmethod add-object ((cell rlk--level-cell-ground) object)
+  "Add OBJECT into CELL's objects if it is not already in."
+  (let ((objects (get-objects cell)))
+    (set-objects cell (add-to-list 'objects object))))
+
+(defmethod remove-object ((cell rlk--level-cell-ground) object)
+  "Remove OBJECT from CELL's objects if it is in."
+  (set-objects cell (delete object (get-objects cell))))
+
+(defmethod get-entity ((cell rlk--level-cell-ground))
+  "Return the entity on the CELL if there is currently one.
+Return nil otherwise."
+  (catch 'entity
+    (dolist (object (get-objects cell))
+      (when (is-entity-p object)
+        (throw 'entity object)))
+    (throw 'entity nil)))
+
+(defmethod set-entity ((cell rlk--level-cell-ground) entity)
+  "Set the ENTITY standing on the CELL.
+If there is already an entity on it, it will be removed."
+  (let ((old-entity (get-entity cell)))
+    (when old-entity
+      (remove-object cell old-entity))
+    (when entity
+      (add-object cell entity))))
 
 (defmethod has-entity-p ((cell rlk--level-cell-ground))
   "Return `t' if the cell contains an entity, nil otherwise"
-  (rlk--entity-child-p (get-entity cell)))
+  (rlk--level-cell-object-child-p (get-entity cell)))
 
 (defmethod is-accessible ((cell rlk--level-cell-ground))
-  "Return t if cell is empty, nil otherwise."
-  (not (has-entity-p cell)))
+  "Return t if cell can accept a new object, nil otherwise."
+  (catch 'accessible
+    (dolist (object (get-objects cell))
+      (unless (accept-other-object-p object)
+        (throw 'accessible nil)))
+    (throw 'accessible t)))
+
+;;;;;;;;;;
+;; Grid ;;
+;;;;;;;;;;
 
 (defclass rlk--level-grid ()
   ((cells :initarg :cells

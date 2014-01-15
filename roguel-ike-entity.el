@@ -7,22 +7,16 @@
 ;;; Code:
 
 (require 'eieio)
-; (require 'roguel-ike-level)
+(require 'roguel-ike-level)
 
 ;;;;;;;;;;;;;;;;;;;;;
 ;; Abstract entity ;;
 ;;;;;;;;;;;;;;;;;;;;;
 
-;; TODO Add a type to grid
-(defclass rlk--entity ()
-  ((type :initarg :type
-         :type symbol
-         :reader get-type
-         :writer set-type
-         :protection :protected
-         :documentation "The type of the entity.")
-   (max-health :initarg :max-health
-               :type integer
+(defclass rlk--entity (rlk--level-cell-object)
+  ((layer :initform 3
+          :protection :protected)
+   (max-health :type integer
                :reader get-max-health
                :writer set-max-health
                :protection :protected
@@ -40,12 +34,21 @@
       :reader get-y
       :protection :private
       :documentation "The vertical position of the entity in the grid.")
-   (grid :reader get-grid
+   (grid :type rlk--level-grid
+         :reader get-grid
          :writer set-grid
          :protection :private
          :documentation "The grid which contains the entity."))
   "The base class for game entities."
   :abstract t)
+
+(defmethod is-entity-p ((entity rlk--entity))
+  "See rlk--level-cell-object."
+  t)
+
+(defmethod accept-other-object-p ((entity rlk--entity))
+  "See rlk--level-cell-object."
+  nil)
 
 (defmethod get-cell ((entity rlk--entity))
   "Return the cell on which stands the entity."

@@ -98,10 +98,9 @@ See rlk--graphics-ascii-symbol-table for the format.")
 
 ;; TODO refine it with is-lit-p
 (defmethod draw-cell ((renderer rlk--graphics-renderer-game) cell)
-  "Draws the cell on the current buffer, at the current position
-
-  symbols is a hash table whose keys are cell types, and values are
-  corresponding symbols"
+  "Draw the cell on the current buffer, at the current position.
+symbols is a hash table whose keys are cell types, and values are
+corresponding symbols."
   (let* ((symbol (if (has-entity-p cell)
                      (get-type (get-entity cell))
                    (get-type cell)))
@@ -112,10 +111,9 @@ See rlk--graphics-ascii-symbol-table for the format.")
     (insert (propertize character 'face face))))
 
 (defmethod draw-grid ((renderer rlk--graphics-renderer-game) grid)
-  "Draws the grid on the current buffer
-
-  symbols is the hash table with cell types as key and characters
-  as values"
+  "Draw the grid on the current buffer.
+Symbols is the hash table with cell types as key and characters
+as values."
   (with-current-buffer (get-target-buffer renderer)
     (erase-buffer)
     (dolist (line (get-cells grid))
