@@ -128,6 +128,25 @@ Return t if the entity could move, nil otherwise."
                :protection :protected))
   "The main character in the game.")
 
+
+(defmethod interact-with-cell ((hero rlk--entity-hero) dx dy)
+  "Try all sort of interaction with cell at DX, DY.
+
+If cell is accessible, will move to it.
+If not, and it has a door, will open it."
+  (let* ((x (+ (get-x hero) dx))
+        (y (+ (get-y hero) dy))
+        (cell (get-cell-at (get-grid hero) x y)))
+    (if (is-accessible-p cell)
+        (set-pos hero x y)
+      (progn
+        (catch 'end
+          (dolist (object (get-objects cell))
+            (when (equal (get-type object) :door-closed)
+              (do-action object hero :open)
+              (throw 'end nil))))
+        ))))
+
 ;;;;;;;;;;;;;
 ;; Enemies ;;
 ;;;;;;;;;;;;;

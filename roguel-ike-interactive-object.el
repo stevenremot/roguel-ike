@@ -22,8 +22,9 @@
   "See rlk--level-cell-object."
   2)
 
-(defmethod do-action ((object rlk--interactive-object) hero)
-  "Do the action when the hero interacts with it."
+(defmethod do-action ((object rlk--interactive-object) hero action)
+  "Do the ACTION when the HERO interacts with it.
+Return t when the action was successfull, nil otherwise."
   (error "Method do-action must be overriden"))
 
 ;;;;;;;;;;
@@ -49,9 +50,19 @@ An entity cannot pass when door is closed.")
   "See rlk--level-cell-object."
   (is-opened-p door))
 
-(defmethod do-action ((door rlk--interactive-object-door) hero)
-  "See rlk--interactive-object."
-  (oset door opened (not (is-opened-p door))))
+(defmethod do-action ((door rlk--interactive-object-door) hero action)
+  "Close / open the door.
+When the action is :open and the door is closed, open it.
+When the action is :close and the door is open, close it."
+  (cond
+   ((and (is-opened-p door) (equal action :close))
+    (oset door opened nil)
+    t)
+   ((and (not (is-opened-p door)) (equal action :open))
+    (oset door opened t)
+    t)
+   (t
+    nil)))
 
 (provide 'roguel-ike-interactive-object)
 

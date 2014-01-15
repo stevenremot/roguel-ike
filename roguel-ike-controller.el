@@ -70,42 +70,42 @@ BODY is the method definition."
 
 (rlk--defcommand move-left ((controller rlk--controller-game))
   "Move the hero left."
-  (try-move (get-hero controller) -1 0)
+  (interact-with-cell (get-hero controller) -1 0)
   (call-renderer controller))
 
 (rlk--defcommand move-right ((controller rlk--controller-game))
   "Move the hero right."
-  (try-move (get-hero controller) 1 0)
+  (interact-with-cell (get-hero controller) 1 0)
   (call-renderer controller))
 
 (rlk--defcommand move-up ((controller rlk--controller-game))
   "Move the hero up."
-  (try-move (get-hero controller) 0 -1)
+  (interact-with-cell (get-hero controller) 0 -1)
   (call-renderer controller))
 
 (rlk--defcommand move-down ((controller rlk--controller-game))
   "Move the hero down."
-  (try-move (get-hero controller) 0 1)
+  (interact-with-cell (get-hero controller) 0 1)
   (call-renderer controller))
 
 (rlk--defcommand move-left-up ((controller rlk--controller-game))
   "Move the hero left-up."
-  (try-move (get-hero controller) -1 -1)
+  (interact-with-cell (get-hero controller) -1 -1)
   (call-renderer controller))
 
 (rlk--defcommand move-left-down ((controller rlk--controller-game))
   "Move the hero left-down."
-  (try-move (get-hero controller) -1 1)
+  (interact-with-cell (get-hero controller) -1 1)
   (call-renderer controller))
 
 (rlk--defcommand move-right-up ((controller rlk--controller-game))
   "Move the hero right-up."
-  (try-move (get-hero controller) 1 -1)
+  (interact-with-cell (get-hero controller) 1 -1)
   (call-renderer controller))
 
 (rlk--defcommand move-right-down ((controller rlk--controller-game))
   "Move the hero right-down."
-  (try-move (get-hero controller) 1 1)
+  (interact-with-cell (get-hero controller) 1 1)
   (call-renderer controller))
 
 (rlk--defcommand quit-rlk ((controller rlk--controller-game))
