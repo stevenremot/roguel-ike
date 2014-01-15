@@ -64,6 +64,12 @@ Create a new one if not set yet."
   (display-buffer-same-window message-buffer '())
   (select-window game-window)))
 
+(defmethod kill-buffers ((manager rlk--buffer-manager))
+  "Kill buffers."
+  (kill-buffer (get-message-buffer manager))
+  (kill-buffer (get-stats-buffer manager))
+  (kill-buffer (get-game-buffer manager)))
+
 (provide 'roguel-ike-buffer)
 
 ;;; roguel-ike-buffer.el ends here

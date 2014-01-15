@@ -43,7 +43,10 @@
          (grid (rlk--level-grid "Grid" :cells cells))
          (hero (rlk--entity-hero "Hero" :max-health 10))
          (rat (rlk--entity-enemy-rat "Single rat")) ;; TODO replace this by a monster dropper
-         (game (rlk--game "Game" :grid grid :hero hero))
+         (game (rlk--game "Game"
+                          :grid grid
+                          :hero hero
+                          :buffer-manager buffer-manager))
          (stats-renderer (rlk--graphics-renderer-stats "Stats renderer"
                                                        :buffer (get-stats-buffer buffer-manager)
                                                        :hero hero))

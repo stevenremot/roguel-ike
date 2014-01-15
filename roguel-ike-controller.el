@@ -32,7 +32,8 @@
                             ("y" . move-left-up)
                             ("b" . move-left-down)
                             ("u" . move-right-up)
-                            ("n" . move-right-down))
+                            ("n" . move-right-down)
+                            ("q" . quit-rlk))
                  :type list
                  :reader get-key-bindings
                  :protection :private
@@ -68,44 +69,48 @@ BODY is the method definition."
              (get-current-grid (get-game controller))))
 
 (rlk--defcommand move-left ((controller rlk--controller-game))
-  "Moves the hero left"
+  "Move the hero left."
   (try-move (get-hero controller) -1 0)
   (call-renderer controller))
 
 (rlk--defcommand move-right ((controller rlk--controller-game))
-  "Moves the hero right"
+  "Move the hero right."
   (try-move (get-hero controller) 1 0)
   (call-renderer controller))
 
 (rlk--defcommand move-up ((controller rlk--controller-game))
-  "Moves the hero up"
+  "Move the hero up."
   (try-move (get-hero controller) 0 -1)
   (call-renderer controller))
 
 (rlk--defcommand move-down ((controller rlk--controller-game))
-  "Moves the hero down"
+  "Move the hero down."
   (try-move (get-hero controller) 0 1)
   (call-renderer controller))
 
 (rlk--defcommand move-left-up ((controller rlk--controller-game))
-  "Moves the hero left-up"
+  "Move the hero left-up."
   (try-move (get-hero controller) -1 -1)
   (call-renderer controller))
 
 (rlk--defcommand move-left-down ((controller rlk--controller-game))
-  "Moves the hero left-down"
+  "Move the hero left-down."
   (try-move (get-hero controller) -1 1)
   (call-renderer controller))
 
 (rlk--defcommand move-right-up ((controller rlk--controller-game))
-  "Moves the hero right-up"
+  "Move the hero right-up."
   (try-move (get-hero controller) 1 -1)
   (call-renderer controller))
 
 (rlk--defcommand move-right-down ((controller rlk--controller-game))
-  "Moves the hero right-down"
+  "Move the hero right-down."
   (try-move (get-hero controller) 1 1)
   (call-renderer controller))
+
+(rlk--defcommand quit-rlk ((controller rlk--controller-game))
+  "Quit roguel-ike."
+  (kill-buffers (get-buffer-manager (get-game controller))))
 
 
 (defmethod setup ((controller rlk--controller-game))
