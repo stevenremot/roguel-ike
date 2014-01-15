@@ -8,15 +8,14 @@
 
 (require 'eieio)
 (require 'roguel-ike-level)
+(require 'roguel-ike-message)
 
 ;;;;;;;;;;;;;;;;;;;;;
 ;; Abstract entity ;;
 ;;;;;;;;;;;;;;;;;;;;;
 
 (defclass rlk--entity (rlk--level-cell-object)
-  ((layer :initform 3
-          :protection :protected)
-   (max-health :type integer
+  ((max-health :type integer
                :reader get-max-health
                :writer set-max-health
                :protection :protected
@@ -38,7 +37,11 @@
          :reader get-grid
          :writer set-grid
          :protection :private
-         :documentation "The grid which contains the entity."))
+         :documentation "The grid which contains the entity.")
+   (message-logger :type rlk--message-logger
+                   :reader get-message-logger
+                   :protection :protected
+                   :documentation "The logger used to display entitie's messages."))
   "The base class for game entities."
   :abstract t)
 
@@ -125,7 +128,9 @@ Return t if the entity could move, nil otherwise."
   ((type :initform :hero
          :protection :protected)
    (max-health :initarg :max-health
-               :protection :protected))
+               :protection :protected)
+   (message-logger :initarg :message-logger
+                   :protection :protected))
   "The main character in the game.")
 
 
@@ -139,11 +144,12 @@ If not, and it has a door, will open it."
         (cell (get-cell-at (get-grid hero) x y)))
     (if (is-accessible-p cell)
         (set-pos hero x y)
-      (progn
+      (when (is-container-p cell)
         (catch 'end
           (dolist (object (get-objects cell))
             (when (equal (get-type object) :door-closed)
               (do-action object hero :open)
+              (display-message (get-message-logger hero) "You open the door.")
               (throw 'end nil))))
         ))))
 
@@ -160,7 +166,9 @@ If not, and it has a door, will open it."
   ((type :initform :rat
          :protection :protected)
    (max-health :initform 3
-               :protection :protected))
+               :protection :protected)
+   (message-logger :initarg :message-logger
+                   :protection :protected))
   "Rat is the weakest enemy.")
 
 (provide 'roguel-ike-entity)

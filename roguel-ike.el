@@ -42,9 +42,14 @@
                    "############"))
          (cells (rlk--get-cells-from-layout layout))
          (grid (rlk--level-grid "Grid" :cells cells))
-         (hero (rlk--entity-hero "Hero" :max-health 10))
-         (rat (rlk--entity-enemy-rat "Single rat")) ;; TODO replace this by a monster dropper
-         (door (rlk--interactive-object-door "Door"))
+         (message-logger (rlk--message-logger "Message logger"
+                                              :message-buffer (get-message-buffer buffer-manager)))
+         (hero (rlk--entity-hero "Hero"
+                                 :max-health 10
+                                 :message-logger message-logger))
+         (rat (rlk--entity-enemy-rat "Single rat"
+                                     :message-logger message-logger)) ;; TODO replace this by a monster dropper or random level generation
+         (door (rlk--interactive-object-door "Door")) ;; TODO remove this after random level generation
          (game (rlk--game "Game"
                           :grid grid
                           :hero hero
@@ -52,8 +57,6 @@
          (stats-renderer (rlk--graphics-renderer-stats "Stats renderer"
                                                        :buffer (get-stats-buffer buffer-manager)
                                                        :hero hero))
-         (message-logger (rlk--message-logger "Message logger"
-                                              :message-buffer (get-message-buffer buffer-manager)))
          (game-renderer (rlk--graphics-renderer-game "Game renderer"
                                                      :buffer (get-game-buffer buffer-manager)))
          (game-controller (rlk--controller-game "Game controller"
