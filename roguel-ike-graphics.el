@@ -80,6 +80,8 @@
   ((symbols-table :initarg :symbols-table
                   :initform ((:ground . ("." . rlk-face-ground))
                              (:wall  . ("#" . rlk-face-wall))
+                             (:door-opened . ("~" . rlk-face-default))
+                             (:door-closed . ("+" . rlk-face-default))
                              (:void . (" " . rlk-face-default))
                              (:hero . ("@" . rlk-face-hero))
                              (:rat . ("r" . rlk-face-rat)))
@@ -101,8 +103,9 @@ See rlk--graphics-ascii-symbol-table for the format.")
   "Draw the cell on the current buffer, at the current position.
 symbols is a hash table whose keys are cell types, and values are
 corresponding symbols."
-  (let* ((symbol (if (has-entity-p cell)
-                     (get-type (get-entity cell))
+  (let* ((symbol (if (and (is-container-p cell)
+                          (get-highest-layer-object cell))
+                      (get-type (get-highest-layer-object cell))
                    (get-type cell)))
          (symbols (get-symbols-table renderer))
          (parameters (cdr (assoc symbol symbols)))

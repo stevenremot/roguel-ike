@@ -11,6 +11,7 @@
 (require 'roguel-ike-message)
 (require 'roguel-ike-graphics)
 (require 'roguel-ike-controller)
+(require 'roguel-ike-interactive-object)
 
 (defun rlk--get-cells-from-layout (layout)
   "Create a cell grid from a LAYOUT, a list of string representing the level."
@@ -43,6 +44,7 @@
          (grid (rlk--level-grid "Grid" :cells cells))
          (hero (rlk--entity-hero "Hero" :max-health 10))
          (rat (rlk--entity-enemy-rat "Single rat")) ;; TODO replace this by a monster dropper
+         (door (rlk--interactive-object-door "Door"))
          (game (rlk--game "Game"
                           :grid grid
                           :hero hero
@@ -61,6 +63,8 @@
     (set-pos hero 1 1)
     (set-grid rat grid)
     (set-pos rat 9 1)
+
+    (add-object (get-cell-at grid 5 3) door)
 
     (setup-layout buffer-manager)
     (draw-stats stats-renderer)

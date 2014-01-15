@@ -15,17 +15,17 @@
   ((type :reader get-type
          :type symbol
          :protection :protected
-         :documentation "The intrisic type of the object.")
-   (layer :reader get-layer
-          :type integer
-          :protection :protected
-          :documentation "The objects with higher layer values will be drown over the others."))
+         :documentation "The intrisic type of the object."))
   "Represent an object lying on a cell."
   :abstract t)
 
 (defmethod is-entity-p ((object rlk--level-cell-object))
   "Return t if the object is an entity, nil otherwise."
   nil)
+
+(defmethod get-layer ((object rlk--level-cell-object))
+  "Return the layer on which the object is drawn."
+  (error "Method get-layer must be overriden"))
 
 (defmethod accept-other-object-p ((object rlk--level-cell-object))
   "Return t if another object can stand on the cell, nil otherwise."
@@ -51,13 +51,17 @@ e.g. wall, ground, etc...")
         :documentation "Tells wether the cell is lit or not."))
   "A class representing a level's cell")
 
-(defmethod is-accessible ((cell rlk--level-cell))
+(defmethod is-container-p ((cell rlk--level-cell))
+  "Return t if the cell can contain objects, nil otherwise."
+  nil)
+
+(defmethod is-accessible-p ((cell rlk--level-cell))
   "Returns t if the cell can be the destination of an entity, nil otherwise."
   nil)
 
-(defmethod has-entity-p ((cell rlk--level-cell))
-     "Returns t if an entity stands on the cell, nil otherwise."
-     nil)
+;;;;;;;;;;;;;;;;;
+;; Ground cell ;;
+;;;;;;;;;;;;;;;;;
 
 (defclass rlk--level-cell-ground (rlk--level-cell)
   ((type :initform :ground
@@ -69,6 +73,10 @@ e.g. wall, ground, etc...")
             :protection :private
             :documentation "All the objects lying on the cell."))
   "A ground cell")
+
+(defmethod is-container-p ((cell rlk--level-cell-ground))
+  "Return t if the cell can contain objects, nil otherwise."
+  t)
 
 (defmethod add-object ((cell rlk--level-cell-ground) object)
   "Add OBJECT into CELL's objects if it is not already in."
@@ -101,7 +109,19 @@ If there is already an entity on it, it will be removed."
   "Return `t' if the cell contains an entity, nil otherwise"
   (rlk--level-cell-object-child-p (get-entity cell)))
 
-(defmethod is-accessible ((cell rlk--level-cell-ground))
+(defmethod get-highest-layer-object ((cell rlk--level-cell-ground))
+  "Return the object on the highest layer.
+If there is no object, return nil."
+  (let ((highest-object nil)
+        (layer nil))
+    (dolist (object (get-objects cell))
+      (when (or (not highest-object)
+                (> (get-layer object) layer))
+        (setq highest-object object)
+        (setq layer (get-layer object))))
+  highest-object))
+
+(defmethod is-accessible-p ((cell rlk--level-cell-ground))
   "Return t if cell can accept a new object, nil otherwise."
   (catch 'accessible
     (dolist (object (get-objects cell))

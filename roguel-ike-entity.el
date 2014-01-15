@@ -42,6 +42,10 @@
   "The base class for game entities."
   :abstract t)
 
+(defmethod get-layer ((entity rlk--entity))
+  "See rlk--level-cell-object."
+  3)
+
 (defmethod is-entity-p ((entity rlk--entity))
   "See rlk--level-cell-object."
   t)
@@ -81,7 +85,7 @@ Return t if the entity could move, nil otherwise."
   (let* ((x (+ (get-x entity) dx))
         (y (+ (get-y entity) dy))
         (cell (get-cell-at (get-grid entity) x y)))
-    (if (and cell (is-accessible cell))
+    (if (and cell (is-accessible-p cell))
         (prog2
             (set-pos entity x y)
             t)
