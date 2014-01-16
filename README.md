@@ -13,8 +13,8 @@ To load the file write this in your emacs configuration:
 
 Then, type `M-x roguel-ike`.
 
-use _y, u, h, j, k, l, b, n_ for movements
-use _q_ to quit
+* use _y, u, h, j, k, l, b, n_ for movements
+* use _q_ to quit
 
 ## State of the project ##
 
