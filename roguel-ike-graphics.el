@@ -50,8 +50,15 @@
 (defface rlk-face-ground
   '((((class color) (min-colors 88))
       :inherit 'rlk-face-default
-      :foreground "dark gray"))
+      :foreground "dim gray"))
   "Ground face"
+  :group 'rlk-faces)
+
+(defface rlk-face-door
+  '((((class color) (min-colors 88))
+     :inherit 'rlk-face-default
+     :foreground "sandy brown"))
+  "Door face"
   :group 'rlk-faces)
 
 (defface rlk-face-hero
@@ -97,8 +104,8 @@
   ((symbols-table :initarg :symbols-table
                   :initform ((:ground . ("." . rlk-face-ground))
                              (:wall  . ("#" . rlk-face-wall))
-                             (:door-opened . ("~" . rlk-face-default))
-                             (:door-closed . ("+" . rlk-face-default))
+                             (:door-opened . ("~" . rlk-face-door))
+                             (:door-closed . ("+" . rlk-face-door))
                              (:void . (" " . rlk-face-default))
                              (:hero . ("@" . rlk-face-hero))
                              (:rat . ("r" . rlk-face-rat)))
