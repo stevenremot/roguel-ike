@@ -81,16 +81,17 @@ BODY is the method definition."
   (get-hero (get-game controller)))
 
 (defmethod call-renderers ((controller rlk--controller-game))
-  "Ask the renderer to render game's grid."
-  (draw-grid (get-renderer controller)
-             (get-current-grid (get-game controller))))
+  "Ask the renderer to render game's level."
+  (draw-level (get-renderer controller)
+             (get-current-level (get-game controller))))
 
 (defmethod update-game ((controller rlk--controller-game))
   "Update enemies, and call renderers."
   (let* ((game (get-game controller))
+         (level (get-current-level game))
          (hero (get-hero game)))
-    (add-time-delay-enemies game (get-time-delay hero))
-    (update-enemies game)
+    (add-time-delay-enemies level (get-time-delay hero))
+    (update-enemies level)
     (add-time-delay hero (get-time-delay hero))
     (call-renderers controller)))
 

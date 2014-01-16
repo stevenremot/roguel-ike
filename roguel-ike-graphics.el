@@ -130,13 +130,13 @@ corresponding symbols."
          (face (cdr parameters)))
     (insert (propertize character 'face face))))
 
-(defmethod draw-grid ((renderer rlk--graphics-renderer-game) grid)
-  "Draw the grid on the current buffer.
+(defmethod draw-level ((renderer rlk--graphics-renderer-game) level)
+  "Draw the level on the current buffer.
 Symbols is the hash table with cell types as key and characters
 as values."
   (with-current-buffer (get-target-buffer renderer)
     (erase-buffer)
-    (dolist (line (get-cells grid))
+    (dolist (line (get-cells level))
       (dolist (cell line)
         (draw-cell renderer cell))
       (insert "\n"))))

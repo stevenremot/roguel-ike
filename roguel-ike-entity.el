@@ -50,17 +50,18 @@
       :type integer
       :reader get-x
       :protection :private
-      :documentation "The horizontal position of the entity in the grid.")
+      :documentation "The horizontal position of the entity in the level.")
    (y :initform -1
       :type integer
       :reader get-y
       :protection :private
-      :documentation "The vertical position of the entity in the grid.")
-   (grid :type rlk--level-grid
-         :reader get-grid
-         :writer set-grid
-         :protection :private
-         :documentation "The grid which contains the entity.")
+      :documentation "The vertical position of the entity in the level.")
+   (level :initform nil
+          :type (or rlk--level boolean)
+          :reader get-level
+          :writer set-level
+          :protection :private
+          :documentation "The level which contains the entity.")
    (message-logger :type rlk--message-logger
                    :reader get-message-logger
                    :protection :protected
@@ -98,7 +99,7 @@
 
 (defmethod get-cell ((entity rlk--entity))
   "Return the cell on which stands the entity."
-  (get-cell-at (get-grid entity)
+  (get-cell-at (get-level entity)
                (get-x entity)
                (get-y entity)))
 
@@ -115,7 +116,7 @@ If you want to change entity position, use set-pos instead."
 
 (defmethod set-pos ((entity rlk--entity) x y)
   "Set the new cell pos."
-  (let ((cell (get-cell-at (get-grid entity) x y)))
+  (let ((cell (get-cell-at (get-level entity) x y)))
     (when cell
       (set-cell entity cell)
       (oset entity x x)
@@ -126,7 +127,7 @@ If you want to change entity position, use set-pos instead."
 Return t if the entity could move, nil otherwise."
   (let* ((x (+ (get-x entity) dx))
         (y (+ (get-y entity) dy))
-        (cell (get-cell-at (get-grid entity) x y)))
+        (cell (get-cell-at (get-level entity) x y)))
     (if (and cell (is-accessible-p cell))
         (prog2
             (set-pos entity x y)
@@ -181,7 +182,7 @@ If cell is accessible, will move to it.
 If not, and it has a door, will open it."
   (let* ((x (+ (get-x hero) dx))
         (y (+ (get-y hero) dy))
-        (cell (get-cell-at (get-grid hero) x y)))
+        (cell (get-cell-at (get-level hero) x y)))
     (if (is-accessible-p cell)
         (try-move hero dx dy)
       (when (is-container-p cell)
@@ -203,11 +204,20 @@ If not, and it has a door, will open it."
   "Base classe for enemies."
   :abstract t)
 
+(defmethod set-level ((enemy rlk--entity-enemy) level)
+  "See rlk--entity.
+Register/unregister ENEMY to the new and old levels too."
+  (let ((old-level (get-level enemy)))
+    (when old-level
+      (remove-enemy old-level enemy)))
+  (call-next-method)
+  (add-enemy level enemy))
+
 (defmethod move-randomly ((enemy rlk--entity-enemy))
   "Try to move on a random neighbour cell.
 Return t if it could move, nil otherwise."
   (let ((accessible-cells '())
-        (grid (get-grid enemy))
+        (level (get-level enemy))
         (choosen-cell nil))
     (dotimes (i 3)
       (dotimes (j 3)
@@ -216,7 +226,7 @@ Return t if it could move, nil otherwise."
              (dy (- j 1))
              (x (+ (get-x enemy) (- i 1)))
              (y (+ (get-y enemy) (- j 1)))
-             (cell (get-cell-at grid x y)))
+             (cell (get-cell-at level x y)))
           (when (is-accessible-p cell)
             (add-to-list 'accessible-cells (cons dx dy))))))
     (if accessible-cells

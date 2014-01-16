@@ -146,31 +146,67 @@ If there is no object, return nil."
         (throw 'accessible nil)))
     (throw 'accessible t)))
 
-;;;;;;;;;;
-;; Grid ;;
-;;;;;;;;;;
+;;;;;;;;;;;;
+;; Level  ;;
+;;;;;;;;;;;;
 
-(defclass rlk--level-grid ()
+(defclass rlk--level ()
   ((cells :initarg :cells
           :type list
           :reader get-cells
           :protection :private
-          :documentation "A two-dimensional list of cells"))
-  "A two-dimensional grid of cells")
+          :documentation "A two-dimensional list of cells")
+   (enemies :initform ()
+            :type list
+            :reader get-enemies
+            :writer set-enemies
+            :protection :private
+            :documentation "Living entities hostiles to the player."))
+  "Represents a game level")
 
-(defmethod width ((grid rlk--level-grid))
+(defmethod width ((level rlk--level))
   "Return the horizontal number of cells."
-  (length (oref grid cells)))
+  (length (oref level cells)))
 
-(defmethod height ((grid rlk--level-grid))
+(defmethod height ((level rlk--level))
   "Return the vertical number of cells."
-  (if (eq (width grid) 0)
+  (if (eq (width level) 0)
       0
-    (length (car (oref grid cells)))))
+    (length (car (oref level cells)))))
 
-(defmethod get-cell-at ((grid rlk--level-grid) x y)
+(defmethod get-cell-at ((level rlk--level) x y)
   "Return the cell at position x, y."
-  (nth x (nth y (get-cells grid))))
+  (nth x (nth y (get-cells level))))
+
+(defmethod add-enemy ((level rlk--level) enemy)
+  "Add an enemy to the enemies list."
+  (let ((enemies (get-enemies level)))
+    (set-enemies level (add-to-list 'enemies enemy))))
+
+(defmethod remove-enemy ((level rlk--level) enemy)
+  "Remove an enemy from the enemies list."
+  (set-enemies level (delete enemy (get-enemies level))))
+
+(defmethod update-enemies ((level rlk--level))
+  "Let enemies spend their time delay."
+  (let (enemies-to-update '())
+    ;; Get all enemies with a negative time delay
+    (dolist (enemy (get-enemies level))
+      (when (can-do-action enemy)
+        (add-to-list 'enemies-to-update enemy)))
+    ;; Update enemies one by one, turn by turn, as long as there is one
+    ;; with time to spend
+    (while enemies-to-update
+      (let ((enemies enemies-to-update))
+        (dolist (enemy enemies)
+          (update enemy)
+          (unless (can-do-action enemy)
+            (setq enemies-to-update (delete enemy enemies-to-update))))))))
+
+(defmethod add-time-delay-enemies ((level rlk--level) time)
+  "Add TIME to all enemies' time delay."
+  (dolist (enemy (get-enemies level))
+    (add-time-delay enemy time)))
 
 (provide 'roguel-ike-level)
 ;;; roguel-ike-level.el ends here

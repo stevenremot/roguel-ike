@@ -29,9 +29,10 @@
 (require 'roguel-ike-graphics)
 (require 'roguel-ike-controller)
 (require 'roguel-ike-interactive-object)
+(require 'roguel-ike-entity)
 
 (defun rlk--get-cells-from-layout (layout)
-  "Create a cell grid from a LAYOUT, a list of string representing the level."
+  "Create a cell level from a LAYOUT, a list of string representing the level."
   (let ((cells '()))
     (dolist (line layout)
       (let ((cell-line '()))
@@ -59,7 +60,7 @@
                    "###......###"
                    "############"))
          (cells (rlk--get-cells-from-layout layout))
-         (grid (rlk--level-grid "Grid" :cells cells))
+         (level (rlk--level "Level" :cells cells))
          (message-logger (rlk--message-logger "Message logger"
                                               :message-buffer (get-message-buffer buffer-manager)))
          (hero (rlk--entity-hero "Hero"
@@ -69,7 +70,7 @@
                                      :message-logger message-logger)) ;; TODO replace this by a monster dropper or random level generation
          (door (rlk--interactive-object-door "Door")) ;; TODO remove this after random level generation
          (game (rlk--game "Game"
-                          :grid grid
+                          :level level
                           :hero hero
                           :buffer-manager buffer-manager))
          (stats-renderer (rlk--graphics-renderer-stats "Stats renderer"
@@ -80,19 +81,19 @@
          (game-controller (rlk--controller-game "Game controller"
                                                 :game game
                                                 :renderer game-renderer)))
-    (set-grid hero grid)
+    (set-level hero level)
     (set-pos hero 1 1)
-    (set-grid rat grid)
+    (set-level rat level)
     (set-pos rat 9 1)
 
-    (add-enemy game rat)
+    (add-enemy level rat)
 
-    (add-object (get-cell-at grid 5 3) door)
+    (add-object (get-cell-at level 5 3) door)
 
     (setup-layout buffer-manager)
     (draw-stats stats-renderer)
     (display-message message-logger "Welcome, young adventurer!")
-    (draw-grid game-renderer grid)
+    (draw-level game-renderer level)
     (setup game-controller)))
 
 (provide 'roguel-ike)
