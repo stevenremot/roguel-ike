@@ -30,11 +30,11 @@
 
 (defclass rlk--game ()
   ((current-level :initarg :level
-                 :type rlk--level
-                 :reader get-current-level
-                 :writer set-current-level
-                 :protection :private
-                 :documentation "Current level to display.")
+                  :type rlk--level
+                  :reader get-current-level
+                  :writer set-current-level
+                  :protection :private
+                  :documentation "Current level to display.")
    (hero :initarg :hero
          :type rlk--entity-hero
          :reader get-hero

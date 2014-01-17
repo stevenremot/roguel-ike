@@ -48,6 +48,10 @@
   "Return t if another object can stand on the cell, nil otherwise."
   (error "Method accept-other-object-p must be overriden"))
 
+(defmethod block-light-p ((object rlk--level-cell-object))
+  "Return t if the OBJECT blocks the light, nil otherwise."
+  nil)
+
 ;;;;;;;;;;
 ;; Cell ;;
 ;;;;;;;;;;
@@ -73,8 +77,12 @@ e.g. wall, ground, etc...")
   nil)
 
 (defmethod is-accessible-p ((cell rlk--level-cell))
-  "Returns t if the cell can be the destination of an entity, nil otherwise."
+  "Return t if the cell can be the destination of an entity, nil otherwise."
   nil)
+
+(defmethod block-light-p ((cell rlk--level-cell))
+  "Return t if the cell blocks the light, nil otherwise."
+  t)
 
 ;;;;;;;;;;;;;;;;;
 ;; Ground cell ;;
@@ -145,6 +153,14 @@ If there is no object, return nil."
       (unless (accept-other-object-p object)
         (throw 'accessible nil)))
     (throw 'accessible t)))
+
+(defmethod block-light-p ((cell rlk--level-cell-ground))
+  "See rlk--level-cell."
+  (catch 'block-light
+    (dolist (object (get-objects cell))
+      (when (block-light-p object)
+        (throw 'block-light t)))
+    nil))
 
 ;;;;;;;;;;;;
 ;; Level  ;;

@@ -93,7 +93,7 @@
   '((((class color) (min-colors 8))
      :inherit 'rlk-face-default
      :foreground "red"))
-  "Ba sstatistic face"
+  "Bad statistic face"
   :group 'rlk-faces)
 
 ;;;;;;;;;;;;;;;;;;;
@@ -122,15 +122,16 @@ See rlk--graphics-ascii-symbol-table for the format.")
            :documentation "The buffer on which the level will be rendered."))
   "Renderer for game level")
 
-;; TODO refine it with is-lit-p
 (defmethod draw-cell ((renderer rlk--graphics-renderer-game) cell)
   "Draw the cell on the current buffer, at the current position.
 symbols is a hash table whose keys are cell types, and values are
 corresponding symbols."
-  (let* ((symbol (if (and (is-container-p cell)
-                          (get-highest-layer-object cell))
-                      (get-type (get-highest-layer-object cell))
-                   (get-type cell)))
+  (let* ((symbol (if (is-lit-p cell)
+                     (if (and (is-container-p cell)
+                              (get-highest-layer-object cell))
+                         (get-type (get-highest-layer-object cell))
+                       (get-type cell))
+                   :void))
          (symbols (get-symbols-table renderer))
          (parameters (cdr (assoc symbol symbols)))
          (character (car parameters))

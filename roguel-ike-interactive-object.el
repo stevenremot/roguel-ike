@@ -67,6 +67,10 @@ An entity cannot pass when door is closed.")
   "See rlk--level-cell-object."
   (is-opened-p door))
 
+(defmethod block-light-p ((door rlk--interactive-object-door))
+  "See rlk--level-cell-object."
+  (not (is-opened-p door)))
+
 (defmethod do-action ((door rlk--interactive-object-door) hero action)
   "Close / open the door.
 When the action is :open and the door is closed, open it.

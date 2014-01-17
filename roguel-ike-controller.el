@@ -26,6 +26,7 @@
 (require 'eieio)
 (require 'roguel-ike-game)
 (require 'roguel-ike-graphics)
+(require 'roguel-ike-fov)
 
 (defvar-local rlk-controller nil
   "Game controller associated to the buffer.")
@@ -80,10 +81,14 @@ BODY is the method definition."
   "Return the hero in the game associated to the CONTROLLER."
   (get-hero (get-game controller)))
 
+;; TODO try to displace fov elsewhere
 (defmethod call-renderers ((controller rlk--controller-game))
   "Ask the renderer to render game's level."
-  (draw-level (get-renderer controller)
-             (get-current-level (get-game controller))))
+  (let* ((game (get-game controller))
+        (level (get-current-level game))
+        (hero (get-hero game)))
+    (rlk--fov-apply level hero)
+    (draw-level (get-renderer controller) level)))
 
 (defmethod update-game ((controller rlk--controller-game))
   "Update enemies, and call renderers."

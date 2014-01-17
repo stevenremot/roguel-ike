@@ -93,8 +93,8 @@
     (setup-layout buffer-manager)
     (draw-stats stats-renderer)
     (display-message message-logger "Welcome, young adventurer!")
-    (draw-level game-renderer level)
-    (setup game-controller)))
+    (setup game-controller)
+    (call-renderers game-controller)))
 
 (provide 'roguel-ike)
 
