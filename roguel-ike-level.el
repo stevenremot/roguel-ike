@@ -69,7 +69,13 @@ e.g. wall, ground, etc...")
         :reader is-lit-p
         :writer set-lit
         :protection private
-        :documentation "Tells wether the cell is lit or not."))
+        :documentation "Tells wether the cell is lit or not.")
+   (visited :initform nil
+            :type boolean
+            :reader is-visited-p
+            :writer set-visited
+            :protection :private
+            :documentation "Tells if the cell has been seen or not."))
   "A class representing a level's cell")
 
 (defmethod is-container-p ((cell rlk--level-cell))

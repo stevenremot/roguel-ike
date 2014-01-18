@@ -107,6 +107,7 @@ starting to the given DEPTH."
           (let ((cell (get-cell-at level (get-x cell-pos) (get-y cell-pos))))
             (when cell
               (set-lit cell t)
+              (set-visited cell t)
               (if (block-light-p cell)
                   (progn
                     (unless in-wall
