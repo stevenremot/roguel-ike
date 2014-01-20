@@ -176,10 +176,12 @@ as values."
      ((> ratio 0.25) 'rlk-face-average-stat)
      (t 'rlk-face-bad-stat))))
 
-(defmethod draw-stat-slot ((self rlk--graphics-renderer-stats) slot)
+(defmethod draw-stat-slot ((self rlk--graphics-renderer-stats) name slot)
   "Draw the statistic."
+  (insert (propertize (concat name " : ") 'face 'rlk-face-default))
   (insert (propertize (format "%d/%d" (get-current-value slot) (get-max-value slot))
-                      'face (get-stat-face self slot))))
+                      'face (get-stat-face self slot)))
+  (insert "\n"))
 
 (defmethod draw-stats ((self rlk--graphics-renderer-stats))
   "Draw hero statistics on the buffer"
@@ -187,8 +189,13 @@ as values."
       ((stats (oref self stats)))
     (with-current-buffer (oref self buffer)
       (erase-buffer)
-      (insert (propertize "Health : " 'face 'rlk-face-default))
-      (draw-stat-slot self (get-slot stats :health)))))
+      (draw-stat-slot self "Health      " (get-slot stats :health))
+      (draw-stat-slot self "Stamina     " (get-slot stats :stamina))
+      (insert "\n")
+      (draw-stat-slot self "Strength    " (get-slot stats :strength))
+      (draw-stat-slot self "Constitution" (get-slot stats :constitution))
+      (draw-stat-slot self "Speed       " (get-slot stats :speed))
+      (draw-stat-slot self "Spirit      " (get-slot stats :spirit)))))
 
 (provide 'roguel-ike-graphics)
 ;;; roguel-ike-graphics.el ends here
