@@ -64,9 +64,22 @@
          (message-logger (rlk--message-logger "Message logger"
                                               :message-buffer (get-message-buffer buffer-manager)))
          (hero (rlk--entity-hero "Hero"
-                                 :max-health 10
+                                 :stats (rlk--entity-stats "Hero Stats"
+                                                           :health 10
+                                                           :stamina 5
+                                                           :strength 10
+                                                           :constitution 8
+                                                           :speed 6
+                                                           :spirit 2)
                                  :message-logger message-logger))
          (rat (rlk--entity-enemy-rat "Single rat"
+                                     :stats (rlk--entity-stats "Rat stats"
+                                                               :health 3
+                                                               :stamina 0
+                                                               :strength 1
+                                                               :constitution 4
+                                                               :speed 9
+                                                               :spirit 0)
                                      :message-logger message-logger)) ;; TODO replace this by a monster dropper or random level generation
          (door (rlk--interactive-object-door "Door")) ;; TODO remove this after random level generation
          (game (rlk--game "Game"
@@ -75,7 +88,7 @@
                           :buffer-manager buffer-manager))
          (stats-renderer (rlk--graphics-renderer-stats "Stats renderer"
                                                        :buffer (get-stats-buffer buffer-manager)
-                                                       :hero hero))
+                                                       :stats(get-stats hero)))
          (game-renderer (rlk--graphics-renderer-game "Game renderer"
                                                      :buffer (get-game-buffer buffer-manager)))
          (game-controller (rlk--controller-game "Game controller"

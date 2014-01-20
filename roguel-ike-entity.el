@@ -28,19 +28,79 @@
 (require 'roguel-ike-message)
 (require 'roguel-ike-interactive-object)
 
+;;;;;;;;;;;;;;;;
+;; Statistics ;;
+;;;;;;;;;;;;;;;;
+
+(defclass rlk--entity-stat-slot ()
+  ((max-value :initarg :max-value
+              :type number
+              :reader get-max-value
+              :writer set-max-value
+              :protection :private
+              :documentation "The maximum value of the statistic.")
+   (current-value :type number
+                  :protection :private
+                  :documentation "The current value of the statistic.
+Cannot be out of the range 0 - max-value."))
+  "Statistic slot.
+Handle maximum value and current value.")
+
+(defmethod get-current-value ((self rlk--entity-stat-slot))
+  "Return the current slot value.
+Set it to max-value if not set yet."
+  (unless (slot-boundp self 'current-value)
+    (set-current-value self (get-max-value self)))
+  (oref self current-value))
+
+(defmethod set-current-value ((self rlk--entity-stat-slot) current-value)
+  "Set the current slot value.
+Restrain it to the range 0 - max-value."
+  (oset self current-value
+        (cond ((< current-value 0)
+               0)
+              ((> current-value (get-max-value self))
+               (get-max-value self))
+              (t
+               current-value))))
+
+(defclass rlk--entity-stats ()
+  ((slots :initarg :slots
+          :type list
+          :protection :private
+          :documentation "An associated list whose keys are slot names and values are slots."))
+   "Entity's statistics.")
+
+(defmethod initialize-instance ((self rlk--entity-stats) slots)
+  "Initialize the slots."
+  (let ((stat-slots '())
+        (slot-names '(:health
+                      :stamina
+                      :strength
+                      :constitution
+                      :speed
+                      :spirit)))
+    (dolist (name slot-names)
+      (add-to-list 'stat-slots
+                   (cons name
+                         (rlk--entity-stat-slot (format "%s slot" name)
+                                                :max-value (plist-get  slots name)))))
+  (call-next-method self (list :slots stat-slots))))
+
+(defmethod get-slot ((self rlk--entity-stats) slot)
+  "Return the slot named SLOT."
+  (cdr (assoc slot (oref self slots))))
+
 ;;;;;;;;;;;;;;;;;;;;;
 ;; Abstract entity ;;
 ;;;;;;;;;;;;;;;;;;;;;
 
 (defclass rlk--entity (rlk--level-cell-object)
-  ((max-health :type integer
-               :reader get-max-health
-               :writer set-max-health
-               :protection :protected
-               :documentation "The maximum health the entity can have.")
-   (current-health :type integer
-                   :protection :private
-                   :documentation "The health the entity currently has.")
+  ((stats :initarg :stats
+         :type rlk--entity-stats
+         :reader get-stats
+         :protection :protected
+         :documentation "Entity's statistics.")
    (time-delay :initform 0
                :type integer
                :reader get-time-delay
@@ -69,97 +129,107 @@
   "The base class for game entities."
   :abstract t)
 
-(defmethod get-layer ((entity rlk--entity))
+(defmethod get-layer ((self rlk--entity))
   "See rlk--level-cell-object."
   3)
 
-(defmethod is-entity-p ((entity rlk--entity))
+(defmethod is-entity-p ((self rlk--entity))
   "See rlk--level-cell-object."
   t)
 
-(defmethod accept-other-object-p ((entity rlk--entity))
+(defmethod accept-other-object-p ((self rlk--entity))
   "See rlk--level-cell-object."
   nil)
 
-(defmethod display-message ((entity rlk--entity) message)
+(defmethod display-message ((self rlk--entity) message)
   "Use the message logger to display a message."
-  (display-message (get-message-logger entity) message))
+  (display-message (get-message-logger self) message))
 
-(defmethod add-time-delay ((entity rlk--entity) time)
+(defmethod add-time-delay ((self rlk--entity) time)
   "Add TIME to time-delay."
-  (oset entity time-delay (- (get-time-delay entity) time)))
+  (oset self time-delay (- (get-time-delay self) time)))
 
-(defmethod spend-time-delay ((entity rlk--entity) time)
+(defmethod spend-time-delay ((self rlk--entity) time)
   "Subtract TIME to time-delay."
-  (oset entity time-delay (+ (get-time-delay entity) time)))
+  (oset self time-delay (+ (get-time-delay self) time)))
 
-(defmethod can-do-action ((entity rlk--entity))
+(defmethod can-do-action ((self rlk--entity))
   "Return t is the entity can do an action, nil otherwise."
-  (< (get-time-delay entity) 0))
+  (< (get-time-delay self) 0))
 
-(defmethod get-cell ((entity rlk--entity))
+(defmethod get-cell ((self rlk--entity))
   "Return the cell on which stands the entity."
-  (get-cell-at (get-level entity)
-               (get-x entity)
-               (get-y entity)))
+  (get-cell-at (get-level self)
+               (get-x self)
+               (get-y self)))
 
 
-(defmethod set-cell ((entity rlk--entity) cell)
+(defmethod set-cell ((self rlk--entity) cell)
   "Set the new cell of the entity.
 This method is instead for private use ONLY.
 If you want to change entity position, use set-pos instead."
-  (let ((old-cell (get-cell entity)))
+  (let ((old-cell (get-cell self)))
     (when (rlk--level-cell-ground-child-p old-cell)
       (set-entity old-cell nil))
-    (set-entity cell entity)))
+    (set-entity cell self)))
 
 
-(defmethod set-pos ((entity rlk--entity) x y)
+(defmethod set-pos ((self rlk--entity) x y)
   "Set the new cell pos."
-  (let ((cell (get-cell-at (get-level entity) x y)))
+  (let ((cell (get-cell-at (get-level self) x y)))
     (when cell
-      (set-cell entity cell)
-      (oset entity x x)
-      (oset entity y y))))
+      (set-cell self cell)
+      (oset self x x)
+      (oset self y y))))
 
-(defmethod try-move ((entity rlk--entity) dx dy)
+(defmethod try-move ((self rlk--entity) dx dy)
   "If the entity can move to the cell (x + DX, y + DY), will move to it.
 Return t if the entity could move, nil otherwise."
-  (let* ((x (+ (get-x entity) dx))
-        (y (+ (get-y entity) dy))
-        (cell (get-cell-at (get-level entity) x y)))
+  (let* ((x (+ (get-x self) dx))
+        (y (+ (get-y self) dy))
+        (cell (get-cell-at (get-level self) x y)))
     (if (and cell (is-accessible-p cell))
         (prog2
-            (set-pos entity x y)
-            (spend-time-delay entity 1)
+            (set-pos self x y)
+            (spend-time-delay self 1)
             t))
     nil))
 
-(defmethod entity-alive-p ((entity rlk--entity))
-  "Return t if the ENTITY is alive, nil otherwise."
-  (> (get-current-health entity) 0))
+(defmethod entity-alive-p ((self rlk--entity))
+  "Return t if the entity is alive, nil otherwise."
+  (> (get-current-health self) 0))
 
-(defmethod get-current-health ((entity rlk--entity))
-  "Return the ENTITY's current health."
-  (unless (slot-boundp entity 'current-health)
-    (set-current-health entity (get-max-health entity)))
-  (oref entity current-health))
+;;;;;;;;;;;;;;;;;;;;;;
+;; Slot interaction ;;
+;;;;;;;;;;;;;;;;;;;;;;
 
-(defmethod set-current-health ((entity rlk--entity) health)
-  "Set ENTITY's current health to HEALTH."
-  (oset entity current-health health))
+(defmethod get-stat-slot ((self rlk--entity) slot)
+  "Return the stat slot SLOT."
+  (get-slot (get-stats self) slot))
 
-(defmethod hurt ((entity rlk--entity) points)
-  "Substract to the ENTITY's heatlh POINT health points."
-  (set-current-health entity (- (get-current-health entity) points))
-  (when (< (get-current-health entity) 0)
-    (set-current-health entity 0)))
+(defmethod get-max-health ((self rlk--entity))
+  "Return the maximum health the entity can have."
+  (get-max-value (get-stat-slot self :health)))
 
-(defmethod heal ((entity rlk--entity) points)
-  "Add to the ENTITY's current health POINT health points."
-  (set-current-health entity (+ (get-current-health entity) points))
-  (when (> (get-current-health entity) (get-max-health entity))
-    (set-current-health entity (get-max-health entity))))
+(defmethod get-current-health ((self rlk--entity))
+  "Return the entity's current health."
+  (get-current-value (get-stat-slot self :health)))
+
+(defmethod set-current-health ((self rlk--entity) health)
+  "Set entity's current health to HEALTH."
+  (set-current-value (get-stat-slot self :health) health))
+
+(defmethod hurt ((self rlk--entity) points)
+  "Substract to the entity's heatlh POINT health points."
+  (set-current-health self (- (get-current-health self) points))
+  (when (< (get-current-health self) 0)
+    (set-current-health self 0)))
+
+(defmethod heal ((self rlk--entity) points)
+  "Add to the entity's current health POINT health points."
+  (set-current-health self (+ (get-current-health self) points))
+  (when (> (get-current-health self) (get-max-health self))
+    (set-current-health self (get-max-health self))))
 
 ;;;;;;;;;;
 ;; Hero ;;
@@ -175,23 +245,23 @@ Return t if the entity could move, nil otherwise."
   "The main character in the game.")
 
 
-(defmethod interact-with-cell ((hero rlk--entity-hero) dx dy)
+(defmethod interact-with-cell ((self rlk--entity-hero) dx dy)
   "Try all sort of interaction with cell at DX, DY.
 
 If cell is accessible, will move to it.
 If not, and it has a door, will open it."
-  (let* ((x (+ (get-x hero) dx))
-        (y (+ (get-y hero) dy))
-        (cell (get-cell-at (get-level hero) x y)))
+  (let* ((x (+ (get-x self) dx))
+        (y (+ (get-y self) dy))
+        (cell (get-cell-at (get-level self) x y)))
     (if (is-accessible-p cell)
-        (try-move hero dx dy)
+        (try-move self dx dy)
       (when (is-container-p cell)
         (catch 'end
           (dolist (object (get-objects cell))
             (when (equal (get-type object) :door-closed)
-              (do-action object hero :open)
-              (display-message hero "You open the door.")
-              (spend-time-delay hero 2)
+              (do-action object self :open)
+              (display-message self "You open the door.")
+              (spend-time-delay self 2)
               (throw 'end nil))))
         ))))
 
@@ -204,28 +274,28 @@ If not, and it has a door, will open it."
   "Base classe for enemies."
   :abstract t)
 
-(defmethod set-level ((enemy rlk--entity-enemy) level)
+(defmethod set-level ((self rlk--entity-enemy) level)
   "See rlk--entity.
-Register/unregister ENEMY to the new and old levels too."
-  (let ((old-level (get-level enemy)))
+Register/unregister SELF to the new and old levels too."
+  (let ((old-level (get-level self)))
     (when old-level
-      (remove-enemy old-level enemy)))
+      (remove-enemy old-level self)))
   (call-next-method)
-  (add-enemy level enemy))
+  (add-enemy level self))
 
-(defmethod move-randomly ((enemy rlk--entity-enemy))
+(defmethod move-randomly ((self rlk--entity-enemy))
   "Try to move on a random neighbour cell.
 Return t if it could move, nil otherwise."
   (let ((accessible-cells '())
-        (level (get-level enemy))
+        (level (get-level self))
         (choosen-cell nil))
     (dotimes (i 3)
       (dotimes (j 3)
         (let*
             ((dx (- i 1))
              (dy (- j 1))
-             (x (+ (get-x enemy) (- i 1)))
-             (y (+ (get-y enemy) (- j 1)))
+             (x (+ (get-x self) (- i 1)))
+             (y (+ (get-y self) (- j 1)))
              (cell (get-cell-at level x y)))
           (when (is-accessible-p cell)
             (add-to-list 'accessible-cells (cons dx dy))))))
@@ -233,14 +303,14 @@ Return t if it could move, nil otherwise."
         (progn
           (setq choosen-cell (nth (random (length accessible-cells))
                                   accessible-cells))
-          (try-move enemy (car choosen-cell) (cdr choosen-cell)))
-      (spend-time-delay enemy 1))))
+          (try-move self (car choosen-cell) (cdr choosen-cell)))
+      (spend-time-delay self 1))))
 
-(defmethod update ((enemy rlk--entity-enemy))
+(defmethod update ((self rlk--entity-enemy))
   "Update the enemy until it has no time to spend.
 Currently means moving randomly the enemy."
-  (when (can-do-action enemy)
-    (move-randomly enemy)))
+  (when (can-do-action self)
+    (move-randomly self)))
 
 
 (defclass rlk--entity-enemy-rat (rlk--entity-enemy)

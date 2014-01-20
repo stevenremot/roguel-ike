@@ -156,36 +156,39 @@ as values."
 ;;;;;;;;;;;;;;;;;;;;
 
 (defclass rlk--graphics-renderer-stats ()
-  ((hero :initarg :hero
-         :type rlk--entity-hero
-         :protection :private
-         :documentation "Hero whise statistics are rendered.")
+  ((stats :initarg :stats
+          :type rlk--entity-stats
+          :protection :private
+          :documentation "Rendered statistics.")
    (buffer :initarg :buffer
            :type buffer
            :protection :private
            :documentation "Buffer on which statistcis are renderered."))
-  "Render hero statistics")
+  "Render statistics")
 
-(defmethod get-stat-face ((renderer rlk--graphics-renderer-stats) stat max-stat)
+(defmethod get-stat-face ((self rlk--graphics-renderer-stats) slot)
   "Return the stat's face according to its levelr elatively to te maximum of the stat."
-  (let ((ratio (/ stat max-stat)))
+  (let* ((stat (get-current-value slot))
+         (max-stat (get-max-value slot))
+         (ratio (/ stat max-stat)))
     (cond
      ((> ratio 0.75) 'rlk-face-good-stat)
      ((> ratio 0.25) 'rlk-face-average-stat)
      (t 'rlk-face-bad-stat))))
 
-(defmethod draw-stat ((renderer rlk--graphics-renderer-stats) stat max-stat)
+(defmethod draw-stat-slot ((self rlk--graphics-renderer-stats) slot)
   "Draw the statistic."
-  (insert (propertize (format "%d/%d" stat max-stat) 'face (get-stat-face renderer stat max-stat))))
+  (insert (propertize (format "%d/%d" (get-current-value slot) (get-max-value slot))
+                      'face (get-stat-face self slot))))
 
-(defmethod draw-stats ((renderer rlk--graphics-renderer-stats))
+(defmethod draw-stats ((self rlk--graphics-renderer-stats))
   "Draw hero statistics on the buffer"
   (let
-      ((hero (oref renderer hero)))
-    (with-current-buffer (oref renderer buffer)
+      ((stats (oref self stats)))
+    (with-current-buffer (oref self buffer)
       (erase-buffer)
       (insert (propertize "Health : " 'face 'rlk-face-default))
-      (draw-stat renderer (get-current-health hero) (get-max-health hero)))))
+      (draw-stat-slot self (get-slot stats :health)))))
 
 (provide 'roguel-ike-graphics)
 ;;; roguel-ike-graphics.el ends here
