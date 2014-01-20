@@ -51,7 +51,8 @@
                             ("b" . move-left-down)
                             ("u" . move-right-up)
                             ("n" . move-right-down)
-                            ("q" . quit-rlk))
+                            ("q" . quit-rlk)
+                            ("." . wait))
                  :type list
                  :reader get-key-bindings
                  :protection :private
@@ -77,79 +78,84 @@ BODY is the method definition."
          (list name 'rlk-controller))
    ))
 
-(defmethod get-hero ((controller rlk--controller-game))
+(defmethod get-hero ((self rlk--controller-game))
   "Return the hero in the game associated to the CONTROLLER."
-  (get-hero (get-game controller)))
+  (get-hero (get-game self)))
 
 ;; TODO try to displace fov elsewhere
-(defmethod call-renderers ((controller rlk--controller-game))
+(defmethod call-renderers ((self rlk--controller-game))
   "Ask the renderer to render game's level."
-  (let* ((game (get-game controller))
+  (let* ((game (get-game self))
         (level (get-current-level game))
         (hero (get-hero game)))
     (rlk--fov-apply level hero)
-    (draw-level (get-renderer controller) level)))
+    (draw-level (get-renderer self) level)))
 
-(defmethod update-game ((controller rlk--controller-game))
+(defmethod update-game ((self rlk--controller-game))
   "Update enemies, and call renderers."
-  (let* ((game (get-game controller))
+  (let* ((game (get-game self))
          (level (get-current-level game))
          (hero (get-hero game)))
     (add-time-delay-enemies level (get-time-delay hero))
     (update-enemies level)
     (add-time-delay hero (get-time-delay hero))
-    (call-renderers controller)))
+    (call-renderers self)))
 
-(rlk--defcommand move-left ((controller rlk--controller-game))
+(rlk--defcommand move-left ((self rlk--controller-game))
   "Move the hero left."
-  (interact-with-cell (get-hero controller) -1 0)
-  (update-game controller))
+  (interact-with-cell (get-hero self) -1 0)
+  (update-game self))
 
-(rlk--defcommand move-right ((controller rlk--controller-game))
+(rlk--defcommand move-right ((self rlk--controller-game))
   "Move the hero right."
-  (interact-with-cell (get-hero controller) 1 0)
-  (update-game controller))
+  (interact-with-cell (get-hero self) 1 0)
+  (update-game self))
 
-(rlk--defcommand move-up ((controller rlk--controller-game))
+(rlk--defcommand move-up ((self rlk--controller-game))
   "Move the hero up."
-  (interact-with-cell (get-hero controller) 0 -1)
-  (update-game controller))
+  (interact-with-cell (get-hero self) 0 -1)
+  (update-game self))
 
-(rlk--defcommand move-down ((controller rlk--controller-game))
+(rlk--defcommand move-down ((self rlk--controller-game))
   "Move the hero down."
-  (interact-with-cell (get-hero controller) 0 1)
-  (update-game controller))
+  (interact-with-cell (get-hero self) 0 1)
+  (update-game self))
 
-(rlk--defcommand move-left-up ((controller rlk--controller-game))
+(rlk--defcommand move-left-up ((self rlk--controller-game))
   "Move the hero left-up."
-  (interact-with-cell (get-hero controller) -1 -1)
-  (update-game controller))
+  (interact-with-cell (get-hero self) -1 -1)
+  (update-game self))
 
-(rlk--defcommand move-left-down ((controller rlk--controller-game))
+(rlk--defcommand move-left-down ((self rlk--controller-game))
   "Move the hero left-down."
-  (interact-with-cell (get-hero controller) -1 1)
-  (update-game controller))
+  (interact-with-cell (get-hero self) -1 1)
+  (update-game self))
 
-(rlk--defcommand move-right-up ((controller rlk--controller-game))
+(rlk--defcommand move-right-up ((self rlk--controller-game))
   "Move the hero right-up."
-  (interact-with-cell (get-hero controller) 1 -1)
-  (update-game controller))
+  (interact-with-cell (get-hero self) 1 -1)
+  (update-game self))
 
-(rlk--defcommand move-right-down ((controller rlk--controller-game))
+(rlk--defcommand move-right-down ((self rlk--controller-game))
   "Move the hero right-down."
-  (interact-with-cell (get-hero controller) 1 1)
-  (update-game controller))
+  (interact-with-cell (get-hero self) 1 1)
+  (update-game self))
 
-(rlk--defcommand quit-rlk ((controller rlk--controller-game))
+(rlk--defcommand wait ((self rlk--controller-game))
+  "Wait one turn without doing anything."
+  (spend-time-delay (get-hero self) 1)
+  (update-game self))
+
+(rlk--defcommand quit-rlk ((self rlk--controller-game))
   "Quit roguel-ike."
-  (kill-buffers (get-buffer-manager (get-game controller))))
+  (kill-buffers (get-buffer-manager (get-game self))))
 
 
-(defmethod setup ((controller rlk--controller-game))
+(defmethod setup ((self rlk--controller-game))
   "Initiates key binding on controller"
-  (with-current-buffer (get-target-buffer (get-renderer controller))
-    (setq rlk-controller controller)
-    (dolist (binding (get-key-bindings controller))
+  (with-current-buffer (get-target-buffer (get-renderer self))
+    (setq rlk-controller self)
+    (dolist (binding (get-key-bindings self))
       (local-set-key (car binding)
                      (intern (concat "rlk-command-"
                                           (symbol-name (cdr binding))))))))
