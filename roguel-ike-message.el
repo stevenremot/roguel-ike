@@ -36,7 +36,7 @@
 (defmethod display-message ((logger rlk--message-logger) message)
   "Display a message in the message buffer"
   (with-current-buffer (get-message-buffer logger)
-    (goto-char (point-max))
+    (goto-char (point-min))
     (insert (concat message "\n"))))
 
 (provide 'roguel-ike-message)

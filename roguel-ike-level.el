@@ -23,6 +23,7 @@
 
 ;;; Code:
 (require 'eieio)
+(require 'roguel-ike-time)
 
 ;;;;;;;;;;;;
 ;; Object ;;
@@ -36,19 +37,19 @@
   "Represent an object lying on a cell."
   :abstract t)
 
-(defmethod is-entity-p ((object rlk--level-cell-object))
+(defmethod is-entity-p ((self rlk--level-cell-object))
   "Return t if the object is an entity, nil otherwise."
   nil)
 
-(defmethod get-layer ((object rlk--level-cell-object))
+(defmethod get-layer ((self rlk--level-cell-object))
   "Return the layer on which the object is drawn."
   (error "Method get-layer must be overriden"))
 
-(defmethod accept-other-object-p ((object rlk--level-cell-object))
+(defmethod accept-other-object-p ((self rlk--level-cell-object))
   "Return t if another object can stand on the cell, nil otherwise."
   (error "Method accept-other-object-p must be overriden"))
 
-(defmethod block-light-p ((object rlk--level-cell-object))
+(defmethod block-light-p ((self rlk--level-cell-object))
   "Return t if the OBJECT blocks the light, nil otherwise."
   nil)
 
@@ -78,15 +79,15 @@ e.g. wall, ground, etc...")
             :documentation "Tells if the cell has been seen or not."))
   "A class representing a level's cell")
 
-(defmethod is-container-p ((cell rlk--level-cell))
+(defmethod is-container-p ((self rlk--level-cell))
   "Return t if the cell can contain objects, nil otherwise."
   nil)
 
-(defmethod is-accessible-p ((cell rlk--level-cell))
+(defmethod is-accessible-p ((self rlk--level-cell))
   "Return t if the cell can be the destination of an entity, nil otherwise."
   nil)
 
-(defmethod block-light-p ((cell rlk--level-cell))
+(defmethod block-light-p ((self rlk--level-cell))
   "Return t if the cell blocks the light, nil otherwise."
   t)
 
@@ -105,65 +106,65 @@ e.g. wall, ground, etc...")
             :documentation "All the objects lying on the cell."))
   "A ground cell")
 
-(defmethod is-container-p ((cell rlk--level-cell-ground))
+(defmethod is-container-p ((self rlk--level-cell-ground))
   "Return t if the cell can contain objects, nil otherwise."
   t)
 
-(defmethod add-object ((cell rlk--level-cell-ground) object)
+(defmethod add-object ((self rlk--level-cell-ground) object)
   "Add OBJECT into CELL's objects if it is not already in."
-  (let ((objects (get-objects cell)))
-    (set-objects cell (add-to-list 'objects object))))
+  (let ((objects (get-objects self)))
+    (set-objects self (add-to-list 'objects object))))
 
-(defmethod remove-object ((cell rlk--level-cell-ground) object)
+(defmethod remove-object ((self rlk--level-cell-ground) object)
   "Remove OBJECT from CELL's objects if it is in."
-  (set-objects cell (delete object (get-objects cell))))
+  (set-objects self (delete object (get-objects self))))
 
-(defmethod get-entity ((cell rlk--level-cell-ground))
+(defmethod get-entity ((self rlk--level-cell-ground))
   "Return the entity on the CELL if there is currently one.
 Return nil otherwise."
   (catch 'entity
-    (dolist (object (get-objects cell))
+    (dolist (object (get-objects self))
       (when (is-entity-p object)
         (throw 'entity object)))
     (throw 'entity nil)))
 
-(defmethod set-entity ((cell rlk--level-cell-ground) entity)
+(defmethod set-entity ((self rlk--level-cell-ground) entity)
   "Set the ENTITY standing on the CELL.
 If there is already an entity on it, it will be removed."
-  (let ((old-entity (get-entity cell)))
+  (let ((old-entity (get-entity self)))
     (when old-entity
-      (remove-object cell old-entity))
+      (remove-object self old-entity))
     (when entity
-      (add-object cell entity))))
+      (add-object self entity))))
 
-(defmethod has-entity-p ((cell rlk--level-cell-ground))
+(defmethod has-entity-p ((self rlk--level-cell-ground))
   "Return `t' if the cell contains an entity, nil otherwise"
-  (rlk--level-cell-object-child-p (get-entity cell)))
+  (rlk--level-cell-object-child-p (get-entity self)))
 
-(defmethod get-highest-layer-object ((cell rlk--level-cell-ground))
+(defmethod get-highest-layer-object ((self rlk--level-cell-ground))
   "Return the object on the highest layer.
 If there is no object, return nil."
   (let ((highest-object nil)
         (layer nil))
-    (dolist (object (get-objects cell))
+    (dolist (object (get-objects self))
       (when (or (not highest-object)
                 (> (get-layer object) layer))
         (setq highest-object object)
         (setq layer (get-layer object))))
   highest-object))
 
-(defmethod is-accessible-p ((cell rlk--level-cell-ground))
+(defmethod is-accessible-p ((self rlk--level-cell-ground))
   "Return t if cell can accept a new object, nil otherwise."
   (catch 'accessible
-    (dolist (object (get-objects cell))
+    (dolist (object (get-objects self))
       (unless (accept-other-object-p object)
         (throw 'accessible nil)))
-    (throw 'accessible t)))
+    t))
 
-(defmethod block-light-p ((cell rlk--level-cell-ground))
+(defmethod block-light-p ((self rlk--level-cell-ground))
   "See rlk--level-cell."
   (catch 'block-light
-    (dolist (object (get-objects cell))
+    (dolist (object (get-objects self))
       (when (block-light-p object)
         (throw 'block-light t)))
     nil))
@@ -178,57 +179,37 @@ If there is no object, return nil."
           :reader get-cells
           :protection :private
           :documentation "A two-dimensional list of cells")
-   (enemies :initform ()
-            :type list
-            :reader get-enemies
-            :writer set-enemies
-            :protection :private
-            :documentation "Living entities hostiles to the player."))
+   (time-manager :type rlk--time-manager
+                 :reader get-time-manager
+                 :protection :private
+                 :documentation "TIme management algorithm."))
   "Represents a game level")
 
-(defmethod width ((level rlk--level))
+(defmethod initialize-instance :after ((self rlk--level) slots)
+  "Initialize the time manager."
+  (oset self time-manager (rlk--time-manager "Level time manager")))
+
+(defmethod width ((self rlk--level))
   "Return the horizontal number of cells."
-  (length (oref level cells)))
+  (length (oref self cells)))
 
-(defmethod height ((level rlk--level))
+(defmethod height ((self rlk--level))
   "Return the vertical number of cells."
-  (if (eq (width level) 0)
+  (if (eq (width self) 0)
       0
-    (length (car (oref level cells)))))
+    (length (car (oref self cells)))))
 
-(defmethod get-cell-at ((level rlk--level) x y)
+(defmethod get-cell-at ((self rlk--level) x y)
   "Return the cell at position x, y."
-  (nth x (nth y (get-cells level))))
+  (nth x (nth y (get-cells self))))
 
-(defmethod add-enemy ((level rlk--level) enemy)
-  "Add an enemy to the enemies list."
-  (let ((enemies (get-enemies level)))
-    (set-enemies level (add-to-list 'enemies enemy))))
+(defmethod add-entity ((self rlk--level) entity)
+  "Add an entity to the level."
+  (insert-object (get-time-manager self) entity))
 
-(defmethod remove-enemy ((level rlk--level) enemy)
-  "Remove an enemy from the enemies list."
-  (set-enemies level (delete enemy (get-enemies level))))
-
-(defmethod update-enemies ((level rlk--level))
-  "Let enemies spend their time delay."
-  (let (enemies-to-update '())
-    ;; Get all enemies with a negative time delay
-    (dolist (enemy (get-enemies level))
-      (when (can-do-action enemy)
-        (add-to-list 'enemies-to-update enemy)))
-    ;; Update enemies one by one, turn by turn, as long as there is one
-    ;; with time to spend
-    (while enemies-to-update
-      (let ((enemies enemies-to-update))
-        (dolist (enemy enemies)
-          (update enemy)
-          (unless (can-do-action enemy)
-            (setq enemies-to-update (delete enemy enemies-to-update))))))))
-
-(defmethod add-time-delay-enemies ((level rlk--level) time)
-  "Add TIME to all enemies' time delay."
-  (dolist (enemy (get-enemies level))
-    (add-time-delay enemy time)))
+(defmethod remove-entity ((self rlk--level) entity)
+  "Remove an entity from the level."
+  (remove-object (get-time-manager self) entity))
 
 (provide 'roguel-ike-level)
 ;;; roguel-ike-level.el ends here

@@ -99,7 +99,8 @@
     (set-level rat level)
     (set-pos rat 9 1)
 
-    (add-enemy level rat)
+    (add-entity level hero)
+    (add-entity level rat)
 
     (add-object (get-cell-at level 5 3) door)
 
@@ -107,7 +108,8 @@
     (draw-stats stats-renderer)
     (display-message message-logger "Welcome, young adventurer!")
     (setup game-controller)
-    (call-renderers game-controller)))
+    (call-renderers game-controller)
+    (do-step (get-time-manager level))))
 
 (provide 'roguel-ike)
 

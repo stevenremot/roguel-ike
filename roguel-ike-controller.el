@@ -91,60 +91,41 @@ BODY is the method definition."
     (rlk--fov-apply level hero)
     (draw-level (get-renderer self) level)))
 
-(defmethod update-game ((self rlk--controller-game))
-  "Update enemies, and call renderers."
-  (let* ((game (get-game self))
-         (level (get-current-level game))
-         (hero (get-hero game)))
-    (add-time-delay-enemies level (get-time-delay hero))
-    (update-enemies level)
-    (add-time-delay hero (get-time-delay hero))
-    (call-renderers self)))
-
 (rlk--defcommand move-left ((self rlk--controller-game))
   "Move the hero left."
-  (interact-with-cell (get-hero self) -1 0)
-  (update-game self))
+  (interact-with-cell (get-hero self) -1 0))
 
 (rlk--defcommand move-right ((self rlk--controller-game))
   "Move the hero right."
-  (interact-with-cell (get-hero self) 1 0)
-  (update-game self))
+  (interact-with-cell (get-hero self) 1 0))
 
 (rlk--defcommand move-up ((self rlk--controller-game))
   "Move the hero up."
-  (interact-with-cell (get-hero self) 0 -1)
-  (update-game self))
+  (interact-with-cell (get-hero self) 0 -1))
 
 (rlk--defcommand move-down ((self rlk--controller-game))
   "Move the hero down."
-  (interact-with-cell (get-hero self) 0 1)
-  (update-game self))
+  (interact-with-cell (get-hero self) 0 1))
 
 (rlk--defcommand move-left-up ((self rlk--controller-game))
   "Move the hero left-up."
-  (interact-with-cell (get-hero self) -1 -1)
-  (update-game self))
+  (interact-with-cell (get-hero self) -1 -1))
 
 (rlk--defcommand move-left-down ((self rlk--controller-game))
   "Move the hero left-down."
-  (interact-with-cell (get-hero self) -1 1)
-  (update-game self))
+  (interact-with-cell (get-hero self) -1 1))
 
 (rlk--defcommand move-right-up ((self rlk--controller-game))
   "Move the hero right-up."
-  (interact-with-cell (get-hero self) 1 -1)
-  (update-game self))
+  (interact-with-cell (get-hero self) 1 -1))
 
 (rlk--defcommand move-right-down ((self rlk--controller-game))
   "Move the hero right-down."
-  (interact-with-cell (get-hero self) 1 1)
-  (update-game self))
+  (interact-with-cell (get-hero self) 1 1))
 
 (rlk--defcommand wait ((self rlk--controller-game))
   "Wait one turn without doing anything."
-  (spend-time-delay (get-hero self) 1)
-  (update-game self))
+  (wait (get-hero self)))
 
 (rlk--defcommand quit-rlk ((self rlk--controller-game))
   "Quit roguel-ike."
@@ -162,5 +143,4 @@ BODY is the method definition."
 
 
 (provide 'roguel-ike-controller)
-
 ;;; roguel-ike-controller.el ends here
