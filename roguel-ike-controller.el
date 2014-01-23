@@ -93,39 +93,39 @@ BODY is the method definition."
 
 (rlk--defcommand move-left ((self rlk--controller-game))
   "Move the hero left."
-  (interact-with-cell (get-hero self) -1 0))
+  (interact-with-cell (get-behaviour (get-hero self)) -1 0))
 
 (rlk--defcommand move-right ((self rlk--controller-game))
   "Move the hero right."
-  (interact-with-cell (get-hero self) 1 0))
+  (interact-with-cell (get-behaviour (get-hero self)) 1 0))
 
 (rlk--defcommand move-up ((self rlk--controller-game))
   "Move the hero up."
-  (interact-with-cell (get-hero self) 0 -1))
+  (interact-with-cell (get-behaviour (get-hero self)) 0 -1))
 
 (rlk--defcommand move-down ((self rlk--controller-game))
   "Move the hero down."
-  (interact-with-cell (get-hero self) 0 1))
+  (interact-with-cell (get-behaviour (get-hero self)) 0 1))
 
 (rlk--defcommand move-left-up ((self rlk--controller-game))
   "Move the hero left-up."
-  (interact-with-cell (get-hero self) -1 -1))
+  (interact-with-cell (get-behaviour (get-hero self)) -1 -1))
 
 (rlk--defcommand move-left-down ((self rlk--controller-game))
   "Move the hero left-down."
-  (interact-with-cell (get-hero self) -1 1))
+  (interact-with-cell (get-behaviour (get-hero self)) -1 1))
 
 (rlk--defcommand move-right-up ((self rlk--controller-game))
   "Move the hero right-up."
-  (interact-with-cell (get-hero self) 1 -1))
+  (interact-with-cell (get-behaviour (get-hero self)) 1 -1))
 
 (rlk--defcommand move-right-down ((self rlk--controller-game))
   "Move the hero right-down."
-  (interact-with-cell (get-hero self) 1 1))
+  (interact-with-cell (get-behaviour (get-hero self)) 1 1))
 
 (rlk--defcommand wait ((self rlk--controller-game))
   "Wait one turn without doing anything."
-  (wait (get-hero self)))
+  (wait (get-behaviour (get-hero self))))
 
 (rlk--defcommand quit-rlk ((self rlk--controller-game))
   "Quit roguel-ike."

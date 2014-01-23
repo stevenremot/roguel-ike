@@ -28,10 +28,6 @@
 (require 'roguel-ike-message)
 (require 'roguel-ike-interactive-object)
 
-;; TODO remove this after behaviour setup
-(defvar-local rlk-controller nil)
-(defgeneric call-renderers (controller))
-
 ;;;;;;;;;;;;;;;;
 ;; Statistics ;;
 ;;;;;;;;;;;;;;;;
@@ -122,9 +118,17 @@ Restrain it to the range 0 - max-value."
    (message-logger :type rlk--message-logger
                    :reader get-message-logger
                    :protection :protected
-                   :documentation "The logger used to display entitie's messages."))
+                   :documentation "The logger used to display entitie's messages.")
+   (behaviour :initarg :behaviour
+              :reader get-behaviour
+              :protection :protected
+              :documentation "Entity's behaviour."))
   "The base class for game entities."
   :abstract t)
+
+(defmethod initialize-instance :after ((self rlk--entity) slots)
+  "Set the behaviour's entity to SELF."
+  (set-entity (get-behaviour self) self))
 
 (defmethod get-layer ((self rlk--entity))
   "See rlk--level-cell-object."
@@ -228,56 +232,20 @@ Return t if the entity could move, nil otherwise."
   "Return the entity's current speed."
   (get-current-value (get-stat-slot self :speed)))
 
+(defmethod do-action ((self rlk--entity) callback)
+  "Update the ennemy, returning the turns spent to CALLBACK."
+  (do-action (get-behaviour self) callback))
+
 ;;;;;;;;;;
 ;; Hero ;;
 ;;;;;;;;;;
 
-;; TODO get the callback out of it
 (defclass rlk--entity-hero (rlk--entity)
   ((type :initform :hero
          :protection :protected)
    (message-logger :initarg :message-logger
-                   :protection :protected)
-   (time-callback :type function
-                  :reader get-time-callback
-                  :protection :private
-                  :documentation "The callbacks sent by the time manager."))
+                   :protection :protected))
   "The main character in the game.")
-
-(defmethod do-action ((self rlk--entity-hero) callback)
-  "Register the callback for a former use."
-  (call-renderers rlk-controller) ;; TODO displace this in behaviour
-  (oset self time-callback callback))
-
-(defmethod interact-with-cell ((self rlk--entity-hero) dx dy)
-  "Try all sort of interaction with cell at DX, DY.
-
-If cell is accessible, will move to it.
-If not, and it has a door, will open it.
-
-Apply the time callback."
-  (funcall (oref self time-callback)
-                 (let* ((x (+ (get-x self) dx))
-                        (y (+ (get-y self) dy))
-                        (cell (get-cell-at (get-level self) x y)))
-                   (if (is-accessible-p cell)
-                       (if (try-move self dx dy)
-                           1
-                         0)
-                     (if (is-container-p cell)
-                       (catch 'time
-                         (dolist (object (get-objects cell))
-                           (when (equal (get-type object) :door-closed)
-                             (do-action object self :open)
-                             (display-message self "You open the door.")
-                             (throw 'time 2)))
-                         0)
-                       0
-                       )))))
-
-(defmethod wait ((self rlk--entity-hero))
-  "Wait one turn."
-  (funcall (oref self time-callback) 1))
 
 ;;;;;;;;;;;;;
 ;; Enemies ;;
@@ -287,33 +255,6 @@ Apply the time callback."
   ()
   "Base classe for enemies."
   :abstract t)
-
-(defmethod move-randomly ((self rlk--entity-enemy))
-  "Try to move on a random neighbour cell.
-Return the number of turns spent if it could move, 1 for waiting otherwise."
-  (let ((accessible-cells '())
-        (level (get-level self))
-        (choosen-cell nil))
-    (dotimes (i 3)
-      (dotimes (j 3)
-        (let*
-            ((dx (- i 1))
-             (dy (- j 1))
-             (x (+ (get-x self) (- i 1)))
-             (y (+ (get-y self) (- j 1)))
-             (cell (get-cell-at level x y)))
-          (when (is-accessible-p cell)
-            (add-to-list 'accessible-cells (cons dx dy))))))
-    ;; If there are accessible cells, move. Otherwise, wait.
-    (when accessible-cells
-      (setq choosen-cell (nth (random (length accessible-cells))
-                              accessible-cells))
-      (try-move self (car choosen-cell) (cdr choosen-cell)))
-      1))
-
-(defmethod do-action ((self rlk--entity-enemy) callback)
-  "Update the ennemy, returning the turns spent to CALLBACK."
-    (funcall callback (move-randomly self)))
 
 
 (defclass rlk--entity-enemy-rat (rlk--entity-enemy)

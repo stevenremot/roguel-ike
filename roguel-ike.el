@@ -30,6 +30,7 @@
 (require 'roguel-ike-controller)
 (require 'roguel-ike-interactive-object)
 (require 'roguel-ike-entity)
+(require 'roguel-ike-behaviour)
 
 (defun rlk--get-cells-from-layout (layout)
   "Create a cell level from a LAYOUT, a list of string representing the level."
@@ -71,6 +72,7 @@
                                                            :constitution 8
                                                            :speed 6
                                                            :spirit 2)
+                                 :behaviour (rlk--behaviour-manual "Manual behaviour")
                                  :message-logger message-logger))
          (rat (rlk--entity-enemy-rat "Single rat"
                                      :stats (rlk--entity-stats "Rat stats"
@@ -80,6 +82,7 @@
                                                                :constitution 4
                                                                :speed 9
                                                                :spirit 0)
+                                     :behaviour (rlk--behaviour-ai "AI behaviour")
                                      :message-logger message-logger)) ;; TODO replace this by a monster dropper or random level generation
          (door (rlk--interactive-object-door "Door")) ;; TODO remove this after random level generation
          (game (rlk--game "Game"
