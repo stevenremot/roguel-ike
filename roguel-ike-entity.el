@@ -97,10 +97,10 @@ Restrain it to the range 0 - max-value."
 
 (defclass rlk--entity (rlk--level-cell-object)
   ((stats :initarg :stats
-         :type rlk--entity-stats
-         :reader get-stats
-         :protection :protected
-         :documentation "Entity's statistics.")
+          :type rlk--entity-stats
+          :reader get-stats
+          :protection :protected
+          :documentation "Entity's statistics.")
    (x :initform -1
       :type integer
       :reader get-x
@@ -124,8 +124,7 @@ Restrain it to the range 0 - max-value."
               :reader get-behaviour
               :protection :protected
               :documentation "Entity's behaviour."))
-  "The base class for game entities."
-  :abstract t)
+  "The base class for game entities.")
 
 (defmethod initialize-instance :after ((self rlk--entity) slots)
   "Set the behaviour's entity to SELF."
@@ -236,30 +235,6 @@ Return t if the entity could move, nil otherwise."
 (defmethod do-action ((self rlk--entity) callback)
   "Update the ennemy, returning the turns spent to CALLBACK."
   (do-action (get-behaviour self) callback))
-
-;;;;;;;;;;
-;; Hero ;;
-;;;;;;;;;;
-
-(defclass rlk--entity-hero (rlk--entity)
-  ((type :initform :hero
-         :protection :protected))
-  "The main character in the game.")
-
-;;;;;;;;;;;;;
-;; Enemies ;;
-;;;;;;;;;;;;;
-
-(defclass rlk--entity-enemy (rlk--entity)
-  ()
-  "Base classe for enemies."
-  :abstract t)
-
-
-(defclass rlk--entity-enemy-rat (rlk--entity-enemy)
-  ((type :initform :rat
-         :protection :protected))
-  "Rat is the weakest enemy.")
 
 (provide 'roguel-ike-entity)
 ;;; roguel-ike-entity.el ends here

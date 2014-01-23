@@ -30,7 +30,8 @@
 ;;;;;;;;;;;;
 
 (defclass rlk--level-cell-object ()
-  ((type :reader get-type
+  ((type :initarg :type
+         :reader get-type
          :type symbol
          :protection :protected
          :documentation "The intrisic type of the object."))

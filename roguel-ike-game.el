@@ -36,7 +36,7 @@
                   :protection :private
                   :documentation "Current level to display.")
    (hero :initarg :hero
-         :type rlk--entity-hero
+         :type rlk--entity
          :reader get-hero
          :protection :private
          :documentation "Player's character.")
