@@ -115,7 +115,8 @@ Restrain it to the range 0 - max-value."
           :type rlk--level
           :protection :private
           :documentation "The level which contains the entity.")
-   (message-logger :type rlk--message-logger
+   (message-logger :initarg :message-logger
+                   :type rlk--message-logger
                    :reader get-message-logger
                    :protection :protected
                    :documentation "The logger used to display entitie's messages.")
@@ -242,9 +243,7 @@ Return t if the entity could move, nil otherwise."
 
 (defclass rlk--entity-hero (rlk--entity)
   ((type :initform :hero
-         :protection :protected)
-   (message-logger :initarg :message-logger
-                   :protection :protected))
+         :protection :protected))
   "The main character in the game.")
 
 ;;;;;;;;;;;;;
@@ -259,11 +258,7 @@ Return t if the entity could move, nil otherwise."
 
 (defclass rlk--entity-enemy-rat (rlk--entity-enemy)
   ((type :initform :rat
-         :protection :protected)
-   (max-health :initform 3
-               :protection :protected)
-   (message-logger :initarg :message-logger
-                   :protection :protected))
+         :protection :protected))
   "Rat is the weakest enemy.")
 
 (provide 'roguel-ike-entity)
