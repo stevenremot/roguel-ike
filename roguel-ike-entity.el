@@ -225,7 +225,10 @@ Return t if the entity could move, nil otherwise."
 (defmethod die ((self rlk--entity))
   "Make the entity disappear from the level."
     (remove-entity (get-level self) self)
-    (set-entity (get-cell self) nil))
+    (set-entity (get-cell self) nil)
+    (display-message self (format "%s %s."
+                                  (get-name self)
+                                  (get-verb self "die" "dies"))))
 
 (defmethod heal ((self rlk--entity) points)
   "Add to the entity's current health POINT health points."
@@ -274,8 +277,36 @@ This method contains randomness."
 (defmethod attack ((self rlk--entity) target)
   "Try to attack the target.
 This method contains randomness."
-  (when (attack-successfull-p self target)
-    (hurt target (compute-damages self target))))
+  (if (attack-successfull-p self target)
+      (let ((damages (compute-damages self target)))
+        (display-message self (format "%s %s %s for %d damages"
+                                      (get-name self)
+                                      (get-verb self "attack" "attacks")
+                                      (downcase (get-name target))
+                                      damages))
+        (hurt target damages))
+    (display-message self (format "%s %s %s"
+                                  (get-name self)
+                                  (get-verb self "miss" "misses")
+                                  (downcase (get-name target))))))
+
+;;;;;;;;;;;;;;
+;; Messages ;;
+;;;;;;;;;;;;;;
+
+(defvar rlk--entity-names '((:hero . "You")
+                            (:rat . "The rat"))
+  "Mappings between entity types and names.")
+
+(defmethod get-name ((self rlk--entity))
+  "Return the entity name."
+  (cdr (assoc (get-type self) rlk--entity-names)))
+
+(defmethod get-verb ((self rlk--entity) you-verb other-verb)
+  "Return YOU-VERB when entity is the main character, OTHER-VERB otherwise."
+  (if (equal (get-type self) :hero)
+      you-verb
+    other-verb))
 
 
 (provide 'roguel-ike-entity)
