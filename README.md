@@ -4,6 +4,14 @@
 
 The goal of this project is to develop a coffee-break roguelike for Emacs.
 
+The complete game will allow the player to create various characters
+and to make them fulfill challenges like arena fight and short dungeon
+explorations.
+
+There isn't any level system. Each stat can improve independently, by
+doing related actions. For example, sucessfull attacks will at term improve
+character's strength.
+
 ## Usage ##
 
 To load the file write this in your emacs configuration:
@@ -14,6 +22,7 @@ To load the file write this in your emacs configuration:
 Then, type `M-x roguel-ike`.
 
 * use _y, u, h, j, k, l, b, n_ for movements
+* use _._ to wait one turn
 * use _q_ to quit
 
 ## State of the project ##
@@ -23,7 +32,6 @@ The project is in early stage of development.
 This is an experiment :
 
 * This is my first serious attempt to create a roguelike
-* The direction is not completely clear for the moment
 * I'm using Emacs Lisp because I want to make it run on Emacs,
   but also to gain experience in Lisp programming and to see
   how a large Lisp program can be managed
