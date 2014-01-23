@@ -219,8 +219,13 @@ Return t if the entity could move, nil otherwise."
 (defmethod hurt ((self rlk--entity) points)
   "Substract to the entity's heatlh POINT health points."
   (set-health self (- (get-health self) points))
-  (when (< (get-health self) 0)
-    (set-health self 0)))
+  (when (<= (get-health self) 0)
+    (die self)))
+
+(defmethod die ((self rlk--entity))
+  "Make the entity disappear from the level."
+    (remove-entity (get-level self) self)
+    (set-entity (get-cell self) nil))
 
 (defmethod heal ((self rlk--entity) points)
   "Add to the entity's current health POINT health points."
@@ -228,13 +233,50 @@ Return t if the entity could move, nil otherwise."
   (when (> (get-health self) (get-max-health self))
     (set-health self (get-max-health self))))
 
+(defmethod get-strength ((self rlk--entity))
+  "Return the entity's current strength."
+  (get-current-value (get-stat-slot self :strength)))
+
+(defmethod get-constitution ((self rlk--entity))
+  "Return the entity's constitution."
+  (get-current-value (get-stat-slot self :constitution)))
+
 (defmethod get-speed ((self rlk--entity))
   "Return the entity's current speed."
   (get-current-value (get-stat-slot self :speed)))
 
+;;;;;;;;;;;;
+;; Action ;;
+;;;;;;;;;;;;
+
 (defmethod do-action ((self rlk--entity) callback)
   "Update the ennemy, returning the turns spent to CALLBACK."
   (do-action (get-behaviour self) callback))
+
+;;;;;;;;;;;;;;;;;;;
+;; Combat system ;;
+;;;;;;;;;;;;;;;;;;;
+
+(defmethod attack-successfull-p ((self rlk--entity) target)
+  "Return nil if the TARGET dodged the attack, t otherwise.
+This method contains randomness."
+  (= 0 (random (max (- (get-speed target) (get-speed self)) 1))))
+
+(defmethod get-base-damages ((self rlk--entity))
+  "Return the base damages the entity can inflict."
+  (get-strength self))
+
+(defmethod compute-damages ((self rlk--entity) target)
+  "Return the number of damages that will be inflicted to the TARGET.
+This method contains randomness."
+  (random (1+ (max  (- (get-strength self) (get-constitution target)) 1))))
+
+(defmethod attack ((self rlk--entity) target)
+  "Try to attack the target.
+This method contains randomness."
+  (when (attack-successfull-p self target)
+    (hurt target (compute-damages self target))))
+
 
 (provide 'roguel-ike-entity)
 ;;; roguel-ike-entity.el ends here

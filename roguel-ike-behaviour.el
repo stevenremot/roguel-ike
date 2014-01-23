@@ -88,16 +88,20 @@ Apply the time callback."
                    (if (try-move entity dx dy)
                        1
                      0)
-                 (if (is-container-p cell)
-                     (catch 'time
-                       (dolist (object (get-objects cell))
-                         (when (equal (get-type object) :door-closed)
-                           (do-action object entity :open)
-                           (display-message entity "You open the door.")
-                           (throw 'time 2)))
-                       0)
-                   0
-                   ))))))
+                 (if (has-entity-p cell)
+                     (progn
+                       (attack (get-entity self) (get-entity cell))
+                       1)
+                   (if (is-container-p cell)
+                       (catch 'time
+                         (dolist (object (get-objects cell))
+                           (when (equal (get-type object) :door-closed)
+                             (do-action object entity :open)
+                             (display-message entity "You open the door.")
+                             (throw 'time 1)))
+                         0)
+                     0)))
+               0))))
 
 (defmethod wait ((self rlk--behaviour-manual))
   "Wait one turn."
