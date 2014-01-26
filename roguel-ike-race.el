@@ -135,7 +135,7 @@ If there is no such race, return nil."
                :stamina 1
                :strength 2
                :constitution 2
-               :speed 10
+               :speed 7
                :spirit 0)
               (list
                :health 1
