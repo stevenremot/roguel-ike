@@ -27,6 +27,7 @@
 (require 'roguel-ike-level)
 (require 'roguel-ike-message)
 (require 'roguel-ike-interactive-object)
+(require 'roguel-ike-race)
 
 ;;;;;;;;;;;;;;;;
 ;; Statistics ;;
@@ -100,7 +101,12 @@ Restrain it to the range 0 - max-value."
           :type rlk--entity-stats
           :reader get-stats
           :protection :protected
-          :documentation "Entity's statistics.")
+          :documentation "The entity's statistics.")
+   (race :initarg :race
+         :type rlk--race
+         :reader get-race
+         :protection :private
+         :documentation "The entity's race.")
    (x :initform -1
       :type integer
       :reader get-x
@@ -137,6 +143,12 @@ Restrain it to the range 0 - max-value."
 (defmethod is-entity-p ((self rlk--entity))
   "See rlk--level-cell-object."
   t)
+
+(defmethod get-type ((self rlk--entity))
+  "See rlk--level-cell-object."
+  (if (is-hero-p self)
+      :hero
+    (get-type (get-race self))))
 
 (defmethod accept-other-object-p ((self rlk--entity))
   "See rlk--level-cell-object."
@@ -195,6 +207,13 @@ Return t if the entity could move, nil otherwise."
 (defmethod entity-alive-p ((self rlk--entity))
   "Return t if the entity is alive, nil otherwise."
   (> (get-health self) 0))
+
+(defgeneric is-manual-p (behaviour)
+  "Return t when the behaviour is manual, nil otherwise.")
+
+(defmethod is-hero-p ((self rlk--entity))
+  "Return t if the entity is the hero, nil otherwise."
+  (is-manual-p (get-behaviour self)))
 
 ;;;;;;;;;;;;;;;;;;;;;;
 ;; Slot interaction ;;
@@ -294,20 +313,35 @@ This method contains randomness."
 ;; Messages ;;
 ;;;;;;;;;;;;;;
 
-(defvar rlk--entity-names '((:hero . "You")
-                            (:rat . "The rat"))
-  "Mappings between entity types and names.")
-
 (defmethod get-name ((self rlk--entity))
   "Return the entity name."
-  (cdr (assoc (get-type self) rlk--entity-names)))
+  (if (is-hero-p self)
+      "You"
+    (get-name (get-race self))))
 
 (defmethod get-verb ((self rlk--entity) you-verb other-verb)
   "Return YOU-VERB when entity is the main character, OTHER-VERB otherwise."
-  (if (equal (get-type self) :hero)
+  (if (is-hero-p self)
       you-verb
     other-verb))
 
+;;;;;;;;;;;;;;;;;;;;;
+;; Entity creation ;;
+;;;;;;;;;;;;;;;;;;;;;
+
+(defun rlk--entity-create-new (race behaviour message-logger)
+  "Create a new entity.
+RACE is the race of the new entity.  Its statistics are the RACE's base
+statistics.
+BEHAVIOUR is the entity's behaviour.
+MESSAGE-LOGGER is the message logging system used by the entity."
+  (rlk--entity "Entity"
+               :race race
+               :stats (apply rlk--entity-stats
+                             "Entity's stats"
+                             (get-base-stats race))
+               :behaviour behaviour
+               :message-logger message-logger))
 
 (provide 'roguel-ike-entity)
 ;;; roguel-ike-entity.el ends here

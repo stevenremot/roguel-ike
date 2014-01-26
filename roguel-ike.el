@@ -31,6 +31,7 @@
 (require 'roguel-ike-interactive-object)
 (require 'roguel-ike-entity)
 (require 'roguel-ike-behaviour)
+(require 'roguel-ike-race)
 
 (defun rlk--get-cells-from-layout (layout)
   "Create a cell level from a LAYOUT, a list of string representing the level."
@@ -64,28 +65,12 @@
          (level (rlk--level "Level" :cells cells))
          (message-logger (rlk--message-logger "Message logger"
                                               :message-buffer (get-message-buffer buffer-manager)))
-         (hero (rlk--entity "Hero"
-                            :type :hero
-                            :stats (rlk--entity-stats "Hero Stats"
-                                                      :health 10
-                                                      :stamina 5
-                                                      :strength 10
-                                                      :constitution 8
-                                                      :speed 6
-                                                      :spirit 2)
-                            :behaviour (rlk--behaviour-manual "Manual behaviour")
-                            :message-logger message-logger))
-         (rat (rlk--entity "Single rat"
-                           :type :rat
-                           :stats (rlk--entity-stats "Rat stats"
-                                                     :health 3
-                                                     :stamina 0
-                                                     :strength 1
-                                                     :constitution 4
-                                                     :speed 9
-                                                     :spirit 0)
-                           :behaviour (rlk--behaviour-ai "AI behaviour")
-                           :message-logger message-logger)) ;; TODO replace this by a monster dropper or random level generation
+         (hero (rlk--entity-create-new (rlk--race-get-race :human)
+                                       (rlk--behaviour-manual "Manual behaviour")
+                                       message-logger))
+         (rat (rlk--entity-create-new (rlk--race-get-race :rat)
+                                      (rlk--behaviour-ai "AI behaviour")
+                                      message-logger)) ;; TODO replace this by a monster dropper or random level generation
          (door (rlk--interactive-object-door "Door")) ;; TODO remove this after random level generation
          (game (rlk--game "Game"
                           :level level

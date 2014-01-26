@@ -46,6 +46,10 @@
 Must call callback with the number of turns the action takes."
   (error "Method do-action for behaviour must be overriden"))
 
+(defmethod is-manual-p ((self rlk--behaviour))
+  "Return t if the behaviour is manual, nil otherwise."
+  nil)
+
 ;;;;;;;;;;;;;;;;;;
 ;; Manual class ;;
 ;;;;;;;;;;;;;;;;;;
@@ -61,6 +65,10 @@ Must call callback with the number of turns the action takes."
                   :protection :private
                   :documentation "The callback sent by the time manager."))
   "Behaviour of entities controlled by the player.")
+
+(defmethod is-manual-p ((self rlk--behaviour-manual))
+  "See rlk--behaviour."
+  t)
 
 (defmethod get-controller ((self rlk--behaviour-manual))
   "Return the behaviour's controller.
