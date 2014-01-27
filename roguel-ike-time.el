@@ -127,7 +127,10 @@ Can update priorities, and retrieve object with higher priority.")
           :documentation "Inner priority queue.")
    (current-object :initform nil
                    :protection :private
-                   :documentation "The object currently doing an action."))
+                   :documentation "The object currently doing an action.")
+   (after-step-hook :initform nil
+                    :protection :private
+                    :documentation "Hook executed after an entity did an action."))
   "Time management algorithm.")
 
 (defmethod initialize-instance :after ((self rlk--time-manager) slots)
@@ -144,8 +147,10 @@ Can update priorities, and retrieve object with higher priority.")
 
 (defmethod resume-step ((self rlk--time-manager) turns-spent)
   "Updates priorities with current object and TURNS-SPENT, and initiate a new step."
-  (update-priorities (oref self queue) (oref self current-object) turns-spent)
-  (do-step self))
+  (let ((after-step-hook (oref self after-step-hook)))
+    (run-hooks 'after-step-hook)
+    (update-priorities (oref self queue) (oref self current-object) turns-spent)
+    (do-step self)))
 
 (defmethod get-resume-callback ((self rlk--time-manager))
   "Return a callback to call resume-step with SELF already binded."
@@ -156,6 +161,12 @@ Can update priorities, and retrieve object with higher priority.")
   (let ((object (get-prioritized-object (oref self queue))))
     (oset self current-object object)
     (do-action object (get-resume-callback self))))
+
+(defmethod add-after-step-hook ((self rlk--time-manager) hook)
+  "Register a HOOK to execute after each step."
+  (let ((after-step-hook (oref self after-step-hook)))
+    (add-hook 'after-step-hook hook)
+    (oset self after-step-hook after-step-hook)))
 
 (provide 'roguel-ike-time)
 ;;; roguel-ike-time.el ends here

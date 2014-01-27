@@ -107,20 +107,6 @@ Restrain it to the range 0 - max-value."
          :reader get-race
          :protection :private
          :documentation "The entity's race.")
-   (x :initform -1
-      :type integer
-      :reader get-x
-      :protection :private
-      :documentation "The horizontal position of the entity in the level.")
-   (y :initform -1
-      :type integer
-      :reader get-y
-      :protection :private
-      :documentation "The vertical position of the entity in the level.")
-   (level :reader get-level
-          :type rlk--level
-          :protection :private
-          :documentation "The level which contains the entity.")
    (message-logger :initarg :message-logger
                    :type rlk--message-logger
                    :reader get-message-logger
@@ -159,25 +145,16 @@ Restrain it to the range 0 - max-value."
   (display-message (get-message-logger self) message))
 
 
-(defmethod set-level ((self rlk--entity) level)
-  "See rlk--entity.
-Register/unregister SELF to the new and old levels too."
+(defmethod set-level :before ((self rlk--entity) level)
+  "See rlk--level-cell-object.
+Unregister from the old level"
   (when (slot-boundp self 'level)
-    (remove-entity (get-level self) self))
-  (oset self level level)
+    (remove-entity (get-level self) self)))
+
+(defmethod set-level :after ((self rlk--entity) level)
+  "See rlk--level-cell-object.
+Register to the new level."
   (add-entity level self))
-
-(defmethod get-cell ((self rlk--entity))
-  "Return the cell on which stands the entity."
-  (get-cell-at (get-level self)
-               (get-x self)
-               (get-y self)))
-
-(defmethod get-neighbour-cell ((self rlk--entity) dx dy)
-  "Return the cell at the position x+DX, y+DY."
-  (get-cell-at (get-level self)
-               (+ (get-x self) dx)
-               (+ (get-y self) dy)))
 
 
 (defmethod set-cell ((self rlk--entity) cell)
@@ -188,15 +165,6 @@ If you want to change entity position, use set-pos instead."
     (when (rlk--level-cell-ground-child-p old-cell)
       (set-entity old-cell nil))
     (set-entity cell self)))
-
-
-(defmethod set-pos ((self rlk--entity) x y)
-  "Set the new cell pos."
-  (let ((cell (get-cell-at (get-level self) x y)))
-    (when cell
-      (set-cell self cell)
-      (oset self x x)
-      (oset self y y))))
 
 (defmethod try-move ((self rlk--entity) dx dy)
   "If the entity can move to the cell (x + DX, y + DY), will move to it.
@@ -280,6 +248,24 @@ Return t if the entity could move, nil otherwise."
 (defmethod do-action ((self rlk--entity) callback)
   "Update the ennemy, returning the turns spent to CALLBACK."
   (do-action (get-behaviour self) callback))
+
+(defmethod collide-with-cell ((self rlk--entity) cell direction energy)
+  "If CELL has an entity, transfer half of ENERGY to it.
+The entity is hurt with the remaining ENERGY."
+  (let ((damages energy)
+        (half-energy (/ energy 2)))
+    (when (and (is-container-p cell) (has-entity-p cell))
+      (add-motion (get-level self)
+                  (get-entity cell)
+                  direction
+                  half-energy)
+      (setq damages (- energy half-energy)))
+    (display-message self (format "%s %s %i projection damages."
+                                  (get-name self)
+                                  (get-verb self "take" "takes")
+                                  damages))
+    (hurt self damages)))
+
 
 ;;;;;;;;;;;;;;;;;;;
 ;; Combat system ;;

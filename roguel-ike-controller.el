@@ -28,6 +28,7 @@
 (require 'roguel-ike-graphics)
 (require 'roguel-ike-fov)
 (require 'roguel-ike-behaviour)
+(require 'roguel-ike-physics)
 
 (defvar-local rlk-controller nil
   "Game controller associated to the buffer.")
@@ -38,11 +39,16 @@
          :reader get-game
          :protection :private
          :documentation "Game state.")
-   (renderer :initarg :renderer
-             :type rlk--graphics-renderer-game
-             :reader get-renderer
-             :protection :private
-             :documentation "Level renderer.")
+   (game-renderer :initarg :game-renderer
+                  :type rlk--graphics-renderer-game
+                  :reader get-game-renderer
+                  :protection :private
+                  :documentation "Level renderer.")
+   (stats-renderer :initarg :stats-renderer
+                   :type rlk--graphics-renderer-stats
+                   :reader get-stats-renderer
+                   :protection :private
+                   :documentation "Statistics renderer.")
    (key-bindings :initarg :key-bindings
                  :initform (("h" . move-left)
                             ("j" . move-down)
@@ -54,7 +60,8 @@
                             ("n" . move-right-down)
                             ("." . wait)
                             ("c" . close-door)
-                            ("q" . quit-rlk))
+                            ("q" . quit-rlk)
+                            ("p" . projection))
                  :type list
                  :reader get-key-bindings
                  :protection :private
@@ -90,12 +97,13 @@ BODY is the method definition."
 
 ;; TODO try to displace fov elsewhere
 (defmethod call-renderers ((self rlk--controller-game))
-  "Ask the renderer to render game's level."
+  "Ask the game-renderer to render game's level."
   (let* ((game (get-game self))
         (level (get-current-level game))
         (hero (get-hero game)))
     (rlk--fov-apply level hero)
-    (draw-level (get-renderer self) level)))
+    (draw-level (get-game-renderer self) level)
+    (draw-stats (get-stats-renderer self))))
 
 (defvar rlk--direction-map
   '((move-left . (-1 . 0))
@@ -127,6 +135,10 @@ BODY is the method definition."
 (rlk--defcommand quit-rlk ((self rlk--controller-game))
   "Quit roguel-ike."
   (kill-buffers (get-buffer-manager (get-game self))))
+
+(rlk--defcommand projection ((self rlk--controller-game))
+  "A projection test."
+  (project (get-hero-behaviour self)))
 
 (defmethod call-with-direction ((self rlk--controller-game) function)
   "Ask the user for a direction and execute FUNCTION with the provided direction.
@@ -162,7 +174,7 @@ Otherwise, return nil."
 
 (defmethod setup ((self rlk--controller-game))
   "Initiates key binding on controller"
-  (with-current-buffer (get-target-buffer (get-renderer self))
+  (with-current-buffer (get-target-buffer (get-game-renderer self))
     (setq rlk-controller self)
     (dolist (binding (get-key-bindings self))
       (local-set-key (car binding)

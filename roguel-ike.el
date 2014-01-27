@@ -83,7 +83,8 @@
                                                      :buffer (get-game-buffer buffer-manager)))
          (game-controller (rlk--controller-game "Game controller"
                                                 :game game
-                                                :renderer game-renderer)))
+                                                :game-renderer game-renderer
+                                                :stats-renderer stats-renderer)))
     (set-level hero level)
     (set-pos hero 1 1)
     (set-level rat level)

@@ -140,6 +140,14 @@ Apply the time callback."
           (display-message entity "There is no door here..."))))
 
 
+;; TODO remove
+(defmethod project ((self rlk--behaviour-manual))
+  "Self projection."
+  (let ((entity (get-entity self)))
+    (add-motion (get-level entity) entity (rlk--math-point "Direction" :x 1 :y 0) 3)
+  (funcall (get-time-callback self) 1)))
+
+
 ;;;;;;;;;;;;;;
 ;; AI class ;;
 ;;;;;;;;;;;;;;
@@ -171,7 +179,7 @@ Return the number of turns spent if it could move, 1 for waiting otherwise."
       (setq choosen-cell (nth (random (length accessible-cells))
                               accessible-cells))
       (try-move entity (car choosen-cell) (cdr choosen-cell)))
-      1))
+    1))
 
 (defmethod do-action ((self rlk--behaviour-ai) callback)
   "See rlk--behaviour."

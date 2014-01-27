@@ -24,6 +24,9 @@
 ;;; Code:
 (require 'eieio)
 (require 'roguel-ike-time)
+(require 'roguel-ike-physics)
+
+(defvar-local rlk-controller nil)
 
 ;;;;;;;;;;;;
 ;; Object ;;
@@ -34,7 +37,22 @@
          :reader get-type
          :type symbol
          :protection :protected
-         :documentation "The intrisic type of the object."))
+         :documentation "The intrisic type of the object.")
+   (x :initform -1
+      :type integer
+      :reader get-x
+      :protection :private
+      :documentation "The horizontal position of the object in the level.")
+   (y :initform -1
+      :type integer
+      :reader get-y
+      :protection :private
+      :documentation "The vertical position of the object in the level.")
+   (level :reader get-level
+          :writer set-level
+          :type rlk--level
+          :protection :protected
+          :documentation "The level which contains the object."))
   "Represent an object lying on a cell."
   :abstract t)
 
@@ -53,6 +71,35 @@
 (defmethod block-light-p ((self rlk--level-cell-object))
   "Return t if the OBJECT blocks the light, nil otherwise."
   nil)
+
+(defmethod get-cell ((self rlk--level-cell-object))
+  "Return the cell on which stands the object."
+  (get-cell-at (get-level self)
+               (get-x self)
+               (get-y self)))
+
+(defmethod get-neighbour-cell ((self rlk--level-cell-object) dx dy)
+  "Return the cell at the position x+DX, y+DY."
+  (get-cell-at (get-level self)
+               (+ (get-x self) dx)
+               (+ (get-y self) dy)))
+
+(defmethod set-cell ((self rlk--level-cell-object) cell)
+  "Set the object's cell.
+This method is intended for private use ONLY.
+Use set-pos to change the object's position."
+  (let ((old-cell (get-cell self)))
+    (when (is-container-p old-cell)
+      (remove-object old-cell self))
+    (add-object cell self)))
+
+(defmethod set-pos ((self rlk--level-cell-object) x y)
+  "Set the new cell pos."
+  (let ((cell (get-cell-at (get-level self) x y)))
+    (when cell
+      (set-cell self cell)
+      (oset self x x)
+      (oset self y y))))
 
 ;;;;;;;;;;
 ;; Cell ;;
@@ -183,12 +230,21 @@ If there is no object, return nil."
    (time-manager :type rlk--time-manager
                  :reader get-time-manager
                  :protection :private
-                 :documentation "TIme management algorithm."))
+                 :documentation "Time management algorithm.")
+   (physics-world :type rlk--physics-world
+                  :reader get-physics-world
+                  :protection :private
+                  :documentation "Physics world."))
   "Represents a game level")
 
 (defmethod initialize-instance :after ((self rlk--level) slots)
   "Initialize the time manager."
-  (oset self time-manager (rlk--time-manager "Level time manager")))
+  (oset self time-manager (rlk--time-manager "Level time manager"))
+  (oset self physics-world (rlk--physics-world "Physics world"))
+  (add-after-step-hook (get-time-manager self)
+                       (apply-partially (lambda (self)
+                                          (run-world self))
+                                        self)))
 
 (defmethod width ((self rlk--level))
   "Return the horizontal number of cells."
@@ -204,6 +260,10 @@ If there is no object, return nil."
   "Return the cell at position x, y."
   (nth x (nth y (get-cells self))))
 
+(defmethod get-controller ((self rlk--level))
+  "Return the current controller."
+  rlk-controller)
+
 (defmethod add-entity ((self rlk--level) entity)
   "Add an entity to the level."
   (insert-object (get-time-manager self) entity))
@@ -211,6 +271,18 @@ If there is no object, return nil."
 (defmethod remove-entity ((self rlk--level) entity)
   "Remove an entity from the level."
   (remove-object (get-time-manager self) entity))
+
+(defmethod add-motion ((self rlk--level) entity direction energy)
+  "Create a motion affecting ENTITY, for the given DIRECTION and ENERGY."
+  (add-motion (get-physics-world self) (rlk--physics-motion "Motion"
+                                                            :object entity
+                                                            :direction direction
+                                                            :energy energy)))
+
+(defmethod run-world ((self rlk--level))
+  "Update the world's motions."
+  (run (get-physics-world self) (apply-partially 'call-renderers
+                                                 (get-controller self))))
 
 (provide 'roguel-ike-level)
 ;;; roguel-ike-level.el ends here
