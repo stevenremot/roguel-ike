@@ -89,9 +89,7 @@ If not, and it has a door, will open it.
 Apply the time callback."
   (let ((entity (get-entity self)))
     (funcall (oref self time-callback)
-             (let* ((x (+ (get-x entity) dx))
-                    (y (+ (get-y entity) dy))
-                    (cell (get-cell-at (get-level entity) x y)))
+             (let* ((cell (get-neighbour-cell entity dx dy)))
                (if (is-accessible-p cell)
                    (if (try-move entity dx dy)
                        1
@@ -118,6 +116,29 @@ Apply the time callback."
   "Register the callback for a former use."
   (call-renderers (get-controller self))
   (oset self time-callback callback))
+
+(defmethod close-door ((self rlk--behaviour-manual) dx dy)
+  "Try to close the door in the direction DX, DY."
+  (let* ((entity (get-entity self))
+         (cell (get-neighbour-cell entity dx dy)))
+    (if (is-container-p cell)
+        (let ((door (catch 'door
+                      (dolist (object (get-objects cell))
+                        (when (rlk--interactive-object-door-p object)
+                          (throw 'door object)))
+                      nil)))
+          (if door
+              (if (is-opened-p door)
+                  (if (not (has-entity-p cell))
+                      (progn
+                        (do-action door entity :close)
+                        (display-message entity "You close the door.")
+                        (funcall (get-time-callback self) 1))
+                    (display-message entity "There is something on the way."))
+                (display-message entity "The door is already closed."))
+            (display-message entity "There is no door here...")))
+          (display-message entity "There is no door here..."))))
+
 
 ;;;;;;;;;;;;;;
 ;; AI class ;;

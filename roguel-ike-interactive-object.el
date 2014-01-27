@@ -35,11 +35,11 @@
   "Base class for interactive objects."
   :abstract t)
 
-(defmethod get-layer ((object rlk--interactive-object))
+(defmethod get-layer ((self rlk--interactive-object))
   "See rlk--level-cell-object."
   2)
 
-(defmethod do-action ((object rlk--interactive-object) hero action)
+(defmethod do-action ((self rlk--interactive-object) hero action)
   "Do the ACTION when the HERO interacts with it.
 Return t when the action was successfull, nil otherwise."
   (error "Method do-action must be overriden"))
@@ -57,30 +57,30 @@ Return t when the action was successfull, nil otherwise."
   "A door that can be opened and closed.
 An entity cannot pass when door is closed.")
 
-(defmethod get-type ((door rlk--interactive-object-door))
+(defmethod get-type ((self rlk--interactive-object-door))
   "See rlk--level-cell-object."
-  (if (is-opened-p door)
+  (if (is-opened-p self)
       :door-opened
     :door-closed))
 
-(defmethod accept-other-object-p ((door rlk--interactive-object-door))
+(defmethod accept-other-object-p ((self rlk--interactive-object-door))
   "See rlk--level-cell-object."
-  (is-opened-p door))
+  (is-opened-p self))
 
-(defmethod block-light-p ((door rlk--interactive-object-door))
+(defmethod block-light-p ((self rlk--interactive-object-door))
   "See rlk--level-cell-object."
-  (not (is-opened-p door)))
+  (not (is-opened-p self)))
 
-(defmethod do-action ((door rlk--interactive-object-door) hero action)
+(defmethod do-action ((self rlk--interactive-object-door) hero action)
   "Close / open the door.
 When the action is :open and the door is closed, open it.
 When the action is :close and the door is open, close it."
   (cond
-   ((and (is-opened-p door) (equal action :close))
-    (oset door opened nil)
+   ((and (is-opened-p self) (equal action :close))
+    (oset self opened nil)
     t)
-   ((and (not (is-opened-p door)) (equal action :open))
-    (oset door opened t)
+   ((and (not (is-opened-p self)) (equal action :open))
+    (oset self opened t)
     t)
    (t
     nil)))

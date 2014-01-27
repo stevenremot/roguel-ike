@@ -27,6 +27,7 @@
 (require 'roguel-ike-game)
 (require 'roguel-ike-graphics)
 (require 'roguel-ike-fov)
+(require 'roguel-ike-behaviour)
 
 (defvar-local rlk-controller nil
   "Game controller associated to the buffer.")
@@ -51,8 +52,9 @@
                             ("b" . move-left-down)
                             ("u" . move-right-up)
                             ("n" . move-right-down)
-                            ("q" . quit-rlk)
-                            ("." . wait))
+                            ("." . wait)
+                            ("c" . close-door)
+                            ("q" . quit-rlk))
                  :type list
                  :reader get-key-bindings
                  :protection :private
@@ -79,8 +81,12 @@ BODY is the method definition."
    ))
 
 (defmethod get-hero ((self rlk--controller-game))
-  "Return the hero in the game associated to the CONTROLLER."
+  "Return the hero in the game associated to the controller."
   (get-hero (get-game self)))
+
+(defmethod get-hero-behaviour ((self rlk--controller-game))
+  "Return the hero's behaviour for the game associated to the controller."
+  (get-behaviour (get-hero self)))
 
 ;; TODO try to displace fov elsewhere
 (defmethod call-renderers ((self rlk--controller-game))
@@ -91,45 +97,67 @@ BODY is the method definition."
     (rlk--fov-apply level hero)
     (draw-level (get-renderer self) level)))
 
-(rlk--defcommand move-left ((self rlk--controller-game))
-  "Move the hero left."
-  (interact-with-cell (get-behaviour (get-hero self)) -1 0))
+(defvar rlk--direction-map
+  '((move-left . (-1 . 0))
+    (move-right . (1 . 0))
+    (move-up . (0 . -1))
+    (move-down . (0 . 1))
+    (move-left-up . (-1 . -1))
+    (move-left-down . (-1 . 1))
+    (move-right-up . (1 . -1))
+    (move-right-down . (1 . 1)))
+  "Mapping between command names and direction.")
 
-(rlk--defcommand move-right ((self rlk--controller-game))
-  "Move the hero right."
-  (interact-with-cell (get-behaviour (get-hero self)) 1 0))
-
-(rlk--defcommand move-up ((self rlk--controller-game))
-  "Move the hero up."
-  (interact-with-cell (get-behaviour (get-hero self)) 0 -1))
-
-(rlk--defcommand move-down ((self rlk--controller-game))
-  "Move the hero down."
-  (interact-with-cell (get-behaviour (get-hero self)) 0 1))
-
-(rlk--defcommand move-left-up ((self rlk--controller-game))
-  "Move the hero left-up."
-  (interact-with-cell (get-behaviour (get-hero self)) -1 -1))
-
-(rlk--defcommand move-left-down ((self rlk--controller-game))
-  "Move the hero left-down."
-  (interact-with-cell (get-behaviour (get-hero self)) -1 1))
-
-(rlk--defcommand move-right-up ((self rlk--controller-game))
-  "Move the hero right-up."
-  (interact-with-cell (get-behaviour (get-hero self)) 1 -1))
-
-(rlk--defcommand move-right-down ((self rlk--controller-game))
-  "Move the hero right-down."
-  (interact-with-cell (get-behaviour (get-hero self)) 1 1))
+;; Direction commands definition
+(dolist (direction-cons rlk--direction-map)
+  (eval `(rlk--defcommand ,(car direction-cons) ((self rlk--controller-game))
+                  "Move the hero."
+                  (interact-with-cell (get-hero-behaviour self)
+                                      ,(cadr direction-cons)
+                                      ,(cddr direction-cons)))))
 
 (rlk--defcommand wait ((self rlk--controller-game))
   "Wait one turn without doing anything."
-  (wait (get-behaviour (get-hero self))))
+  (wait (get-hero-behaviour self)))
+
+(rlk--defcommand close-door ((self rlk--controller-game))
+  "Ask the user for a direction, and try to close a door in this direction."
+  (call-with-direction self (apply-partially 'close-door (get-hero-behaviour self))))
 
 (rlk--defcommand quit-rlk ((self rlk--controller-game))
   "Quit roguel-ike."
   (kill-buffers (get-buffer-manager (get-game self))))
+
+(defmethod call-with-direction ((self rlk--controller-game) function)
+  "Ask the user for a direction and execute FUNCTION with the provided direction.
+
+The direction takes the form of two arguments: dx and dy.
+
+If the user did not enter a direction, FUNCTION is not executed, and
+an error message is displayed."
+  (let (direction)
+    ;; Deferred assignation is required.
+    ;; ask-direction is not effective otherwise.
+    (setq direction  (ask-direction self))
+    (if direction
+        (funcall function (car direction) (cdr direction))
+      (message "This is not a valid direction."))))
+
+(defmethod ask-direction ((self rlk--controller-game))
+  "Ask the user to input a direction.
+If a direction is given, return a cons representing it.
+Otherwise, return nil."
+  (let* ((input (read-key-sequence "Enter a direction: "))
+         (key (if (stringp input)
+                  (substring input 0 1)
+                (nth 0 input)))
+         (command (cdr (assoc key (get-key-bindings self)))))
+    (if command
+        (let ((direction-cons (assoc command rlk--direction-map)))
+          (if direction-cons
+              (cdr direction-cons)
+            nil))
+      nil)))
 
 
 (defmethod setup ((self rlk--controller-game))

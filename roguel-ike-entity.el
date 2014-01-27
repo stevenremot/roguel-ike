@@ -173,6 +173,12 @@ Register/unregister SELF to the new and old levels too."
                (get-x self)
                (get-y self)))
 
+(defmethod get-neighbour-cell ((self rlk--entity) dx dy)
+  "Return the cell at the position x+DX, y+DY."
+  (get-cell-at (get-level self)
+               (+ (get-x self) dx)
+               (+ (get-y self) dy)))
+
 
 (defmethod set-cell ((self rlk--entity) cell)
   "Set the new cell of the entity.
