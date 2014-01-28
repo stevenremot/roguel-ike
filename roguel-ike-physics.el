@@ -128,7 +128,7 @@ Return t if at least one MOTION remains, nil otherwise."
 DRAW-CALLBACK is called at each iteration."
   (when (do-step self)
     (funcall draw-callback)
-    (sleep-for 0.5)
+    (sit-for 0.1)
     (run self draw-callback)))
 
 (provide 'roguel-ike-physics)

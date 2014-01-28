@@ -170,7 +170,7 @@ as values."
   "Return the stat's face according to its levelr elatively to te maximum of the stat."
   (let* ((stat (get-current-value slot))
          (max-stat (get-max-value slot))
-         (ratio (/ stat max-stat)))
+         (ratio (/ (float stat) (float max-stat))))
     (cond
      ((> ratio 0.75) 'rlk-face-good-stat)
      ((> ratio 0.25) 'rlk-face-average-stat)
