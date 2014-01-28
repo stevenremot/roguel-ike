@@ -157,7 +157,7 @@ as values."
 
 (defclass rlk--graphics-renderer-stats ()
   ((stats :initarg :stats
-          :type rlk--entity-stats
+          :type rlk--stats
           :protection :private
           :documentation "Rendered statistics.")
    (buffer :initarg :buffer

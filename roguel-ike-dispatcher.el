@@ -1,4 +1,4 @@
-;;; roguel-ike-disptacher.el --- Event dispatcher
+;;; roguel-ike-dispatcher.el --- Event dispatcher
 
 ;; Copyright (C) 2014 Steven Rémot
 
@@ -49,7 +49,7 @@ There is no restriction regarding the arguments provided on dispatch.")
     (puthash event hook hooks)))
 
 (defmethod unregister ((self rlk--dispatcher) event function)
-  "Ask the disptacher not to call FUNCTION on EVENT dispatch."
+  "Ask the dispatcher not to call FUNCTION on EVENT dispatch."
   (let* ((hooks (oref self hooks))
          (hook (gethash event hooks '())))
     (puthash event (delete function hook) hooks)))
@@ -61,6 +61,6 @@ There is no restriction regarding the arguments provided on dispatch.")
     (apply 'run-hook-with-args 'hook arguments)))
 
 
-(provide 'roguel-ike-disptacher)
+(provide 'roguel-ike-dispatcher)
 
-;;; roguel-ike-disptacher.el ends here
+;;; roguel-ike-dispatcher.el ends here

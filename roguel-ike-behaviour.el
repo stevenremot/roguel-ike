@@ -88,6 +88,7 @@ behaviour <-- hero <--- game <-- controller
 
 (defmethod spend-time ((self rlk--behaviour-manual) time)
   "Call the time callback function with given TIME."
+  (spend-time (get-entity self) time)
   (funcall (oref self time-callback) time))
 
 (defmethod interact-with-cell ((self rlk--behaviour-manual) dx dy)
@@ -217,7 +218,9 @@ Return the number of turns spent if it could move, 1 for waiting otherwise."
 
 (defmethod do-action ((self rlk--behaviour-ai) callback)
   "See rlk--behaviour."
-  (funcall callback (move-randomly self)))
+  (let ((nb-turns (move-randomly self)))
+    (spend-time (get-entity self) nb-turns)
+    (funcall callback nb-turns)))
 
 
 

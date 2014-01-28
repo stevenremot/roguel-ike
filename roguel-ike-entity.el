@@ -24,74 +24,13 @@
 ;;; Code:
 
 (require 'eieio)
+(require 'roguel-ike-stats)
 (require 'roguel-ike-level)
 (require 'roguel-ike-message)
 (require 'roguel-ike-interactive-object)
 (require 'roguel-ike-race)
 (require 'roguel-ike-skill)
-
-;;;;;;;;;;;;;;;;
-;; Statistics ;;
-;;;;;;;;;;;;;;;;
-
-(defclass rlk--entity-stat-slot ()
-  ((max-value :initarg :max-value
-              :type number
-              :reader get-max-value
-              :writer set-max-value
-              :protection :private
-              :documentation "The maximum value of the statistic.")
-   (current-value :type number
-                  :protection :private
-                  :documentation "The current value of the statistic.
-Cannot be out of the range 0 - max-value."))
-  "Statistic slot.
-Handle maximum value and current value.")
-
-(defmethod get-current-value ((self rlk--entity-stat-slot))
-  "Return the current slot value.
-Set it to max-value if not set yet."
-  (unless (slot-boundp self 'current-value)
-    (set-current-value self (get-max-value self)))
-  (oref self current-value))
-
-(defmethod set-current-value ((self rlk--entity-stat-slot) current-value)
-  "Set the current slot value.
-Restrain it to the range 0 - max-value."
-  (oset self current-value
-        (cond ((< current-value 0)
-               0)
-              ((> current-value (get-max-value self))
-               (get-max-value self))
-              (t
-               current-value))))
-
-(defclass rlk--entity-stats ()
-  ((slots :initarg :slots
-          :type list
-          :protection :private
-          :documentation "An associated list whose keys are slot names and values are slots."))
-   "Entity's statistics.")
-
-(defmethod initialize-instance ((self rlk--entity-stats) slots)
-  "Initialize the slots."
-  (let ((stat-slots '())
-        (slot-names '(:health
-                      :stamina
-                      :strength
-                      :constitution
-                      :speed
-                      :spirit)))
-    (dolist (name slot-names)
-      (add-to-list 'stat-slots
-                   (cons name
-                         (rlk--entity-stat-slot (format "%s slot" name)
-                                                :max-value (plist-get  slots name)))))
-  (call-next-method self (list :slots stat-slots))))
-
-(defmethod get-slot ((self rlk--entity-stats) slot)
-  "Return the slot named SLOT."
-  (cdr (assoc slot (oref self slots))))
+(require 'roguel-ike-dispatcher)
 
 ;;;;;;;;;;;;;;;;;;;;;
 ;; Abstract entity ;;
@@ -99,7 +38,7 @@ Restrain it to the range 0 - max-value."
 
 (defclass rlk--entity (rlk--level-cell-object)
   ((stats :initarg :stats
-          :type rlk--entity-stats
+          :type rlk--stats
           :reader get-stats
           :protection :protected
           :documentation "The entity's statistics.")
@@ -116,12 +55,34 @@ Restrain it to the range 0 - max-value."
    (behaviour :initarg :behaviour
               :reader get-behaviour
               :protection :protected
-              :documentation "Entity's behaviour."))
+              :documentation "Entity's behaviour.")
+   (dispatcher :reader get-dispatcher
+               :type rlk--dispatcher
+               :protection :private
+               :documentation "Entity's event dispatcher.
+
+Here are the events that can occur to an entity with their arguments:
+
+* :turns-spent NB-TURNS
+  Occur when the entity does an action that spends a turn.
+  NB-TURNS is the number of turns the action took."))
   "The base class for game entities.")
 
 (defmethod initialize-instance :after ((self rlk--entity) slots)
-  "Set the behaviour's entity to SELF."
-  (set-entity (get-behaviour self) self))
+  "Initializes entity's objects."
+  (set-entity (get-behaviour self) self)
+  (oset self dispatcher (rlk--dispatcher "Entity dispatcher"))
+  (let ((regenerator (rlk--stats-regenerator "Entity's stat regenerator"
+                                             :stats (get-stats self)
+                                             :slots '(:health
+                                                      :stamina
+                                                      :strength
+                                                      :constitution
+                                                      :speed
+                                                      :spirit))))
+    (register (get-dispatcher self)
+              :turns-spent
+              (apply-partially 'add-turns regenerator))))
 
 (defmethod get-layer ((self rlk--entity))
   "See rlk--level-cell-object."
@@ -249,6 +210,10 @@ Return t if the entity could move, nil otherwise."
 (defmethod do-action ((self rlk--entity) callback)
   "Update the ennemy, returning the turns spent to CALLBACK."
   (do-action (get-behaviour self) callback))
+
+(defmethod spend-time ((self rlk--entity) nb-turns)
+  "Dispach an event :turns-spent, with NB-TURNS as parameter."
+  (dispatch (get-dispatcher self) :turns-spent nb-turns))
 
 ;;;;;;;;;;;;;
 ;; Physics ;;
@@ -406,7 +371,7 @@ BEHAVIOUR is the entity's behaviour.
 MESSAGE-LOGGER is the message logging system used by the entity."
   (rlk--entity "Entity"
                :race race
-               :stats (apply rlk--entity-stats
+               :stats (apply rlk--stats
                              "Entity's stats"
                              (get-base-stats race))
                :behaviour behaviour
