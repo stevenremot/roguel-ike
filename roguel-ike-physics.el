@@ -78,10 +78,9 @@ Apply all effects, including collisions and movement attenuation."
          (base-pos (rlk--math-point "Base position"
                                     :x (get-x object)
                                     :y (get-y object)))
-         (next-pos (add base-pos direction))
          (next-cell (get-neighbour-cell object
-                                        (get-x next-pos)
-                                        (get-y next-pos))))
+                                        (get-x direction)
+                                        (get-y direction))))
     (if (try-move object (get-x direction) (get-y direction))
         (oset self energy (1- (get-energy self)))
       (progn

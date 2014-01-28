@@ -254,7 +254,9 @@ Return t if the entity could move, nil otherwise."
 The entity is hurt with the remaining ENERGY."
   (let ((damages energy)
         (half-energy (/ energy 2)))
-    (when (and (is-container-p cell) (has-entity-p cell))
+    (when (and (is-container-p cell)
+               (has-entity-p cell)
+               (> half-energy 0))
       (add-motion (get-level self)
                   (get-entity cell)
                   direction

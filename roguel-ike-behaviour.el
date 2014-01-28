@@ -142,9 +142,10 @@ Apply the time callback."
 
 ;; TODO remove
 (defmethod project ((self rlk--behaviour-manual))
-  "Self projection."
+  "Self projection.
+For test purpose only, will be removed soon."
   (let ((entity (get-entity self)))
-    (add-motion (get-level entity) entity (rlk--math-point "Direction" :x 1 :y 0) 3)
+    (add-motion (get-level entity) entity (rlk--math-point "Direction" :x 1 :y 0) 10)
   (funcall (get-time-callback self) 1)))
 
 
