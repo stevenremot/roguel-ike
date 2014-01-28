@@ -59,6 +59,7 @@
                             ("u" . move-right-up)
                             ("n" . move-right-down)
                             ("." . wait)
+                            ("s" . select-and-use-skill)
                             ("c" . close-door)
                             ("q" . quit-rlk)
                             ("p" . projection))
@@ -132,6 +133,10 @@ BODY is the method definition."
   "Ask the user for a direction, and try to close a door in this direction."
   (call-with-direction self (apply-partially 'close-door (get-hero-behaviour self))))
 
+(rlk--defcommand select-and-use-skill ((self rlk--controller-game))
+  "Ask the user for a skill and use it."
+  (select-and-use-skill (get-hero-behaviour self)))
+
 (rlk--defcommand quit-rlk ((self rlk--controller-game))
   "Quit roguel-ike."
   (kill-buffers (get-buffer-manager (get-game self))))
@@ -139,6 +144,10 @@ BODY is the method definition."
 (rlk--defcommand projection ((self rlk--controller-game))
   "A projection test."
   (project (get-hero-behaviour self)))
+
+;;;;;;;;;;;;;;;;;;;
+;; Input queries ;;
+;;;;;;;;;;;;;;;;;;;
 
 (defmethod call-with-direction ((self rlk--controller-game) function)
   "Ask the user for a direction and execute FUNCTION with the provided direction.
@@ -158,7 +167,9 @@ an error message is displayed."
 (defmethod ask-direction ((self rlk--controller-game))
   "Ask the user to input a direction.
 If a direction is given, return a cons representing it.
-Otherwise, return nil."
+
+The system will keep asking for a direction as long as
+the input is invalid."
   (let* ((input (read-key-sequence "Enter a direction: "))
          (key (if (stringp input)
                   (substring input 0 1)
@@ -168,9 +179,26 @@ Otherwise, return nil."
         (let ((direction-cons (assoc command rlk--direction-map)))
           (if direction-cons
               (cdr direction-cons)
-            nil))
-      nil)))
+            (ask-direction self)))
+      (ask-direction self))))
 
+(defmethod ask-option ((self rlk--controller-game) prompt collection)
+  "Ask the user to select an element of a collection.
+
+PROMPT is the message displayed to invite the user to give an input.
+
+COLLECTION is a list containing all the values the can be provided
+by the user.
+
+Return nil when the action has been cancelled."
+  (let ((answer (completing-read prompt collection nil t)))
+    (if (= 0 (length answer))
+        nil
+      answer)))
+
+;;;;;;;;;;;;;;;;;;;;;;
+;; Controller setup ;;
+;;;;;;;;;;;;;;;;;;;;;;
 
 (defmethod setup ((self rlk--controller-game))
   "Initiates key binding on controller"

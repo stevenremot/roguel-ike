@@ -33,6 +33,9 @@
 (require 'roguel-ike-behaviour)
 (require 'roguel-ike-race)
 
+(require 'roguel-ike-data/skills)
+(require 'roguel-ike-data/races)
+
 (defun rlk--get-cells-from-layout (layout)
   "Create a cell level from a LAYOUT, a list of string representing the level."
   (let ((cells '()))

@@ -57,6 +57,12 @@ Must call callback with the number of turns the action takes."
 (defgeneric call-renderers (controller)
   "Call the game's renderers.")
 
+(defgeneric ask-option (controller prompt collection)
+  "Ask the user to select an option in COLLECTION.")
+
+(defgeneric ask-direction (controller)
+  "Ask the user for a direction.")
+
 (defvar-local rlk-controller nil)
 
 (defclass rlk--behaviour-manual (rlk--behaviour)
@@ -80,6 +86,10 @@ behaviour <-- hero <--- game <-- controller
    |---------------------------------A"
   rlk-controller)
 
+(defmethod spend-time ((self rlk--behaviour-manual) time)
+  "Call the time callback function with given TIME."
+  (funcall (oref self time-callback) time))
+
 (defmethod interact-with-cell ((self rlk--behaviour-manual) dx dy)
   "Try all sort of interaction with cell at DX, DY.
 
@@ -88,29 +98,29 @@ If not, and it has a door, will open it.
 
 Apply the time callback."
   (let ((entity (get-entity self)))
-    (funcall (oref self time-callback)
-             (let* ((cell (get-neighbour-cell entity dx dy)))
-               (if (is-accessible-p cell)
-                   (if (try-move entity dx dy)
-                       1
-                     0)
-                 (if (is-container-p cell)
-                     (if (has-entity-p cell)
-                         (progn
-                           (attack (get-entity self) (get-entity cell))
-                           1)
-                       (catch 'time
-                         (dolist (object (get-objects cell))
-                           (when (equal (get-type object) :door-closed)
-                             (do-action object entity :open)
-                             (display-message entity "You open the door.")
-                             (throw 'time 1)))
-                         0))
-                   0))))))
+    (spend-time self
+                (let* ((cell (get-neighbour-cell entity dx dy)))
+                  (if (is-accessible-p cell)
+                      (if (try-move entity dx dy)
+                          1
+                        0)
+                    (if (is-container-p cell)
+                        (if (has-entity-p cell)
+                            (progn
+                              (attack (get-entity self) (get-entity cell))
+                              1)
+                          (catch 'time
+                            (dolist (object (get-objects cell))
+                              (when (equal (get-type object) :door-closed)
+                                (do-action object entity :open)
+                                (display-message entity "You open the door.")
+                                (throw 'time 1)))
+                            0))
+                      0))))))
 
 (defmethod wait ((self rlk--behaviour-manual))
   "Wait one turn."
-  (funcall (oref self time-callback) 1))
+  (spend-time self 1))
 
 (defmethod do-action ((self rlk--behaviour-manual) callback)
   "Register the callback for a former use."
@@ -133,7 +143,7 @@ Apply the time callback."
                       (progn
                         (do-action door entity :close)
                         (display-message entity "You close the door.")
-                        (funcall (get-time-callback self) 1))
+                        (spend-time self 1))
                     (display-message entity "There is something on the way."))
                 (display-message entity "The door is already closed."))
             (display-message entity "There is no door here...")))
@@ -146,7 +156,39 @@ Apply the time callback."
 For test purpose only, will be removed soon."
   (let ((entity (get-entity self)))
     (add-motion (get-level entity) entity (rlk--math-point "Direction" :x 1 :y 0) 10)
-  (funcall (get-time-callback self) 1)))
+    (spend-time self 1)))
+
+(defmethod select-and-use-skill ((self rlk--behaviour-manual))
+  "Ask the user to select a skill and use it."
+  (let* ((entity (get-entity self))
+         (skills (get-usable-skills entity))
+         (choosen-skill-name ""))
+    (if skills
+        (progn
+          (setq choosen-skill-name (ask-option (get-controller self)
+                                               "Which skill to use: "
+                                               (mapcar (lambda (skill)
+                                                         (get-name skill))
+                                                       skills)))
+          (when choosen-skill-name
+            (catch 'skill-found
+              (dolist (skill skills)
+                (when (string-equal choosen-skill-name (get-name skill))
+                  (use-skill self skill)
+                  (throw 'skill-found nil))))))
+      (display-message entity "You cannot use any skill now."))))
+
+(defmethod use-skill ((self rlk--behaviour-manual) skill)
+  "Try to use the skill SKILL.
+
+If it could be used, spend a turn for it."
+  (let ((arguments '())
+        (direction nil))
+    (when (member :directional (get-tags skill))
+      (setq direction (ask-direction (get-controller self)))
+      (setq arguments (append arguments (list (car direction) (cdr direction)))))
+    (when (apply 'use-skill (get-entity self) skill arguments)
+      (spend-time self 1))))
 
 
 ;;;;;;;;;;;;;;

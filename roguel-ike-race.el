@@ -25,6 +25,7 @@
 ;;; Code:
 
 (require 'eieio)
+(require 'roguel-ike-skill)
 
 ;;;;;;;;;;;;;;;;;
 ;; Race classe ;;
@@ -50,7 +51,13 @@
                     :type list
                     :reader get-stats-evolution
                     :protection :private
-                    :documentation "The points added to each stat slot when it gains a level."))
+                    :documentation "The points added to each stat slot when it gains a level.")
+   (skills :initarg :skills
+           :type list
+           :protection :private
+           :documentation "A list of symbol's skills.
+
+An entity of this race can potentially use any of these skills."))
   "A entity race.")
 
 (defmethod get-base-stat-slot ((self rlk--race) slot)
@@ -61,6 +68,12 @@
   "Return the evolution of the stat slot SLOT."
   (plist-get (get-stats-evolution self) slot))
 
+(defmethod get-skills ((self rlk--race))
+  "Return the stat's skills as rlk--skill objects."
+  (mapcar (lambda (id)
+            (rlk--skill-get-skill id))
+          (oref self skills)))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Races registering system ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -68,35 +81,38 @@
 (defvar rlk--races '()
   "All the available races.")
 
-(defun rlk--defrace (type name base-stats stats-evolution)
+(defun rlk--defrace (type name base-stats stats-evolution skills)
   "Define a new race and register it as an available race.
 TYPE is the identifier of the race.
 NAME is the name used when an entity belonging to this race is referred
 BASE-STATS is the statistics of a newly created entity in this race.
 STATS-EVOLUTION define the way each stat evolve.
+SKILLS is the race's skills.
 
 Example:
-  (defrace :coder
-           \"The coder\"
-           (list
-                :health 5
-                :stamina 0
-                :strength 2
-                :constitution 2
-                :speed 6
-                :spirit 0)
-           (list
-                :health 2
-                :stamina 1
-                :strength 1
-                :constitution 1
-                :speed 3
-                :spirit 0))"
+  (rlk--defrace :coder
+                \"The coder\"
+                (list
+                     :health 5
+                     :stamina 0
+                     :strength 2
+                     :constitution 2
+                     :speed 6
+                     :spirit 0)
+                (list
+                     :health 2
+                     :stamina 1
+                     :strength 1
+                     :constitution 1
+                     :speed 3
+                     :spirit 0)
+                '(:define-macro))"
   (add-to-list 'rlk--races (rlk--race name
                                       :type type
                                       :name name
                                       :base-stats base-stats
-                                      :stats-evolution stats-evolution)))
+                                      :stats-evolution stats-evolution
+                                      :skills skills)))
 
 (defun rlk--race-get-race (type)
   "Return the registered race corresponding to the type TYPE.
@@ -106,45 +122,6 @@ If there is no such race, return nil."
       (when (equal (get-type race) type)
         (throw 'race race)))
     nil))
-
-;;;;;;;;;;;;;;;;;;;;;;
-;; Races definition ;;
-;;;;;;;;;;;;;;;;;;;;;;
-
-(rlk--defrace :human
-              "The human"
-              (list
-               :health 10
-               :stamina 10
-               :strength 5
-               :constitution 5
-               :speed 5
-               :spirit 5)
-              (list
-               :health 2
-               :stamina 2
-               :strength 1
-               :constitution 1
-               :speed 1
-               :spirit 1))
-
-(rlk--defrace :rat
-              "The rat"
-              (list
-               :health 5
-               :stamina 1
-               :strength 2
-               :constitution 2
-               :speed 7
-               :spirit 0)
-              (list
-               :health 1
-               :stamina 1
-               :strength 1
-               :constitution 1
-               :speed 2
-               :spirit 0))
-
 
 (provide 'roguel-ike-race)
 

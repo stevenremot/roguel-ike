@@ -28,6 +28,7 @@
 (require 'roguel-ike-message)
 (require 'roguel-ike-interactive-object)
 (require 'roguel-ike-race)
+(require 'roguel-ike-skill)
 
 ;;;;;;;;;;;;;;;;
 ;; Statistics ;;
@@ -262,6 +263,7 @@ The entity is hurt with the remaining ENERGY."
                   direction
                   half-energy)
       (setq damages (- energy half-energy)))
+    (setq damages (compute-damages self damages))
     (display-message self (format "%s %s %i projection damages."
                                   (get-name self)
                                   (get-verb self "take" "takes")
@@ -282,16 +284,20 @@ This method contains randomness."
   "Return the base damages the entity can inflict."
   (get-strength self))
 
-(defmethod compute-damages ((self rlk--entity) target)
-  "Return the number of damages that will be inflicted to the TARGET.
+(defmethod compute-damages ((self rlk--entity) base-damages)
+  "Return the number of damages that will be inflicted to itself.
+
+BASE-DAMAGES is the initial damages inflicted. This method computes
+the effective damages according to the entity's constitution.
+
 This method contains randomness."
-  (random (1+ (max  (- (get-strength self) (get-constitution target)) 1))))
+  (random (1+ (max  (- base-damages (get-constitution self)) 1))))
 
 (defmethod attack ((self rlk--entity) target)
   "Try to attack the target.
 This method contains randomness."
   (if (attack-successfull-p self target)
-      (let ((damages (compute-damages self target)))
+      (let ((damages (compute-damages target (get-base-damages self))))
         (display-message self (format "%s %s %s for %d damages"
                                       (get-name self)
                                       (get-verb self "attack" "attacks")
@@ -302,6 +308,65 @@ This method contains randomness."
                                   (get-name self)
                                   (get-verb self "miss" "misses")
                                   (downcase (get-name target))))))
+
+;;;;;;;;;;;;
+;; Skills ;;
+;;;;;;;;;;;;
+
+(defmethod fulfill-skill-requirements-p ((self rlk--entity) skill)
+  "Return t if the entity's stats fulfill the skill's requirements.
+
+Return nil otherwise."
+  (catch 'fulfilled
+    (dolist (req-cons (get-requirements skill))
+      (when (< (get-current-value (get-stat-slot self (car req-cons)))
+               (cdr req-cons))
+        (throw 'fulfilled nil)))
+    t))
+
+(defmethod can-use-skill-now-p ((self rlk--entity) skill)
+  "Return t if the entity can use the SKILL.
+
+An entity can use a skill when its stats fulfill the requirements
+and it has enough to be spend by the skill."
+  (and (fulfill-skill-requirements-p self skill)
+       (catch 'can-spend
+         (dolist (spend-cons (get-spend skill))
+           (when (< (get-current-value (get-stat-slot self (car spend-cons)))
+                    (cdr spend-cons))
+             (throw 'can-speed nil)))
+         t)))
+
+(defmethod spend-stats-for-skill ((self rlk--entity) skill)
+  "Withdraw from entity's stats the SKILL's spend numbers."
+  (let ((slot nil))
+    (dolist (spend-cons (get-spend skill))
+      (setq slot (get-stat-slot self (car spend-cons)))
+      (set-current-value slot (- (get-current-value slot) (cdr spend-cons))))))
+
+(defmethod use-skill ((self rlk--entity) skill &rest action-arguments)
+  "Use the skill SKILL.
+
+Assume all checks have been done before.
+
+Return t when the skill's action could be done, nil otherwise.
+
+ACTION-ARGUMENTS are the optional and various arguments that depends on the
+SKILL's tags."
+  (let ((arguments (append (list self) action-arguments)))
+    (if (apply 'do-action skill arguments)
+        (progn
+          (spend-stats-for-skill self skill)
+          t)
+      nil)))
+
+(defmethod get-usable-skills ((self rlk--entity))
+  "Return the skills the entity can use now."
+  (let ((usable-skills '()))
+    (dolist (skill (get-skills (get-race self)))
+      (when (can-use-skill-now-p self skill)
+        (add-to-list 'usable-skills skill)))
+    usable-skills))
 
 ;;;;;;;;;;;;;;
 ;; Messages ;;
