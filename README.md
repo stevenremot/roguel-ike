@@ -23,6 +23,7 @@ Then, type `M-x roguel-ike`.
 
 * use _y, u, h, j, k, l, b, n_ for movements
 * use _._ to wait one turn
+* use _s_ to use a skill
 * use _q_ to quit
 
 ## State of the project ##
