@@ -100,9 +100,12 @@ Apply all effects, including collisions and movement attenuation."
   "Aggregate and update motions.")
 
 (defmethod add-motion ((self rlk--physics-world) motion)
-  "Add a MOTION to the world."
-  (let ((motions (get-motions self)))
-    (oset self motions (add-to-list 'motions motion))))
+  "Add a MOTION to the world.
+
+Won't accept motion with null or negative energy."
+  (when (> (get-energy motion) 0)
+    (let ((motions (get-motions self)))
+      (oset self motions (add-to-list 'motions motion)))))
 
 (defmethod remove-motion ((self rlk--physics-world) motion)
   "Remove a MOTION from the world."

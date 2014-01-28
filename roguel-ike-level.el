@@ -273,7 +273,14 @@ If there is no object, return nil."
   (remove-object (get-time-manager self) entity))
 
 (defmethod add-motion ((self rlk--level) entity direction energy)
-  "Create a motion affecting ENTITY, for the given DIRECTION and ENERGY."
+  "Create a motion affecting ENTITY, for the given DIRECTION and ENERGY.
+
+if DIRECTION is a cons in the form (DX, DY), it will be converted to
+a rlk--math-point. This avoids useless dependencies with rlk--math."
+  (when (consp direction)
+    (setq direction (rlk--math-point "Motion direction"
+                                     :x (car direction)
+                                     :y (cdr direction))))
   (add-motion (get-physics-world self) (rlk--physics-motion "Motion"
                                                             :object entity
                                                             :direction direction

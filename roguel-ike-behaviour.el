@@ -149,15 +149,6 @@ Apply the time callback."
             (display-message entity "There is no door here...")))
           (display-message entity "There is no door here..."))))
 
-
-;; TODO remove
-(defmethod project ((self rlk--behaviour-manual))
-  "Self projection.
-For test purpose only, will be removed soon."
-  (let ((entity (get-entity self)))
-    (add-motion (get-level entity) entity (rlk--math-point "Direction" :x 1 :y 0) 10)
-    (spend-time self 1)))
-
 (defmethod select-and-use-skill ((self rlk--behaviour-manual))
   "Ask the user to select a skill and use it."
   (let* ((entity (get-entity self))

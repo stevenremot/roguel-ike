@@ -179,7 +179,7 @@ Return t if the entity could move, nil otherwise."
             t)
       nil)))
 
-(defmethod entity-alive-p ((self rlk--entity))
+(defmethod is-alive-p ((self rlk--entity))
   "Return t if the entity is alive, nil otherwise."
   (> (get-health self) 0))
 
@@ -250,6 +250,10 @@ Return t if the entity could move, nil otherwise."
   "Update the ennemy, returning the turns spent to CALLBACK."
   (do-action (get-behaviour self) callback))
 
+;;;;;;;;;;;;;
+;; Physics ;;
+;;;;;;;;;;;;;
+
 (defmethod collide-with-cell ((self rlk--entity) cell direction energy)
   "If CELL has an entity, transfer half of ENERGY to it.
 The entity is hurt with the remaining ENERGY."
@@ -258,10 +262,9 @@ The entity is hurt with the remaining ENERGY."
     (when (and (is-container-p cell)
                (has-entity-p cell)
                (> half-energy 0))
-      (add-motion (get-level self)
-                  (get-entity cell)
-                  direction
-                  half-energy)
+      (project (get-entity cell)
+               direction
+               half-energy)
       (setq damages (- energy half-energy)))
     (setq damages (compute-damages self damages))
     (display-message self (format "%s %s %i projection damages."
@@ -269,6 +272,13 @@ The entity is hurt with the remaining ENERGY."
                                   (get-verb self "take" "takes")
                                   damages))
     (hurt self damages)))
+
+(defmethod project ((self rlk--entity) direction energy)
+  "Create a motion projection itself in DIRECTION for the given ENERGY.
+
+Won't project itself if dead."
+  (when (is-alive-p self)
+    (add-motion (get-level self) self direction energy)))
 
 
 ;;;;;;;;;;;;;;;;;;;

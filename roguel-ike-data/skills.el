@@ -47,6 +47,12 @@
                                                   (downcase (get-name target))
                                                   damages))
                          (hurt target damages)
+                         ;; When the entity has at least 10 strength,
+                         ;; Project the enemy
+                         (when (>= (get-strength entity) 10)
+                           (project target
+                                    (cons dx dy)
+                                    (- (get-strength entity) 5)))
                          t)
                      (progn
                        (display-message entity "There is no enemy here...")

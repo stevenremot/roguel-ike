@@ -61,8 +61,7 @@
                             ("." . wait)
                             ("s" . select-and-use-skill)
                             ("c" . close-door)
-                            ("q" . quit-rlk)
-                            ("p" . projection))
+                            ("q" . quit-rlk))
                  :type list
                  :reader get-key-bindings
                  :protection :private
@@ -140,10 +139,6 @@ BODY is the method definition."
 (rlk--defcommand quit-rlk ((self rlk--controller-game))
   "Quit roguel-ike."
   (kill-buffers (get-buffer-manager (get-game self))))
-
-(rlk--defcommand projection ((self rlk--controller-game))
-  "A projection test."
-  (project (get-hero-behaviour self)))
 
 ;;;;;;;;;;;;;;;;;;;
 ;; Input queries ;;
