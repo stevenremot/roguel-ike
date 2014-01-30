@@ -38,36 +38,48 @@
   "Buffer management system.
 In charge of buffers instanciation and layout organization.")
 
-(defmethod get-game-buffer ((manager rlk--buffer-manager))
+(defmethod get-game-buffer ((self rlk--buffer-manager))
   "Return the game buffer.
 Create a new one if not set yet."
-  (unless (and (slot-boundp manager 'game-buffer)
-               (buffer-live-p (oref manager game-buffer)))
-    (oset manager game-buffer (get-buffer-create "*rlk-game*")))
-  (oref manager game-buffer))
+  (unless (and (slot-boundp self 'game-buffer)
+               (buffer-live-p (oref self game-buffer)))
+    (oset self game-buffer (get-buffer-create "*rlk-game*")))
+  (oref self game-buffer))
 
-(defmethod get-stats-buffer ((manager rlk--buffer-manager))
+(defmethod get-stats-buffer ((self rlk--buffer-manager))
   "Return the statistics buffer.
 Create a new one if not set yet."
-  (unless (and (slot-boundp manager 'stats-buffer)
-               (buffer-live-p (oref manager stats-buffer)))
-    (oset manager stats-buffer (get-buffer-create "*rlk-statistics*")))
-  (oref manager stats-buffer))
+  (unless (and (slot-boundp self 'stats-buffer)
+               (buffer-live-p (oref self stats-buffer)))
+    (oset self stats-buffer (get-buffer-create "*rlk-statistics*")))
+  (oref self stats-buffer))
 
-(defmethod get-message-buffer ((manager rlk--buffer-manager))
+(defmethod get-message-buffer ((self rlk--buffer-manager))
   "Return the message buffer.
 Create a new one if not set yet."
-  (unless (and (slot-boundp manager 'message-buffer)
-               (buffer-live-p (oref manager message-buffer)))
-    (oset manager message-buffer (get-buffer-create "*rlk-messages*")))
-  (oref manager message-buffer))
+  (unless (and (slot-boundp self 'message-buffer)
+               (buffer-live-p (oref self message-buffer)))
+    (oset self message-buffer (get-buffer-create "*rlk-messages*")))
+  (oref self message-buffer))
 
-(defmethod setup-layout ((manager rlk--buffer-manager))
-  "Organize buffers in a layout."
+(defmethod setup-menu-layout ((self rlk--buffer-manager))
+  "Setup buffers for the menu layout.
+
+It consists of a single window with the game buffer."
+  (let ((game-buffer (get-game-buffer self))
+        (window (get-buffer-window (current-buffer))))
+    (delete-other-windows window)
+    (display-buffer-same-window game-buffer '())
+    (select-window window)))
+
+(defmethod setup-game-layout ((self rlk--buffer-manager))
+  "Setup buffers for the in-game layout.
+
+It consists of the screen split in three buffers."
   (let
-      ((game-buffer (get-game-buffer manager))
-       (stats-buffer (get-stats-buffer manager))
-       (message-buffer (get-message-buffer manager))
+      ((game-buffer (get-game-buffer self))
+       (stats-buffer (get-stats-buffer self))
+       (message-buffer (get-message-buffer self))
        (game-window (get-buffer-window (current-buffer)))
        (stats-window nil)
        (message-window nil))
@@ -81,11 +93,11 @@ Create a new one if not set yet."
   (display-buffer-same-window message-buffer '())
   (select-window game-window)))
 
-(defmethod kill-buffers ((manager rlk--buffer-manager))
+(defmethod kill-buffers ((self rlk--buffer-manager))
   "Kill buffers."
-  (kill-buffer (get-message-buffer manager))
-  (kill-buffer (get-stats-buffer manager))
-  (kill-buffer (get-game-buffer manager)))
+  (kill-buffer (get-message-buffer self))
+  (kill-buffer (get-stats-buffer self))
+  (kill-buffer (get-game-buffer self)))
 
 (provide 'roguel-ike/buffer-manager)
 

@@ -40,7 +40,7 @@
 (defgeneric ask-direction (controller)
   "Ask the user for a direction.")
 
-(defvar-local rlk--controller nil)
+(defvar-local rlk--local-controller nil)
 
 (defclass rlk--behaviour-manual (rlk--behaviour)
   ((time-callback :type function
@@ -61,7 +61,7 @@ cyclic dependencies.
 
 behaviour <-- hero <--- game <-- controller
    |---------------------------------A"
-  rlk--controller)
+  rlk--local-controller)
 
 (defmethod spend-time ((self rlk--behaviour-manual) time)
   "Call the time callback function with given TIME."

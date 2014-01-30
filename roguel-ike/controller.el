@@ -28,7 +28,7 @@
 (require 'roguel-ike/fov)
 (require 'roguel-ike/physics/world)
 
-(defvar-local rlk--controller nil
+(defvar-local rlk--local-controller nil
   "Game controller associated to the buffer.")
 
 (defclass rlk--controller ()
@@ -47,6 +47,7 @@
                    :reader get-stats-renderer
                    :protection :private
                    :documentation "Statistics renderer.")
+   ;; TODO use a mode instead of custom bindings
    (key-bindings :initarg :key-bindings
                  :initform (("h" . move-left)
                             ("j" . move-down)
@@ -82,7 +83,7 @@ BODY is the method definition."
          '()
          docstring
          '(interactive)
-         (list name 'rlk--controller))
+         (list name 'rlk--local-controller))
    ))
 
 (defmethod get-hero ((self rlk--controller))
@@ -100,8 +101,10 @@ BODY is the method definition."
         (level (get-current-level game))
         (hero (get-hero game)))
     (rlk--fov-apply level hero)
+    (setq buffer-read-only nil)
     (draw-level (get-game-renderer self) level)
-    (draw-stats (get-stats-renderer self))))
+    (draw-stats (get-stats-renderer self))
+    (setq buffer-read-only t)))
 
 (defvar rlk--direction-map
   '((move-left . (-1 . 0))
@@ -196,7 +199,7 @@ Return nil when the action has been cancelled."
 (defmethod setup ((self rlk--controller))
   "Initiates key binding on controller"
   (with-current-buffer (get-target-buffer (get-game-renderer self))
-    (setq rlk--controller self)
+    (setq rlk--local-controller self)
     (dolist (binding (get-key-bindings self))
       (local-set-key (car binding)
                      (intern (concat "rlk-command-"

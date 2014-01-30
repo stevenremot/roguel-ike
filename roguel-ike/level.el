@@ -26,7 +26,7 @@
 (require 'roguel-ike/time-manager)
 (require 'roguel-ike/physics/world)
 
-(defvar-local rlk--controller nil)
+(defvar-local rlk--local-controller nil)
 
 (defclass rlk--level ()
   ((cells :initarg :cells
@@ -69,7 +69,7 @@
 
 (defmethod get-controller ((self rlk--level))
   "Return the current controller."
-  rlk--controller)
+  rlk--local-controller)
 
 (defmethod add-entity ((self rlk--level) entity)
   "Add an entity to the level."

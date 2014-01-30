@@ -70,91 +70,32 @@
 
 
 ;;; Code:
-
-(require 'roguel-ike/game)
 (require 'roguel-ike/buffer-manager)
-(require 'roguel-ike/message-logger)
-(require 'roguel-ike/graphics/renderer/game)
-(require 'roguel-ike/graphics/renderer/stats)
-(require 'roguel-ike/controller)
-(require 'roguel-ike/interactive-object/door)
-(require 'roguel-ike/entity)
-(require 'roguel-ike/behaviour/manual)
-(require 'roguel-ike/behaviour/ai)
-(require 'roguel-ike/race)
+(require 'roguel-ike/game-screen/select-hero)
+(require 'roguel-ike/game-screen/test)
 
 (require 'roguel-ike/data/skills)
 (require 'roguel-ike/data/races)
 
-(defun rlk--get-cells-from-layout (layout)
-  "Create a cell level from a LAYOUT, a list of string representing the level."
-  (let ((cells '()))
-    (dolist (line layout)
-      (let ((cell-line '()))
-        (dolist (character (split-string line "" t))
-          (setq cell-line
-                (append cell-line
-                        (list
-                         (cond ((string-equal character "#")
-                                (rlk--level-cell "Wall cell" :type :wall))
-                               ((string-equal character ".")
-                                (rlk--level-cell-ground "Ground cell"))
-                               (t
-                                (rlk--level-cell "Unknown cell" :type :void)))))))
-        (setq cells (append cells (list cell-line)))))
-    cells))
+(defun rlk--start-screen (buffer-manager screen-symbol &rest args)
+  "Start a new screen.
+
+BUFFER-MANAGER is the game's buffer manager.
+SCREEN-SYMBOL is the screen's class name.
+ARGS are the arguments to transfer to screen setup."
+  (let (screen)
+    (when screen-symbol
+      (setq screen (make-instance screen-symbol
+                                  :buffer-manager buffer-manager
+                                  :end-callback (apply-partially 'rlk--start-screen buffer-manager)))
+      (apply 'setup screen args))))
 
 ;;;###autoload
 (defun roguel-ike ()
   "Start a roguel-ike game."
   (interactive)
-  (let* ((buffer-manager (rlk--buffer-manager "Buffer manager"))
-         (layout '("############"
-                   "#..#####...#"
-                   "#....#...###"
-                   "###......###"
-                   "############"))
-         (cells (rlk--get-cells-from-layout layout))
-         (level (rlk--level "Level" :cells cells))
-         (message-logger (rlk--message-logger "Message logger"
-                                              :message-buffer (get-message-buffer buffer-manager)))
-         (hero (rlk--entity-create-new (rlk--race-get-race :human)
-                                       (rlk--behaviour-manual "Manual behaviour")))
-         (rat (rlk--entity-create-new (rlk--race-get-race :rat)
-                                      (rlk--behaviour-ai "AI behaviour"))) ;; TODO replace this by a monster dropper or random level generation
-         (door (rlk--interactive-object-door "Door")) ;; TODO remove this after random level generation
-         (game (rlk--game "Game"
-                          :level level
-                          :hero hero
-                          :buffer-manager buffer-manager))
-         (stats-renderer (rlk--graphics-renderer-stats "Stats renderer"
-                                                       :buffer (get-stats-buffer buffer-manager)
-                                                       :stats(get-stats hero)))
-         (game-renderer (rlk--graphics-renderer-game "Game renderer"
-                                                     :buffer (get-game-buffer buffer-manager)))
-         (game-controller (rlk--controller "Game controller"
-                                                :game game
-                                                :game-renderer game-renderer
-                                                :stats-renderer stats-renderer)))
-    (set-level hero level)
-    (set-pos hero 1 1)
-    (set-level rat level)
-    (set-pos rat 9 1)
-
-    (add-entity level hero)
-    (add-entity level rat)
-
-    (set-message-logger hero message-logger)
-    (set-message-logger rat message-logger)
-
-    (add-object (get-cell-at level 5 3) door)
-
-    (setup-layout buffer-manager)
-    (draw-stats stats-renderer)
-    (display-message message-logger "Welcome, young adventurer!")
-    (setup game-controller)
-    (call-renderers game-controller)
-    (do-step (get-time-manager level))))
+  (rlk--start-screen (rlk--buffer-manager "Buffer manager")
+                     'rlk--game-screen-select-hero))
 
 (provide 'roguel-ike)
 
