@@ -25,11 +25,12 @@
 ;; Define the custom faces for roguel-ike.
 
 ;;; Code:
+(require 'roguel-ike/custom)
 
 (defgroup roguel-ike-faces
   '()
   "Group for rlk faces"
-  :group 'emacs)
+  :group 'roguel-ike)
 
 (defface rlk-face-default
   '()

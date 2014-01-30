@@ -54,6 +54,12 @@
   "Return the slot named SLOT."
   (cdr (assoc slot (oref self slots))))
 
+(defmethod get-slot-names ((self rlk--stats))
+  "Return all the slot's names."
+  (mapcar (lambda (slot-cons)
+            (car slot-cons))
+          (oref self slots)))
+
 (provide 'roguel-ike/stats)
 
 ;;; stats.el ends here

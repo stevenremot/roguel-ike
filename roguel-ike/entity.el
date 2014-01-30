@@ -46,7 +46,8 @@
    (message-logger :initarg :message-logger
                    :type rlk--message-logger
                    :reader get-message-logger
-                   :protection :protected
+                   :writer set-message-logger
+                   :protection :private
                    :documentation "The logger used to display entitie's messages.")
    (behaviour :initarg :behaviour
               :reader get-behaviour
@@ -359,19 +360,30 @@ SKILL's tags."
 ;; Entity creation ;;
 ;;;;;;;;;;;;;;;;;;;;;
 
-(defun rlk--entity-create-new (race behaviour message-logger)
+(defun rlk--entity-create (race stats behaviour)
+  "Create an entity.
+RACE is the race of the entity.
+STATS is the current statistics of the entity, in the form of a plist.
+BEHAVIOUR is the entity's behaviour.
+MESSAGE-LOGGER is the message logging system used by the entity."
+  (when (symbolp race)
+    (setq race (rlk--race-get-race race)))
+  (rlk--entity "Entity"
+               :race race
+               :stats (apply rlk--stats
+                             "Entity's stats"
+                             stats)
+               :behaviour behaviour))
+
+(defun rlk--entity-create-new (race behaviour)
   "Create a new entity.
 RACE is the race of the new entity.  Its statistics are the RACE's base
 statistics.
 BEHAVIOUR is the entity's behaviour.
 MESSAGE-LOGGER is the message logging system used by the entity."
-  (rlk--entity "Entity"
-               :race race
-               :stats (apply rlk--stats
-                             "Entity's stats"
-                             (get-base-stats race))
-               :behaviour behaviour
-               :message-logger message-logger))
+  (when (symbolp race)
+    (setq race (rlk--race-get-race race)))
+  (rlk--entity-create race (get-base-stats race) behaviour))
 
 (provide 'roguel-ike/entity)
 ;;; entity.el ends here

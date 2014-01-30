@@ -119,11 +119,9 @@
          (message-logger (rlk--message-logger "Message logger"
                                               :message-buffer (get-message-buffer buffer-manager)))
          (hero (rlk--entity-create-new (rlk--race-get-race :human)
-                                       (rlk--behaviour-manual "Manual behaviour")
-                                       message-logger))
+                                       (rlk--behaviour-manual "Manual behaviour")))
          (rat (rlk--entity-create-new (rlk--race-get-race :rat)
-                                      (rlk--behaviour-ai "AI behaviour")
-                                      message-logger)) ;; TODO replace this by a monster dropper or random level generation
+                                      (rlk--behaviour-ai "AI behaviour"))) ;; TODO replace this by a monster dropper or random level generation
          (door (rlk--interactive-object-door "Door")) ;; TODO remove this after random level generation
          (game (rlk--game "Game"
                           :level level
@@ -145,6 +143,9 @@
 
     (add-entity level hero)
     (add-entity level rat)
+
+    (set-message-logger hero message-logger)
+    (set-message-logger rat message-logger)
 
     (add-object (get-cell-at level 5 3) door)
 
