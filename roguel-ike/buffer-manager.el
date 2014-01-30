@@ -1,4 +1,4 @@
-;;; roguel-ike-buffer.el --- roguel-ike buffer management
+;;; buffer-manager.el --- roguel-ike buffer management
 
 ;; Copyright (C) 2014 Steven Rémot
 
@@ -87,6 +87,6 @@ Create a new one if not set yet."
   (kill-buffer (get-stats-buffer manager))
   (kill-buffer (get-game-buffer manager)))
 
-(provide 'roguel-ike-buffer)
+(provide 'roguel-ike/buffer-manager)
 
-;;; roguel-ike-buffer.el ends here
+;;; buffer-manager.el ends here

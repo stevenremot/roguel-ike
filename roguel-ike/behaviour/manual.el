@@ -1,4 +1,4 @@
-;;; roguel-ike-behaviour.el --- Entities' behaviour
+;;; manual.el --- Manual entity control
 
 ;; Copyright (C) 2014 Steven Rémot
 
@@ -24,35 +24,12 @@
 ;; object that decides what an entity should do now, regarding
 ;; its current environment.
 
+;;; Commentary:
+;; This behaviour let the player control an entity.
+
 ;;; Code:
-
-(require 'eieio)
-(require 'roguel-ike-entity)
-
-;;;;;;;;;;;;;;;;
-;; Base class ;;
-;;;;;;;;;;;;;;;;
-
-(defclass rlk--behaviour ()
-  ((entity :reader get-entity
-           :writer set-entity
-           :protection :private
-           :documentation "THe tntiy the current behaviour controls."))
-  "Base class for behaviour objects."
-  :abstract t)
-
-(defmethod do-action ((self rlk--behaviour) callback)
-  "Decide which action should be done now.
-Must call callback with the number of turns the action takes."
-  (error "Method do-action for behaviour must be overriden"))
-
-(defmethod is-manual-p ((self rlk--behaviour))
-  "Return t if the behaviour is manual, nil otherwise."
-  nil)
-
-;;;;;;;;;;;;;;;;;;
-;; Manual class ;;
-;;;;;;;;;;;;;;;;;;
+(require 'roguel-ike/behaviour)
+(require 'roguel-ike/interactive-object/door)
 
 (defgeneric call-renderers (controller)
   "Call the game's renderers.")
@@ -63,7 +40,7 @@ Must call callback with the number of turns the action takes."
 (defgeneric ask-direction (controller)
   "Ask the user for a direction.")
 
-(defvar-local rlk-controller nil)
+(defvar-local rlk--controller nil)
 
 (defclass rlk--behaviour-manual (rlk--behaviour)
   ((time-callback :type function
@@ -84,7 +61,7 @@ cyclic dependencies.
 
 behaviour <-- hero <--- game <-- controller
    |---------------------------------A"
-  rlk-controller)
+  rlk--controller)
 
 (defmethod spend-time ((self rlk--behaviour-manual) time)
   "Call the time callback function with given TIME."
@@ -182,48 +159,6 @@ If it could be used, spend a turn for it."
     (when (apply 'use-skill (get-entity self) skill arguments)
       (spend-time self 1))))
 
+(provide 'roguel-ike/behaviour/manual)
 
-;;;;;;;;;;;;;;
-;; AI class ;;
-;;;;;;;;;;;;;;
-
-(defclass rlk--behaviour-ai (rlk--behaviour)
-  ()
-  "Behaviour of entities controlled by the computer.")
-
-
-(defmethod move-randomly ((self rlk--behaviour-ai))
-  "Try to move on a random neighbour cell.
-Return the number of turns spent if it could move, 1 for waiting otherwise."
-  (let* ((entity (get-entity self))
-         (accessible-cells '())
-         (level (get-level entity))
-         (choosen-cell nil))
-    (dotimes (i 3)
-      (dotimes (j 3)
-        (let*
-            ((dx (- i 1))
-             (dy (- j 1))
-             (x (+ (get-x entity) (- i 1)))
-             (y (+ (get-y entity) (- j 1)))
-             (cell (get-cell-at level x y)))
-          (when (is-accessible-p cell)
-            (add-to-list 'accessible-cells (cons dx dy))))))
-    ;; If there are accessible cells, move. Otherwise, wait.
-    (when accessible-cells
-      (setq choosen-cell (nth (random (length accessible-cells))
-                              accessible-cells))
-      (try-move entity (car choosen-cell) (cdr choosen-cell)))
-    1))
-
-(defmethod do-action ((self rlk--behaviour-ai) callback)
-  "See rlk--behaviour."
-  (let ((nb-turns (move-randomly self)))
-    (spend-time (get-entity self) nb-turns)
-    (funcall callback nb-turns)))
-
-
-
-(provide 'roguel-ike-behaviour)
-
-;;; roguel-ike-behaviour.el ends here
+;;; manual.el ends here

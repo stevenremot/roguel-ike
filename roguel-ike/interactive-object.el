@@ -1,4 +1,4 @@
-;;; roguel-ike-message.el --- Message system
+;;; interactive-object.el --- Level's interactive objects
 
 ;; Copyright (C) 2014 Steven Rémot
 
@@ -19,26 +19,26 @@
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ;;; Commentary:
-;; Displays game messages
+;; Defines interactive objects in the level
 
 ;;; Code:
+(require 'roguel-ike/level)
+(require 'roguel-ike/level/cell/object)
 
-(require 'eieio)
+(defclass rlk--interactive-object (rlk--level-cell-object)
+  ()
+  "Base class for interactive objects."
+  :abstract t)
 
-(defclass rlk--message-logger ()
-  ((message-buffer :initarg :message-buffer
-                   :type buffer
-                   :reader get-message-buffer
-                   :protection :private
-                   :documentation "Buffer in which messages are displayed."))
-  "Display game messages in a buffer.")
+(defmethod get-layer ((self rlk--interactive-object))
+  "See rlk--level-cell-object."
+  2)
 
-(defmethod display-message ((logger rlk--message-logger) message)
-  "Display a message in the message buffer"
-  (with-current-buffer (get-message-buffer logger)
-    (goto-char (point-min))
-    (insert (concat message "\n"))))
+(defmethod do-action ((self rlk--interactive-object) hero action)
+  "Do the ACTION when the HERO interacts with it.
+Return t when the action was successfull, nil otherwise."
+  (error "Method do-action must be overriden"))
 
-(provide 'roguel-ike-message)
+(provide 'roguel-ike/interactive-object)
 
-;;; roguel-ike-message.el ends here
+;;; interactive-object.el ends here

@@ -1,4 +1,4 @@
-;;; roguel-ike-game.el --- Game state
+;;; game.el --- Game state
 
 ;; Copyright (C) 2014 Steven Rémot
 
@@ -24,9 +24,9 @@
 ;;; Code:
 
 (require 'eieio)
-(require 'roguel-ike-level)
-(require 'roguel-ike-entity)
-(require 'roguel-ike-buffer)
+(require 'roguel-ike/level)
+(require 'roguel-ike/entity)
+(require 'roguel-ike/buffer-manager)
 
 (defclass rlk--game ()
   ((current-level :initarg :level
@@ -47,6 +47,6 @@
                    :documentation "Game's buffer manager."))
   "Contain the game state.")
 
-(provide 'roguel-ike-game)
+(provide 'roguel-ike/game)
 
-;;; roguel-ike-game.el ends here
+;;; game.el ends here

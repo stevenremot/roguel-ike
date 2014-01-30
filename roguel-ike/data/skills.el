@@ -23,8 +23,8 @@
 
 ;;; Code:
 
-(require 'roguel-ike-skill)
-(require 'roguel-ike-entity)
+(require 'roguel-ike/skill)
+(require 'roguel-ike/entity)
 
 (rlk--defskill :punch
                "Punch"
@@ -58,6 +58,6 @@
                        (display-message entity "There is no enemy here...")
                        nil)))))
 
-(provide 'roguel-ike-data/skills)
+(provide 'roguel-ike/data/skills)
 
 ;;; skills.el ends here

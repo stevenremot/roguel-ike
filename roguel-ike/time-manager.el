@@ -1,4 +1,4 @@
-;;; roguel-ike-time.el --- Time management
+;;; time-manager.el --- Time management
 
 ;; Copyright (C) 2014 Steven Rémot
 
@@ -168,5 +168,5 @@ Can update priorities, and retrieve object with higher priority.")
     (add-hook 'after-step-hook hook)
     (oset self after-step-hook after-step-hook)))
 
-(provide 'roguel-ike-time)
-;;; roguel-ike-time.el ends here
+(provide 'roguel-ike/time-manager)
+;;; time-manager.el ends here

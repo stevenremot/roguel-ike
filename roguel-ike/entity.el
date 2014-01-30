@@ -22,15 +22,11 @@
 ;; Define roguel-ike moving entities
 
 ;;; Code:
-
-(require 'eieio)
-(require 'roguel-ike-stats)
-(require 'roguel-ike-level)
-(require 'roguel-ike-message)
-(require 'roguel-ike-interactive-object)
-(require 'roguel-ike-race)
-(require 'roguel-ike-skill)
-(require 'roguel-ike-dispatcher)
+(require 'roguel-ike/stats/regenerator)
+(require 'roguel-ike/level/cell/ground)
+(require 'roguel-ike/message-logger)
+(require 'roguel-ike/race)
+(require 'roguel-ike/dispatcher)
 
 ;;;;;;;;;;;;;;;;;;;;;
 ;; Abstract entity ;;
@@ -54,7 +50,7 @@
                    :documentation "The logger used to display entitie's messages.")
    (behaviour :initarg :behaviour
               :reader get-behaviour
-              :protection :protected
+              :protection :private
               :documentation "Entity's behaviour.")
    (dispatcher :reader get-dispatcher
                :type rlk--dispatcher
@@ -377,5 +373,5 @@ MESSAGE-LOGGER is the message logging system used by the entity."
                :behaviour behaviour
                :message-logger message-logger))
 
-(provide 'roguel-ike-entity)
-;;; roguel-ike-entity.el ends here
+(provide 'roguel-ike/entity)
+;;; entity.el ends here

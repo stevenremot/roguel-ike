@@ -1,4 +1,4 @@
-;;; roguel-ike-dispatcher.el --- Event dispatcher
+;;; dispatcher.el --- Event dispatcher
 
 ;; Copyright (C) 2014 Steven Rémot
 
@@ -61,6 +61,6 @@ There is no restriction regarding the arguments provided on dispatch.")
     (apply 'run-hook-with-args 'hook arguments)))
 
 
-(provide 'roguel-ike-dispatcher)
+(provide 'roguel-ike/dispatcher)
 
-;;; roguel-ike-dispatcher.el ends here
+;;; dispatcher.el ends here

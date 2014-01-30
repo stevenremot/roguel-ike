@@ -1,4 +1,4 @@
-;;; roguel-ike-stats.el --- Statistics system
+;;; regenerator.el --- Statistics regenerator
 
 ;; Copyright (C) 2014 Steven Rémot
 
@@ -19,84 +19,13 @@
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ;;; Commentary:
-;; The entity's statistics are contained in a stat class.
-;; This class has a set of slots, which contains a current value and
-;; a maximum value.
+;; The statistics' regenerator preiodically improve
+;; current statistics when they are under their maximal value.
 
 ;;; Code:
 
 (require 'eieio)
-
-;;;;;;;;;;
-;; Slot ;;
-;;;;;;;;;;
-
-(defclass rlk--stats-slot ()
-  ((max-value :initarg :max-value
-              :type number
-              :reader get-max-value
-              :writer set-max-value
-              :protection :private
-              :documentation "The maximum value of the statistic.")
-   (current-value :type number
-                  :protection :private
-                  :documentation "The current value of the statistic.
-Cannot be out of the range 0 - max-value."))
-  "Statistic slot.
-Handle maximum value and current value.")
-
-(defmethod get-current-value ((self rlk--stats-slot))
-  "Return the current slot value.
-Set it to max-value if not set yet."
-  (unless (slot-boundp self 'current-value)
-    (set-current-value self (get-max-value self)))
-  (oref self current-value))
-
-(defmethod set-current-value ((self rlk--stats-slot) current-value)
-  "Set the current slot value.
-Restrain it to the range 0 - max-value."
-  (oset self current-value
-        (cond ((< current-value 0)
-               0)
-              ((> current-value (get-max-value self))
-               (get-max-value self))
-              (t
-               current-value))))
-
-;;;;;;;;;;;;;;;;;
-;; Stats class ;;
-;;;;;;;;;;;;;;;;;
-
-(defclass rlk--stats ()
-  ((slots :initarg :slots
-          :type list
-          :protection :private
-          :documentation "An associated list whose keys are slot names and values are slots."))
-   "Entity's statistics.")
-
-(defmethod initialize-instance ((self rlk--stats) slots)
-  "Initialize the slots."
-  (let ((stat-slots '())
-        (slot-names '(:health
-                      :stamina
-                      :strength
-                      :constitution
-                      :speed
-                      :spirit)))
-    (dolist (name slot-names)
-      (add-to-list 'stat-slots
-                   (cons name
-                         (rlk--stats-slot (format "%s slot" name)
-                                                :max-value (plist-get  slots name)))))
-  (call-next-method self (list :slots stat-slots))))
-
-(defmethod get-slot ((self rlk--stats) slot)
-  "Return the slot named SLOT."
-  (cdr (assoc slot (oref self slots))))
-
-;;;;;;;;;;;;;;;;;
-;; Regenerator ;;
-;;;;;;;;;;;;;;;;;
+(require 'roguel-ike/stats)
 
 (defclass rlk--stats-regenerator ()
   ((stats :initarg :stats
@@ -144,6 +73,6 @@ Restrain it to the range 0 - max-value."
       (regenerate self)
       (oset self count (- (oref self count) period)))))
 
-(provide 'roguel-ike-stats)
+(provide 'roguel-ike/stats/regenerator)
 
-;;; roguel-ike-stats.el ends here
+;;; regenerator.el ends here

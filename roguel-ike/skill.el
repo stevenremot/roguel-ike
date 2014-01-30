@@ -1,4 +1,4 @@
-;;; roguel-ike-skill.el --- SKill system
+;;; skill.el --- SKill system
 
 ;; Copyright (C) 2014 Steven Rémot
 
@@ -108,6 +108,6 @@ documentation for more information."
   "Return the skill with the id ID."
   (cdr (assoc id rlk--skills)))
 
-(provide 'roguel-ike-skill)
+(provide 'roguel-ike/skill)
 
-;;; roguel-ike-skill.el ends here
+;;; skill.el ends here

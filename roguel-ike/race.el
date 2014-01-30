@@ -1,4 +1,4 @@
-;;; roguel-ike-race.el --- roguel-ike race system
+;;; race.el --- roguel-ike race system
 
 ;; Copyright (C) 2014 Steven Rémot
 
@@ -25,7 +25,7 @@
 ;;; Code:
 
 (require 'eieio)
-(require 'roguel-ike-skill)
+(require 'roguel-ike/skill)
 
 ;;;;;;;;;;;;;;;;;
 ;; Race classe ;;
@@ -123,6 +123,6 @@ If there is no such race, return nil."
         (throw 'race race)))
     nil))
 
-(provide 'roguel-ike-race)
+(provide 'roguel-ike/race)
 
-;;; roguel-ike-race.el ends here
+;;; race.el ends here

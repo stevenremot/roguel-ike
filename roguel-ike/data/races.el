@@ -24,7 +24,7 @@
 
 ;;; Code:
 
-(require 'roguel-ike-race)
+(require 'roguel-ike/race)
 
 (rlk--defrace :human
               "The human"
@@ -63,6 +63,6 @@
                :spirit 0)
               '())
 
-(provide 'roguel-ike-data/races)
+(provide 'roguel-ike/data/races)
 
 ;;; races.el ends here

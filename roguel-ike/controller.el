@@ -1,4 +1,4 @@
-;;; roguel-ike-controller.el --- Controllers' code
+;;; controller.el --- Controllers' code
 
 ;; Copyright (C) 2014 Steven Rémot
 
@@ -22,18 +22,16 @@
 ;; Define roguel-ike controls system
 
 ;;; Code:
+(require 'roguel-ike/game)
+(require 'roguel-ike/graphics/renderer/game)
+(require 'roguel-ike/graphics/renderer/stats)
+(require 'roguel-ike/fov)
+(require 'roguel-ike/physics/world)
 
-(require 'eieio)
-(require 'roguel-ike-game)
-(require 'roguel-ike-graphics)
-(require 'roguel-ike-fov)
-(require 'roguel-ike-behaviour)
-(require 'roguel-ike-physics)
-
-(defvar-local rlk-controller nil
+(defvar-local rlk--controller nil
   "Game controller associated to the buffer.")
 
-(defclass rlk--controller-game ()
+(defclass rlk--controller ()
   ((game :initarg :game
          :type rlk--game
          :reader get-game
@@ -84,19 +82,19 @@ BODY is the method definition."
          '()
          docstring
          '(interactive)
-         (list name 'rlk-controller))
+         (list name 'rlk--controller))
    ))
 
-(defmethod get-hero ((self rlk--controller-game))
+(defmethod get-hero ((self rlk--controller))
   "Return the hero in the game associated to the controller."
   (get-hero (get-game self)))
 
-(defmethod get-hero-behaviour ((self rlk--controller-game))
+(defmethod get-hero-behaviour ((self rlk--controller))
   "Return the hero's behaviour for the game associated to the controller."
   (get-behaviour (get-hero self)))
 
 ;; TODO try to displace fov elsewhere
-(defmethod call-renderers ((self rlk--controller-game))
+(defmethod call-renderers ((self rlk--controller))
   "Ask the game-renderer to render game's level."
   (let* ((game (get-game self))
         (level (get-current-level game))
@@ -118,25 +116,25 @@ BODY is the method definition."
 
 ;; Direction commands definition
 (dolist (direction-cons rlk--direction-map)
-  (eval `(rlk--defcommand ,(car direction-cons) ((self rlk--controller-game))
+  (eval `(rlk--defcommand ,(car direction-cons) ((self rlk--controller))
                   "Move the hero."
                   (interact-with-cell (get-hero-behaviour self)
                                       ,(cadr direction-cons)
                                       ,(cddr direction-cons)))))
 
-(rlk--defcommand wait ((self rlk--controller-game))
+(rlk--defcommand wait ((self rlk--controller))
   "Wait one turn without doing anything."
   (wait (get-hero-behaviour self)))
 
-(rlk--defcommand close-door ((self rlk--controller-game))
+(rlk--defcommand close-door ((self rlk--controller))
   "Ask the user for a direction, and try to close a door in this direction."
   (call-with-direction self (apply-partially 'close-door (get-hero-behaviour self))))
 
-(rlk--defcommand select-and-use-skill ((self rlk--controller-game))
+(rlk--defcommand select-and-use-skill ((self rlk--controller))
   "Ask the user for a skill and use it."
   (select-and-use-skill (get-hero-behaviour self)))
 
-(rlk--defcommand quit-rlk ((self rlk--controller-game))
+(rlk--defcommand quit-rlk ((self rlk--controller))
   "Quit roguel-ike."
   (kill-buffers (get-buffer-manager (get-game self))))
 
@@ -144,7 +142,7 @@ BODY is the method definition."
 ;; Input queries ;;
 ;;;;;;;;;;;;;;;;;;;
 
-(defmethod call-with-direction ((self rlk--controller-game) function)
+(defmethod call-with-direction ((self rlk--controller) function)
   "Ask the user for a direction and execute FUNCTION with the provided direction.
 
 The direction takes the form of two arguments: dx and dy.
@@ -159,7 +157,7 @@ an error message is displayed."
         (funcall function (car direction) (cdr direction))
       (message "This is not a valid direction."))))
 
-(defmethod ask-direction ((self rlk--controller-game))
+(defmethod ask-direction ((self rlk--controller))
   "Ask the user to input a direction.
 If a direction is given, return a cons representing it.
 
@@ -177,7 +175,7 @@ the input is invalid."
             (ask-direction self)))
       (ask-direction self))))
 
-(defmethod ask-option ((self rlk--controller-game) prompt collection)
+(defmethod ask-option ((self rlk--controller) prompt collection)
   "Ask the user to select an element of a collection.
 
 PROMPT is the message displayed to invite the user to give an input.
@@ -195,15 +193,15 @@ Return nil when the action has been cancelled."
 ;; Controller setup ;;
 ;;;;;;;;;;;;;;;;;;;;;;
 
-(defmethod setup ((self rlk--controller-game))
+(defmethod setup ((self rlk--controller))
   "Initiates key binding on controller"
   (with-current-buffer (get-target-buffer (get-game-renderer self))
-    (setq rlk-controller self)
+    (setq rlk--controller self)
     (dolist (binding (get-key-bindings self))
       (local-set-key (car binding)
                      (intern (concat "rlk-command-"
                                           (symbol-name (cdr binding))))))))
 
 
-(provide 'roguel-ike-controller)
-;;; roguel-ike-controller.el ends here
+(provide 'roguel-ike/controller)
+;;; controller.el ends here

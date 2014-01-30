@@ -1,4 +1,4 @@
-;;; roguel-ike-physics.el --- Simple physics simulation
+;;; motion.el --- Physical motion
 
 ;; Copyright (C) 2014 Steven Rémot
 
@@ -19,13 +19,10 @@
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ;;; Commentary:
-;; The game implements a simple physics simulator.
-;; Some objects can have a motion that can make them move.
+;; A physical motion make an object move in the level.
 
 ;;; Code:
-
-(require 'eieio)
-(require 'roguel-ike-math)
+(require 'roguel-ike/math/line)
 
 ;;;;;;;;;;;;;;
 ;; Generics ;;
@@ -87,51 +84,6 @@ Apply all effects, including collisions and movement attenuation."
         (collide-with-cell object next-cell direction (get-energy self))
         (oset self energy 0)))))
 
-;;;;;;;;;;;
-;; World ;;
-;;;;;;;;;;;
+(provide 'roguel-ike/physics/motion)
 
-(defclass rlk--physics-world ()
-  ((motions :initform ()
-            :type list
-            :reader get-motions
-            :protection :private
-            :documentation "World's motions."))
-  "Aggregate and update motions.")
-
-(defmethod add-motion ((self rlk--physics-world) motion)
-  "Add a MOTION to the world.
-
-Won't accept motion with null or negative energy."
-  (when (> (get-energy motion) 0)
-    (let ((motions (get-motions self)))
-      (oset self motions (add-to-list 'motions motion)))))
-
-(defmethod remove-motion ((self rlk--physics-world) motion)
-  "Remove a MOTION from the world."
-  (let ((new-motions '()))
-    (dolist (old-motion (get-motions self))
-      (unless (equal motion old-motion)
-        (add-to-list 'new-motions old-motion)))
-    (oset self motions new-motions)))
-
-(defmethod do-step ((self rlk--physics-world))
-  "Update MOTIONS for one turn.
-Return t if at least one MOTION remains, nil otherwise."
-  (let ((motions (get-motions self)))
-    (dolist (motion motions)
-      (update motion)
-      (when (= (get-energy motion) 0)
-        (remove-motion self motion)))
-    (> (length (get-motions self)) 0)))
-
-(defmethod run ((self rlk--physics-world) draw-callback)
-  "Update bodies as long as at least one is moving.
-DRAW-CALLBACK is called at each iteration."
-  (when (do-step self)
-    (funcall draw-callback)
-    (sit-for 0.1)
-    (run self draw-callback)))
-
-(provide 'roguel-ike-physics)
-;;; roguel-ike-physics.el ends here
+;;; motion.el ends here

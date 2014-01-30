@@ -1,4 +1,4 @@
-;;; roguel-ike-interactive-object.el --- Level's interactive objects
+;;; door.el --- Dungeon door
 
 ;; Copyright (C) 2014 Steven Rémot
 
@@ -19,34 +19,10 @@
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ;;; Commentary:
-;; Defines interactive objects in the level
+;; Defines a dungeon door
 
 ;;; Code:
-
-(require 'eieio)
-(require 'roguel-ike-level)
-
-;;;;;;;;;;;;;;;;
-;; Base class ;;
-;;;;;;;;;;;;;;;;
-
-(defclass rlk--interactive-object (rlk--level-cell-object)
-  ()
-  "Base class for interactive objects."
-  :abstract t)
-
-(defmethod get-layer ((self rlk--interactive-object))
-  "See rlk--level-cell-object."
-  2)
-
-(defmethod do-action ((self rlk--interactive-object) hero action)
-  "Do the ACTION when the HERO interacts with it.
-Return t when the action was successfull, nil otherwise."
-  (error "Method do-action must be overriden"))
-
-;;;;;;;;;;
-;; Door ;;
-;;;;;;;;;;
+(require 'roguel-ike/interactive-object)
 
 (defclass rlk--interactive-object-door (rlk--interactive-object)
   ((opened :initform nil
@@ -85,6 +61,6 @@ When the action is :close and the door is open, close it."
    (t
     nil)))
 
-(provide 'roguel-ike-interactive-object)
+(provide 'roguel-ike/interactive-object/door)
 
-;;; roguel-ike-interactive-object.el ends here
+;;; door.el ends here

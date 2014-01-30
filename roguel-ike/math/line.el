@@ -1,4 +1,4 @@
-;;; roguel-ike-math.el --- Math utilities for roguel-ike
+;;; line.el --- 2-dimensional line
 
 ;; Copyright (C) 2014 Steven Rémot
 
@@ -19,58 +19,10 @@
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ;;; Commentary:
-;; Defines math data structures and functions
+;;
 
 ;;; Code:
-
-(require 'eieio)
-
-;;;;;;;;;;;
-;; Point ;;
-;;;;;;;;;;;
-
-(defclass rlk--math-point ()
-  ((x :initarg :x
-      :initform 0
-      :type number
-      :reader get-x
-      :writer set-x
-      :protection :private
-      :documentation "Absciss.")
-   (y :initarg :y
-      :initform 0
-      :type number
-      :reader get-y
-      :writer set-y
-      :protection :private
-      :documentation "Ordinate."))
-  "A two-dimensionnal point.")
-
-(defmethod add ((point rlk--math-point) vector)
-  "Add VECTOR coordinates to POINT coordinates."
-  (rlk--math-point "Point"
-         :x (+ (get-x point) (get-x vector))
-         :y (+ (get-y point) (get-y vector))))
-
-(defmethod subtract ((point rlk--math-point) vector)
-  "Subtract VECTOR coordinates to POINT coordinates."
-  (rlk--math-point "Point"
-         :x (- (get-x point) (get-x vector))
-         :y (- (get-y point) (get-y vector))))
-
-(defmethod multiply ((point rlk--math-point) factor)
-  "Multiply POINT coordinates by FACTOR."
-  (rlk--math-point "Point"
-         :x (* (get-x point) factor)
-         :y (* (get-y point) factor)))
-
-
-(defmethod get-distance ((point1 rlk--math-point) point2)
-  "Compute destance between POINT1 and POINT2.
-POINT1 and POINT2 are conses of the form (x . y)"
-  (let ((dx (- (get-x point1) (get-x point2)))
-        (dy (- (get-y point1) (get-y point2))))
-    (sqrt (+ (* dx dx) (* dy dy)))))
+(require 'roguel-ike/math/point)
 
 ;;;;;;;;;;
 ;; Line ;;
@@ -138,6 +90,6 @@ Raise error is the line is vetical."
       (error "Cannot get y from x on an vertical line"))
     (+ y1 (* (get-slope line) (- x x1)))))
 
-(provide 'roguel-ike-math)
+(provide 'roguel-ike/math/line)
 
-;;; roguel-ike-math.el ends here
+;;; line.el ends here

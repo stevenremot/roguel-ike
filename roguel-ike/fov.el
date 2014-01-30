@@ -1,4 +1,4 @@
-;;; roguel-ike-fov.el --- Field of view system for roguel-ike
+;;; fov.el --- Field of view system for roguel-ike
 
 ;; Copyright (C) 2014 Steven Rémot
 
@@ -26,10 +26,9 @@
 ;; to get a introduction to the method.
 
 ;;; Code:
-
-(require 'eieio)
-(require 'roguel-ike-level)
-(require 'roguel-ike-math)
+(require 'roguel-ike/level)
+(require 'roguel-ike/level/cell)
+(require 'roguel-ike/math/line)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Coordinates transformer ;;
@@ -199,6 +198,6 @@ starting to the given DEPTH."
       (set-lit cell nil)))
   (rlk--fov-compute-fov level (get-x hero) (get-y hero) 5))
 
-(provide 'roguel-ike-fov)
+(provide 'roguel-ike/fov)
 
-;;; roguel-ike-fov.el ends here
+;;; fov.el ends here
