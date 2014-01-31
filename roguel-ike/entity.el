@@ -348,7 +348,7 @@ SKILL's tags."
   "Return the entity name."
   (if (is-hero-p self)
       "You"
-    (get-name (get-race self))))
+    (concat "The " (get-name (get-race self)))))
 
 (defmethod get-verb ((self rlk--entity) you-verb other-verb)
   "Return YOU-VERB when entity is the main character, OTHER-VERB otherwise."

@@ -24,6 +24,9 @@
 ;;; Code:
 (require 'roguel-ike/game-screen)
 (require 'roguel-ike/hero-data/manager)
+(require 'roguel-ike/race)
+
+(defvar rlk--races nil)
 
 (defclass rlk--game-screen-select-hero (rlk--game-screen)
   ((hero-data-manager :type rlk--hero-data-manager
@@ -52,7 +55,7 @@ It also allows to go to the hero creation screen.")
         (insert "\n"))
       (insert "---\n")
       (insert-text-button "Create a new hero"
-                          'action (apply-partially 'create-new-hero self))
+                          'action (apply-partially 'create-hero self))
       (setq buffer-read-only t)
       (goto-char (point-min))
       (forward-button 1))))
@@ -68,11 +71,37 @@ It also allows to go to the hero creation screen.")
                        hero-data-manager
                        hero-data)))
 
-(defmethod create-new-hero ((self rlk--game-screen-select-hero &rest args))
-  "End the screen by asking hero creation."
-  (call-end-callback self
-                     nil
-                     (get-hero-data-manager self)))
+(defmethod create-hero ((self rlk--game-screen-select-hero) &optional button)
+  "Ask the user information to create a new hero and start the game with it."
+  (let ((hero-name "")
+        (race-name "")
+        (race-names (mapcar (lambda (race)
+                              (get-name race))
+                            rlk--races))
+        (race nil)
+        (hero-data nil))
+
+    (while (= (length hero-name) 0)
+      (setq hero-name (read-string "Hero's name: "))
+      (when (= (length hero-name) 0)
+        (message "You must set a name.")))
+
+    (while (= (length race-name) 0)
+      (setq race-name (completing-read "Hero's race: " race-names nil t))
+      (when (= (length race-name) 0)
+        (message "You must set a race.")))
+
+    (dolist (available-race rlk--races)
+      (when (equal race-name (get-name available-race))
+        (setq race available-race)))
+
+    (setq hero-data (rlk--hero-data "Hero data"
+                                    :name hero-name
+                                    :race (get-type race)
+                                    :stats (get-base-stats race)))
+
+    (save-hero (get-hero-data-manager self) hero-data)
+    (select-hero self hero-name)))
 
 (provide 'roguel-ike/game-screen/select-hero)
 

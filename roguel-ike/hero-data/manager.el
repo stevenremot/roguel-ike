@@ -23,7 +23,6 @@
 
 ;;; Code:
 (require 'roguel-ike/hero-data)
-(require 'roguel-ike/file-system)
 (require 'roguel-ike/custom)
 
 (defcustom roguel-ike-save-directory (concat user-emacs-directory "roguel-ike-saves/")

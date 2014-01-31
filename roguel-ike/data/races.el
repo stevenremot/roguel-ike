@@ -27,7 +27,7 @@
 (require 'roguel-ike/race)
 
 (rlk--defrace :human
-              "The human"
+              "human"
               (list
                :health 10
                :stamina 10
@@ -46,7 +46,7 @@
                :punch))
 
 (rlk--defrace :rat
-              "The rat"
+              "rat"
               (list
                :health 5
                :stamina 1
