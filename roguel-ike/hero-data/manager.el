@@ -68,6 +68,12 @@ Raise an error when this hero does not exist."
           (rlk--hero-data-create-from-list (read (current-buffer))))
       (error "No saved game with the name %s" hero-name))))
 
+(defmethod delete-hero ((self rlk--hero-data-manager) hero-name)
+  "Delete the hero whcoh name is HERO-NAME."
+  (let ((file-name (get-hero-filename self hero-name)))
+    (when (file-exists-p file-name)
+      (delete-file file-name))))
+
 (defmethod get-saved-heros ((self rlk--hero-data-manager))
   "Return the name of all the saved heros."
   (let ((save-files (directory-files (get-save-directory self)

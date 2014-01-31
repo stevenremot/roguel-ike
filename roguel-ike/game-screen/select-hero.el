@@ -45,20 +45,25 @@ It also allows to go to the hero creation screen.")
     (oset self hero-data-manager hero-data-manager)
 
     (setup-menu-layout buffer-manager)
-    (with-current-buffer (get-game-buffer buffer-manager)
-      (setq buffer-read-only nil)
-      (erase-buffer)
-      (insert "Select your hero :\n---\n")
-      (dolist (hero (get-saved-heros hero-data-manager))
-        (insert-text-button hero
-                            'action (apply-partially 'select-hero self))
-        (insert "\n"))
-      (insert "---\n")
-      (insert-text-button "Create a new hero"
-                          'action (apply-partially 'create-hero self))
-      (setq buffer-read-only t)
-      (goto-char (point-min))
-      (forward-button 1))))
+    (set-buffer (get-game-buffer buffer-manager))
+    (draw-screen self)
+    (rlk--select-hero-mode)
+    (register-in-buffers self (get-game-buffer buffer-manager))))
+
+(defmethod draw-screen ((self rlk--game-screen-select-hero))
+  "Render the user interface."
+  (let ((hero-data-manager (get-hero-data-manager self)))
+    (setq buffer-read-only nil)
+    (erase-buffer)
+    (insert "Select your hero :\n---\n")
+    (dolist (hero (get-saved-heros hero-data-manager))
+      (insert-text-button hero
+                          'action (apply-partially 'select-hero self))
+      (insert "\n"))
+    (insert "---\n")
+    (insert-text-button "Create a new hero"
+                        'action (apply-partially 'create-hero self))
+    (setq buffer-read-only t)))
 
 (defmethod select-hero ((self rlk--game-screen-select-hero) hero-name)
   "End the screen by loading and selecting the hero with HERO-NAME."
@@ -102,6 +107,59 @@ It also allows to go to the hero creation screen.")
 
     (save-hero (get-hero-data-manager self) hero-data)
     (select-hero self hero-name)))
+
+(defmethod delete-hero ((self rlk--game-screen-select-hero) hero-name)
+  "Ask the user for confirmation before deleting HERO-NAME."
+  (when (yes-or-no-p (format "Are you sure you want to delete %s? "
+                             hero-name))
+    (delete-hero (get-hero-data-manager self) hero-name)
+    (setq buffer-read-only nil)
+    (beginning-of-line)
+    (kill-line 1)
+    (setq buffer-read-only t)))
+
+;;;;;;;;;;;;;;;;;;;;;
+;; Associated mode ;;
+;;;;;;;;;;;;;;;;;;;;;
+
+(defvar rlk--select-hero-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "n") 'rlk--select-hero-mode-next-button)
+    (define-key map (kbd "p") 'rlk--select-hero-mode-previous-button)
+    (define-key map (kbd "DEL") 'rlk--select-hero-mode-delete)
+    (define-key map (kbd "q") 'rlk--select-hero-mode-quit)
+    map)
+  "Keymap for hero selection mode.")
+
+(define-derived-mode rlk--select-hero-mode special-mode "roguel-ike:select-hero"
+  "This mode defines key bindings for the hero selection screen.
+
+\\{rlk--select-hero-mode-map}"
+  (setq buffer-read-only t)
+  (goto-char (point-min))
+  (forward-button 1))
+
+(defun rlk--select-hero-mode-next-button ()
+  "Move to the next button in the buffer."
+  (interactive)
+  (forward-button 1))
+
+(defun rlk--select-hero-mode-previous-button ()
+  "Move to the previous button in the buffer."
+  (interactive)
+  (backward-button 1))
+
+(defun rlk--select-hero-mode-delete ()
+  "Delete the hero on which the cursor is pointing at."
+  (interactive)
+  (let ((hero-name (button-label (point))))
+    (when (not (equal hero-name ""))
+      (delete-hero rlk--local-game-screen hero-name))))
+
+(defun rlk--select-hero-mode-quit ()
+  "Quit the game."
+  (interactive)
+  (quit-game rlk--local-game-screen))
 
 (provide 'roguel-ike/game-screen/select-hero)
 

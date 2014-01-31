@@ -24,6 +24,9 @@
 ;;; Code:
 (require 'roguel-ike/buffer-manager)
 
+(defvar-local rlk--local-game-screen nil
+  "The game screen associated to this buffer.")
+
 (defclass rlk--game-screen ()
   ((buffer-manager :initarg :buffer-manager
                    :type rlk--buffer-manager
@@ -51,6 +54,16 @@ A game screen is for example a menu screen, or a special game mode."
 (defmethod call-end-callback ((self rlk--game-screen) next-screen &rest args)
   "Call the end callback for NEXT-SCREEN, populating setup with ARGS."
   (apply (get-end-callback self) next-screen args))
+
+(defmethod register-in-buffers ((self rlk--game-screen) &rest buffers)
+  "Register the game screen in the buffers."
+  (dolist (buffer buffers)
+    (with-current-buffer buffer
+      (setq rlk--local-game-screen self))))
+
+(defmethod quit-game ((self rlk--game-screen))
+  (kill-buffers (get-buffer-manager self))
+  (call-end-callback self nil))
 
 (provide 'roguel-ike/game-screen)
 
