@@ -23,6 +23,7 @@
 
 ;;; Code:
 (require 'roguel-ike/buffer-manager)
+(require 'roguel-ike/hero-data/manager)
 
 (defvar-local rlk--local-game-screen nil
   "The game screen associated to this buffer.")
@@ -41,7 +42,12 @@
 
 This function takes as argument the class' name of the next screen to call,
 and an arbitrary number of arguments that will be passed to the setup method
-of the next screen."))
+of the next screen.")
+   (hero-data-manager :initarg :hero-data-manager
+                      :type rlk--hero-data-manager
+                      :reader get-hero-data-manager
+                      :protection :protected
+                      :documentation "The game's hero data manager."))
   "Base class for game screens.
 
 A game screen is for example a menu screen, or a special game mode."

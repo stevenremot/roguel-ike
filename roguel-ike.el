@@ -70,30 +70,34 @@
 
 
 ;;; Code:
+(require 'roguel-ike/hero-data/manager)
 (require 'roguel-ike/buffer-manager)
 (require 'roguel-ike/game-screen/select-hero)
 
 (require 'roguel-ike/data/skills)
 (require 'roguel-ike/data/races)
 
-(defun rlk--start-screen (buffer-manager screen-symbol &rest args)
+(defun rlk--start-screen (hero-data-manager buffer-manager screen-symbol &rest args)
   "Start a new screen.
 
+HERO-DATA-MANAGER is the game's saved data manager.
 BUFFER-MANAGER is the game's buffer manager.
 SCREEN-SYMBOL is the screen's class name.
 ARGS are the arguments to transfer to screen setup."
   (let (screen)
     (when screen-symbol
       (setq screen (make-instance screen-symbol
+                                  :hero-data-manager hero-data-manager
                                   :buffer-manager buffer-manager
-                                  :end-callback (apply-partially 'rlk--start-screen buffer-manager)))
+                                  :end-callback (apply-partially 'rlk--start-screen hero-data-manager buffer-manager)))
       (apply 'setup screen args))))
 
 ;;;###autoload
 (defun roguel-ike ()
   "Start a roguel-ike game."
   (interactive)
-  (rlk--start-screen (rlk--buffer-manager "Buffer manager")
+  (rlk--start-screen (rlk--hero-data-manager "Hero data manager")
+                     (rlk--buffer-manager "Buffer manager")
                      'rlk--game-screen-select-hero))
 
 (provide 'roguel-ike)

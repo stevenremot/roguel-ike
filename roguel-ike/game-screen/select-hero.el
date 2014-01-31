@@ -22,29 +22,22 @@
 ;;
 
 ;;; Code:
-(require 'roguel-ike/mode)
+(require 'roguel-ike/mode/menu)
 (require 'roguel-ike/hero-data/manager)
 (require 'roguel-ike/race)
-(require 'roguel-ike/game-screen/test)
+(require 'roguel-ike/game-screen/select-mode)
 
 (defvar rlk--races nil)
 
 (defclass rlk--game-screen-select-hero (rlk--game-screen)
-  ((hero-data-manager :type rlk--hero-data-manager
-                      :reader get-hero-data-manager
-                      :protection :private
-                      :documentation "The hero data manager to use."))
+  ()
   "The game screen for selecting a saved hero.
 
 It also allows to go to the hero creation screen.")
 
-(defmethod setup ((self rlk--game-screen-select-hero) &optional hero-data-manager)
-  "Register HERO-DATA-MANAGER, and display the selection screen."
+(defmethod setup ((self rlk--game-screen-select-hero))
+  "Display the selection screen."
   (let ((buffer-manager (get-buffer-manager self)))
-    (unless hero-data-manager
-      (setq hero-data-manager (rlk--hero-data-manager "Hero data manager")))
-    (oset self hero-data-manager hero-data-manager)
-
     (setup-menu-layout buffer-manager)
     (set-buffer (get-game-buffer buffer-manager))
     (draw-screen self)
@@ -52,7 +45,7 @@ It also allows to go to the hero creation screen.")
     (register-in-buffers self (get-game-buffer buffer-manager))))
 
 (defmethod draw-screen ((self rlk--game-screen-select-hero))
-  "Render the user interface."
+  "Render the user interface on the current buffer."
   (let ((hero-data-manager (get-hero-data-manager self)))
     (setq buffer-read-only nil)
     (erase-buffer)
@@ -73,7 +66,7 @@ It also allows to go to the hero creation screen.")
   (let* ((hero-data-manager (get-hero-data-manager self))
          (hero-data (load-hero hero-data-manager hero-name)))
     (call-end-callback self
-                       'rlk--game-screen-test
+                       'rlk--game-screen-select-mode
                        hero-data)))
 
 (defmethod create-hero ((self rlk--game-screen-select-hero) &optional button)
@@ -124,30 +117,13 @@ It also allows to go to the hero creation screen.")
 
 (defvar rlk--select-hero-mode-map
   (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "n") 'rlk--select-hero-mode-next-button)
-    (define-key map (kbd "p") 'rlk--select-hero-mode-previous-button)
     (define-key map (kbd "DEL") 'rlk--select-hero-mode-delete)
     map)
   "Keymap for hero selection mode.")
 
 
-(define-derived-mode rlk--select-hero-mode rlk--mode "roguel-ike:select-hero"
-  "This mode defines key bindings for the hero selection screen.
-
-\\{rlk--select-hero-mode-map}"
-  (setq buffer-read-only t)
-  (goto-char (point-min))
-  (forward-button 1))
-
-(defun rlk--select-hero-mode-next-button ()
-  "Move to the next button in the buffer."
-  (interactive)
-  (forward-button 1))
-
-(defun rlk--select-hero-mode-previous-button ()
-  "Move to the previous button in the buffer."
-  (interactive)
-  (backward-button 1))
+(define-derived-mode rlk--select-hero-mode rlk--menu-mode "roguel-ike:select-hero"
+  "This mode defines key bindings for the hero selection screen.")
 
 (defun rlk--select-hero-mode-delete ()
   "Delete the hero on which the cursor is pointing at."
