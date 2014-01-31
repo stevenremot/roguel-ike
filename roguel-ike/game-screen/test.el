@@ -26,29 +26,12 @@
 (require 'roguel-ike/interactive-object/door)
 (require 'roguel-ike/entity)
 (require 'roguel-ike/behaviour/ai)
+(require 'roguel-ike/level/factory/string)
 
 
 (defclass rlk--game-screen-test (rlk--game-screen-fight)
   ()
   "A test screen that creates a little level.")
-
-(defun rlk--get-cells-from-layout (layout)
-  "Create a cell level from a LAYOUT, a list of string representing the level."
-  (let ((cells '()))
-    (dolist (line layout)
-      (let ((cell-line '()))
-        (dolist (character (split-string line "" t))
-          (setq cell-line
-                (append cell-line
-                        (list
-                         (cond ((string-equal character "#")
-                                (rlk--level-cell "Wall cell" :type :wall))
-                               ((string-equal character ".")
-                                (rlk--level-cell-ground "Ground cell"))
-                               (t
-                                (rlk--level-cell "Unknown cell" :type :void)))))))
-        (setq cells (append cells (list cell-line)))))
-    cells))
 
 (defmethod create-level ((self rlk--game-screen-test))
   "Create the level."
@@ -56,9 +39,8 @@
                    "#..#####...#"
                    "#....#...###"
                    "###......###"
-                   "############"))
-         (cells (rlk--get-cells-from-layout layout)))
-    (rlk--level "Level" :cells cells)))
+                   "############")))
+    (rlk--level-create-from-string-list layout)))
 
 (defmethod setup-level ((self rlk--game-screen-test))
   "Set all the level's elements."
