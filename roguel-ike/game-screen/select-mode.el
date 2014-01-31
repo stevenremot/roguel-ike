@@ -6,6 +6,7 @@
 ;;; Code:
 (require 'roguel-ike/mode/menu)
 (require 'roguel-ike/game-screen/test)
+(require 'roguel-ike/game-screen/arena)
 
 (defclass rlk--game-screen-select-mode (rlk--game-screen)
   ((hero-data :type rlk--hero-data
@@ -30,6 +31,13 @@
 (defmethod draw-screen ((self rlk--game-screen-select-mode))
   "Render the user interface on the current buffer."
   (let ((game-modes (list
+                     (list
+                      "Arena"
+                      "Kill all your enemies in an arena"
+                      (lambda (self button)
+                        (call-end-callback self
+                                           'rlk--game-screen-arena
+                                           (get-hero-data self))))
                      (list
                       "Test"
                       "A simple mode for testing purposes"

@@ -18,7 +18,6 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-
 ;;; Commentary:
 ;; All the races definition can be found here.
 
@@ -62,6 +61,25 @@
                :speed 2
                :spirit 0)
               '())
+
+(rlk--defrace :troll
+              "troll"
+              (list
+               :health 10
+               :stamina 5
+               :strength 10
+               :constitution 10
+               :speed 3
+               :spirit 0)
+              (list
+               :health 1
+               :stamina 1
+               :strength 2
+               :constitution 2
+               :speed 1
+               :spirit 1)
+              (list
+               :punch))
 
 (provide 'roguel-ike/data/races)
 

@@ -196,7 +196,7 @@ starting to the given DEPTH."
   (dolist (cell-list (get-cells level))
     (dolist (cell cell-list)
       (set-lit cell nil)))
-  (rlk--fov-compute-fov level (get-x hero) (get-y hero) 5))
+  (rlk--fov-compute-fov level (get-x hero) (get-y hero) 15))
 
 (provide 'roguel-ike/fov)
 
