@@ -102,8 +102,10 @@ Apply the time callback."
 
 (defmethod do-action ((self rlk--behaviour-manual) callback)
   "Register the callback for a former use."
-  (call-renderers (get-controller self))
-  (oset self time-callback callback))
+  (let ((controller (get-controller self)))
+    (when controller
+      (call-renderers controller))
+    (oset self time-callback callback)))
 
 (defmethod close-door ((self rlk--behaviour-manual) dx dy)
   "Try to close the door in the direction DX, DY."

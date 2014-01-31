@@ -42,7 +42,11 @@
    (message-logger :type rlk--message-logger
                    :reader get-message-logger
                    :protection :private
-                   :documentation "Mesag elogging system."))
+                   :documentation "Message elogging system.")
+   (base-hero-data :type rlk--hero-data
+                   :reader get-base-hero-data
+                   :protection :private
+                   :documentation "Hero data at the beginning of the fight."))
   "Base game screen for all fighting screens.")
 
 (defmethod setup ((self rlk--game-screen-fight) hero-data)
@@ -66,7 +70,10 @@
                                       :stats-renderer stats-renderer)))
     (oset self controller controller)
     (oset self message-logger message-logger)
+    (oset self base-hero-data hero-data)
+
     (setup-level self)
+    (register (get-dispatcher hero) :died (apply-partially 'loose self))
 
     (setup-game-layout buffer-manager)
     (set-buffer (get-game-buffer buffer-manager))
@@ -82,6 +89,24 @@
 (defmethod setup-level ((self rlk--game-screen-fight))
   "Abstract ethod for setting all the level's elements."
   (error "The method setup-level must be overriden"))
+
+(defmethod win ((self rlk--game-screen-fight))
+  "Called when the game is won."
+  (display-message (get-message-logger self) "You win!")
+  (sit-for 0.5)
+  (call-end-callback self
+                     'rlk--game-screen-select-mode
+                     (rlk--entity-create-hero-data
+                      (get-name (get-base-hero-data self))
+                      (get-hero (get-game (get-controller self))))))
+
+(defmethod loose ((self rlk--game-screen-fight))
+  "Called when the game is lost."
+  (display-message (get-message-logger self) "You win!")
+  (sit-for 0.5)
+  (call-end-callback self
+                     'rlk--game-screen-select-mode
+                     (get-base-hero-data self)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Associated major mode ;;

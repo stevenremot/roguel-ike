@@ -81,7 +81,9 @@
     (set-message-logger hero message-logger)
     (set-message-logger rat message-logger)
 
-    (add-object (get-cell-at level 5 3) door)))
+    (add-object (get-cell-at level 5 3) door)
+
+    (register (get-dispatcher rat) :died (apply-partially 'win self))))
 
 (provide 'roguel-ike/game-screen/test)
 

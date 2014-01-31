@@ -41,9 +41,10 @@
                     (list
                      slot-name
                      (get-max-value (get-stat-slot entity slot-name))))))
-    (list name
-          (get-type (get-race entity))
-          stats-list)))
+    (rlk--hero-data "Hero data"
+                    :name name
+                    :race (get-type (get-race entity))
+                    :stats stats-list)))
 
 (provide 'roguel-ike/entity/factory/hero)
 

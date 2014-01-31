@@ -62,7 +62,10 @@ Here are the events that can occur to an entity with their arguments:
 
 * :turns-spent NB-TURNS
   Occur when the entity does an action that spends a turn.
-  NB-TURNS is the number of turns the action took."))
+  NB-TURNS is the number of turns the action took.
+
+* :died
+  Occur when the entity dies, just before it is removed from the level."))
   "The base class for game entities.")
 
 (defmethod initialize-instance :after ((self rlk--entity) slots)
@@ -176,11 +179,12 @@ Return t if the entity could move, nil otherwise."
 
 (defmethod die ((self rlk--entity))
   "Make the entity disappear from the level."
-    (remove-entity (get-level self) self)
-    (set-entity (get-cell self) nil)
-    (display-message self (format "%s %s."
-                                  (get-name self)
-                                  (get-verb self "die" "dies"))))
+  (dispatch (get-dispatcher self) :died)
+  (remove-entity (get-level self) self)
+  (set-entity (get-cell self) nil)
+  (display-message self (format "%s %s."
+                                (get-name self)
+                                (get-verb self "die" "dies"))))
 
 (defmethod heal ((self rlk--entity) points)
   "Add to the entity's current health POINT health points."
