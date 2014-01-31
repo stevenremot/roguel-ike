@@ -72,7 +72,6 @@
 ;;; Code:
 (require 'roguel-ike/buffer-manager)
 (require 'roguel-ike/game-screen/select-hero)
-(require 'roguel-ike/game-screen/test)
 
 (require 'roguel-ike/data/skills)
 (require 'roguel-ike/data/races)

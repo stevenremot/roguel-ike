@@ -22,9 +22,10 @@
 ;;
 
 ;;; Code:
-(require 'roguel-ike/game-screen)
+(require 'roguel-ike/mode)
 (require 'roguel-ike/hero-data/manager)
 (require 'roguel-ike/race)
+(require 'roguel-ike/game-screen/test)
 
 (defvar rlk--races nil)
 
@@ -73,7 +74,6 @@ It also allows to go to the hero creation screen.")
          (hero-data (load-hero hero-data-manager hero-name)))
     (call-end-callback self
                        'rlk--game-screen-test
-                       hero-data-manager
                        hero-data)))
 
 (defmethod create-hero ((self rlk--game-screen-select-hero) &optional button)
@@ -127,11 +127,11 @@ It also allows to go to the hero creation screen.")
     (define-key map (kbd "n") 'rlk--select-hero-mode-next-button)
     (define-key map (kbd "p") 'rlk--select-hero-mode-previous-button)
     (define-key map (kbd "DEL") 'rlk--select-hero-mode-delete)
-    (define-key map (kbd "q") 'rlk--select-hero-mode-quit)
     map)
   "Keymap for hero selection mode.")
 
-(define-derived-mode rlk--select-hero-mode special-mode "roguel-ike:select-hero"
+
+(define-derived-mode rlk--select-hero-mode rlk--mode "roguel-ike:select-hero"
   "This mode defines key bindings for the hero selection screen.
 
 \\{rlk--select-hero-mode-map}"
@@ -155,11 +155,6 @@ It also allows to go to the hero creation screen.")
   (let ((hero-name (button-label (point))))
     (when (not (equal hero-name ""))
       (delete-hero rlk--local-game-screen hero-name))))
-
-(defun rlk--select-hero-mode-quit ()
-  "Quit the game."
-  (interactive)
-  (quit-game rlk--local-game-screen))
 
 (provide 'roguel-ike/game-screen/select-hero)
 

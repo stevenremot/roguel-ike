@@ -71,11 +71,13 @@ corresponding symbols."
 Symbols is the hash table with cell types as key and characters
 as values."
   (with-current-buffer (get-target-buffer renderer)
+    (setq buffer-read-only nil)
     (erase-buffer)
     (dolist (line (get-cells level))
       (dolist (cell line)
         (draw-cell renderer cell))
-      (insert "\n"))))
+      (insert "\n"))
+    (setq buffer-read-only t)))
 
 (provide 'roguel-ike/graphics/renderer/game)
 

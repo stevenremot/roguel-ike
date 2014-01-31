@@ -22,71 +22,15 @@
 ;;
 
 ;;; Code:
-(require 'roguel-ike/game-screen)
-(require 'roguel-ike/hero-data/manager)
-(require 'roguel-ike/entity/factory/hero)
-(require 'roguel-ike/game)
-(require 'roguel-ike/buffer-manager)
-(require 'roguel-ike/message-logger)
-(require 'roguel-ike/graphics/renderer/game)
-(require 'roguel-ike/graphics/renderer/stats)
-(require 'roguel-ike/controller)
+(require 'roguel-ike/game-screen/fight)
 (require 'roguel-ike/interactive-object/door)
 (require 'roguel-ike/entity)
 (require 'roguel-ike/behaviour/ai)
 
 
-(defclass rlk--game-screen-test (rlk--game-screen)
+(defclass rlk--game-screen-test (rlk--game-screen-fight)
   ()
   "A test screen that creates a little level.")
-
-(defmethod setup ((self rlk--game-screen-test) hero-data-manager hero-data)
-  (let* ((buffer-manager (get-buffer-manager self))
-         (layout '("############"
-                   "#..#####...#"
-                   "#....#...###"
-                   "###......###"
-                   "############"))
-         (cells (rlk--get-cells-from-layout layout))
-         (level (rlk--level "Level" :cells cells))
-         (message-logger (rlk--message-logger "Message logger"
-                                              :message-buffer (get-message-buffer buffer-manager)))
-         (hero (rlk--entity-create-from-hero-data hero-data))
-         (rat (rlk--entity-create-new :rat
-                                      (rlk--behaviour-ai "AI behaviour"))) ;; TODO replace this by a monster dropper or random level generation
-         (door (rlk--interactive-object-door "Door")) ;; TODO remove this after random level generation
-         (game (rlk--game "Game"
-                          :level level
-                          :hero hero
-                          :buffer-manager buffer-manager))
-         (stats-renderer (rlk--graphics-renderer-stats "Stats renderer"
-                                                       :buffer (get-stats-buffer buffer-manager)
-                                                       :stats(get-stats hero)))
-         (game-renderer (rlk--graphics-renderer-game "Game renderer"
-                                                     :buffer (get-game-buffer buffer-manager)))
-         (game-controller (rlk--controller "Game controller"
-                                           :game game
-                                           :game-renderer game-renderer
-                                           :stats-renderer stats-renderer)))
-    (set-level hero level)
-    (set-pos hero 1 1)
-    (set-level rat level)
-    (set-pos rat 9 1)
-
-    (add-entity level hero)
-    (add-entity level rat)
-
-    (set-message-logger hero message-logger)
-    (set-message-logger rat message-logger)
-
-    (add-object (get-cell-at level 5 3) door)
-
-    (setup-game-layout buffer-manager)
-    (draw-stats stats-renderer)
-    (display-message message-logger "Welcome, young adventurer!")
-    (setup game-controller)
-    (call-renderers game-controller)
-    (do-step (get-time-manager level))))
 
 (defun rlk--get-cells-from-layout (layout)
   "Create a cell level from a LAYOUT, a list of string representing the level."
@@ -106,6 +50,38 @@
         (setq cells (append cells (list cell-line)))))
     cells))
 
+(defmethod create-level ((self rlk--game-screen-test))
+  "Create the level."
+  (let* ((layout '("############"
+                   "#..#####...#"
+                   "#....#...###"
+                   "###......###"
+                   "############"))
+         (cells (rlk--get-cells-from-layout layout)))
+    (rlk--level "Level" :cells cells)))
+
+(defmethod setup-level ((self rlk--game-screen-test))
+  "Set all the level's elements."
+  (let* ((controller (get-controller self))
+         (game (get-game controller))
+         (hero (get-hero game))
+         (level (get-current-level game))
+         (rat (rlk--entity-create-new :rat
+                                      (rlk--behaviour-ai "AI behaviour")))
+         (door (rlk--interactive-object-door "Door"))
+         (message-logger (get-message-logger self)))
+    (set-level hero level)
+    (set-pos hero 1 1)
+    (set-level rat level)
+    (set-pos rat 9 1)
+
+    (add-entity level hero)
+    (add-entity level rat)
+
+    (set-message-logger hero message-logger)
+    (set-message-logger rat message-logger)
+
+    (add-object (get-cell-at level 5 3) door)))
 
 (provide 'roguel-ike/game-screen/test)
 

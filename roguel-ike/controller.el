@@ -47,9 +47,7 @@
                    :reader get-stats-renderer
                    :protection :private
                    :documentation "Statistics renderer.")
-   ;; TODO use a mode instead of custom bindings
-   (key-bindings :initarg :key-bindings
-                 :initform (("h" . move-left)
+   (key-bindings :initform (("h" . move-left)
                             ("j" . move-down)
                             ("k" . move-up)
                             ("l" . move-right)
@@ -64,6 +62,7 @@
                  :type list
                  :reader get-key-bindings
                  :protection :private
+                 :allocation :class
                  :documentation "Game controls."))
   "In-game controller.")
 
@@ -196,15 +195,14 @@ Return nil when the action has been cancelled."
 ;; Controller setup ;;
 ;;;;;;;;;;;;;;;;;;;;;;
 
-(defmethod setup ((self rlk--controller))
-  "Initiates key binding on controller"
-  (with-current-buffer (get-target-buffer (get-game-renderer self))
-    (setq rlk--local-controller self)
-    (dolist (binding (get-key-bindings self))
-      (local-set-key (car binding)
-                     (intern (concat "rlk-command-"
-                                          (symbol-name (cdr binding))))))))
-
+(defmethod get-keymap :static ((self rlk--controller))
+  "Return a mode keymap according to the controller's key bindings."
+  (let ((map (make-sparse-keymap)))
+    (dolist (binding (oref-default self key-bindings))
+      (define-key map (kbd (car binding)) (intern
+                                           (concat "rlk-command-"
+                                                   (symbol-name (cdr binding))))))
+    map))
 
 (provide 'roguel-ike/controller)
 ;;; controller.el ends here
