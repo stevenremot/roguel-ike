@@ -49,9 +49,13 @@
 It knows how to transform initial coordinates to go to the next row / next cell in the row.")
 
 (defmethod get-next-cell ((transformer rlk--fov-coordinate-transformer) pos)
-  "Return the next cell's position in the row."
+  "Return the next cell's position in the row.
+
+FOr the sake of optimization, POS is recycled to create the next position."
   (let ((row-direction (get-row-direction transformer)))
-    (add pos row-direction)))
+    (set-x pos (+ (get-x pos) (get-x row-direction)))
+    (set-y pos (+ (get-y pos) (get-y row-direction)))
+    pos))
 
 (defmethod get-cell-from-line ((transformer rlk--fov-coordinate-transformer) line depth)
   "Return the cell intersecting the LINE at the given DEPTH."
@@ -70,6 +74,7 @@ It knows how to transform initial coordinates to go to the next row / next cell 
 
 (defmethod create-start-line ((transformer rlk--fov-coordinate-transformer) origin start-cell)
   "Create a line going from ORIGIN to an start-CELL corner.
+
 This line is intended to be used as an start limit for the shadowcasting algorithm."
   (rlk--math-line "Line"
                   :points (list origin
@@ -79,6 +84,7 @@ This line is intended to be used as an start limit for the shadowcasting algorit
 
 (defmethod create-end-line ((transformer rlk--fov-coordinate-transformer) origin end-cell)
   "Create a line going from ORIGIN to an END-CELL corner.
+
 This line is intended to be used as an end limit for the shadowcasting algorithm."
   (rlk--math-line "Line"
                   :points (list origin
@@ -92,6 +98,7 @@ This line is intended to be used as an end limit for the shadowcasting algorithm
 
 (defun rlk--fov-compute-fov-part  (level transformer start-line end-line radius depth)
   "Compute a part of fov for LEVEL.
+
 Navigate in cells using TRANSFORMER.
 Compute fov between START-LINE and END-LINE, limited to the given RADIUS,
 starting to the given DEPTH."
@@ -125,10 +132,8 @@ starting to the given DEPTH."
       (unless in-wall
         (rlk--fov-compute-fov-part level transformer start-line end-line radius (1+ depth))))))
 
-(defun rlk--fov-compute-fov (level x y radius)
-  "Compute field of view for LEVEL starting from X, Y for the given RADIUS."
-  (let ((origin (rlk--math-point "Origin" :x x :y y))
-        (octans (list
+(defconst rlk--fov-octans
+  (list
                  (list
                   (rlk--math-point "Start direction point" :x -1 :y -1)
                   (rlk--math-point "End direction point" :x 0 :y -1)
@@ -168,8 +173,13 @@ starting to the given DEPTH."
                   (rlk--math-point "Start direction point" :x -1 :y -1)
                   (rlk--math-point "End direction point" :x -1 :y 0)
                   (rlk--math-point "Row direction" :x 0 :y 1)
-                  (rlk--math-point "Column direction" :x -1 :y 0)))))
-    (dolist (octan octans)
+                  (rlk--math-point "Column direction" :x -1 :y 0)))
+  "Field of view octans.")
+
+(defun rlk--fov-compute-fov (level x y radius)
+  "Compute field of view for LEVEL starting from X, Y for the given RADIUS."
+  (let ((origin (rlk--math-point "Origin" :x x :y y)))
+    (dolist (octan rlk--fov-octans)
       (let ((start-direction (car octan))
             (end-direction (cadr octan))
             (row-direction (nth 2 octan))
