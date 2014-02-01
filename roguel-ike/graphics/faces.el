@@ -64,11 +64,26 @@
   "Hero face"
   :group 'rlk-faces)
 
+
+(defface rlk-face-human
+  '((((class color) (min-colors 8))
+    :inherit 'rlk-face-default
+    :foreground "purple"))
+  "Human face"
+  :group 'rlk-faces)
+
 (defface rlk-face-rat
   '((((class color) (min-colors 8))
     :inherit 'rlk-face-default
     :foreground "red"))
   "Rat face"
+  :group 'rlk-faces)
+
+(defface rlk-face-troll
+  '((((class color) (min-colors 8))
+    :inherit 'rlk-face-default
+    :foreground "green"))
+  "Troll face"
   :group 'rlk-faces)
 
 (defface rlk-face-good-stat

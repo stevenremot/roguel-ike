@@ -27,6 +27,7 @@
 ;;; Code:
 (require 'roguel-ike/game-screen/fight)
 (require 'roguel-ike/level/factory/string)
+(require 'roguel-ike/level/populator/arena)
 
 (defvar rlk--arenas
   '(("##############################"
@@ -107,6 +108,7 @@
          (game (get-game controller))
          (hero (get-hero game))
          (level (get-current-level game))
+         (message-logger (get-message-logger self))
          (available-positions '()))
     (dotimes (x (width level))
       (dotimes (y (height level))
@@ -116,7 +118,20 @@
 
     (let ((hero-position (nth (random (length available-positions))
                               available-positions)))
-      (set-pos hero (car hero-position) (cdr hero-position)))))
+      (set-pos hero (car hero-position) (cdr hero-position)))
+    (set-message-logger hero message-logger)
+
+    (let ((difficulty-number nil)
+          (enemies nil))
+      (while (not (numberp difficulty-number))
+        (setq difficulty-number (read-minibuffer "Enter a difficulty (number): ")))
+
+      (setq enemies (rlk--level-populator-arena-populate-level level
+                                                               (+ 30
+                                                                  (* difficulty-number
+                                                                     12))))
+      (dolist (enemy enemies)
+        (set-message-logger enemy message-logger)))))
 
 (provide 'roguel-ike/game-screen/arena)
 

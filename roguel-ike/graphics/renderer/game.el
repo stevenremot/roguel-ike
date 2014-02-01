@@ -34,7 +34,9 @@
                              (:door-closed . ("+" . rlk-face-door))
                              (:void . (" " . rlk-face-default))
                              (:hero . ("@" . rlk-face-hero))
-                             (:rat . ("r" . rlk-face-rat)))
+                             (:human . ("@" . rlk-face-human))
+                             (:rat . ("r" . rlk-face-rat))
+                             (:troll . ("T" . rlk-face-troll)))
                   :reader get-symbols-table
                   :type (or list symbol)
                   :protection :private
