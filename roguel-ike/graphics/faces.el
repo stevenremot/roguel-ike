@@ -57,6 +57,13 @@
   "Door face"
   :group 'rlk-faces)
 
+(defface rlk-face-shadow
+  '((((class color) (min-colors 8))
+     :inherit 'rlk-face-default
+     :foreground "gray25"))
+  "Face for visited objects the player cannot see now."
+  :group 'rlk-faces)
+
 (defface rlk-face-hero
   '((((class color) (min-colors 8))
      :inherit 'rlk-face-default

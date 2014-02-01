@@ -65,7 +65,9 @@ corresponding symbols."
          (symbols (get-symbols-table renderer))
          (parameters (cdr (assoc symbol symbols)))
          (character (car parameters))
-         (face (cdr parameters)))
+         (face (if (is-lit-p cell)
+                   (cdr parameters)
+                 'rlk-face-shadow)))
     (insert (propertize character 'face face))))
 
 (defmethod draw-level ((renderer rlk--graphics-renderer-game) level)
