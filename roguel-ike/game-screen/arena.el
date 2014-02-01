@@ -94,7 +94,9 @@
   "Arena's levels.")
 
 (defclass rlk--game-screen-arena (rlk--game-screen-fight)
-  ()
+  ((enemy-count :type integer
+                :protection :private
+                :documentation "The number of remaining enemies."))
   "Game screen for arena mode.")
 
 (defmethod create-level ((self rlk--game-screen-arena))
@@ -130,8 +132,21 @@
                                                                (+ 30
                                                                   (* difficulty-number
                                                                      12))))
+      (oset self enemy-count (length enemies))
+
       (dolist (enemy enemies)
-        (set-message-logger enemy message-logger)))))
+        (set-message-logger enemy message-logger)
+        (register (get-dispatcher enemy)
+                  :died
+                  (apply-partially 'decrement-enemy-count self))))))
+
+(defmethod decrement-enemy-count ((self rlk--game-screen-arena))
+  "Decrement by one the enemy count.
+
+If the count reaches 0, the player wins the game."
+  (oset self enemy-count (1- (oref self enemy-count)))
+  (when (<= (oref self enemy-count) 0)
+    (win self)))
 
 (provide 'roguel-ike/game-screen/arena)
 
