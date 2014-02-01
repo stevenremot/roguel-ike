@@ -310,7 +310,7 @@ and it has enough to be spend by the skill."
          (dolist (spend-cons (get-spend skill))
            (when (< (get-current-value (get-stat-slot self (car spend-cons)))
                     (cdr spend-cons))
-             (throw 'can-speed nil)))
+             (throw 'can-spend nil)))
          t)))
 
 (defmethod spend-stats-for-skill ((self rlk--entity) skill)

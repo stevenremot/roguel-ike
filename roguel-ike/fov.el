@@ -92,6 +92,12 @@ This line is intended to be used as an end limit for the shadowcasting algorithm
                                                                   (get-row-direction transformer))
                                                              0.5)))))
 
+(defmethod end-reached-p ((self rlk--fov-coordinate-transformer) origin current-cell-pos last-cell-pos)
+  "Return t is the end of the row is reached, nil otherwise."
+  (let ((row-direction (get-row-direction self)))
+    (> (apply-scalar (subtract current-cell-pos origin) row-direction)
+       (apply-scalar (subtract last-cell-pos origin) row-direction))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Shadow casting algorithm ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -107,8 +113,8 @@ starting to the given DEPTH."
           (last-cell-pos (get-cell-from-line transformer end-line depth))
           (origin (get-point1 start-line))
           (in-wall t)
-          (end-reached nil))
-      (while (not end-reached)
+          (starting-wall t))
+      (while (not (end-reached-p transformer origin cell-pos last-cell-pos))
         (when (<= (get-distance cell-pos origin) radius)
           (let ((cell (get-cell-at level (get-x cell-pos) (get-y cell-pos))))
             (when cell
@@ -116,7 +122,7 @@ starting to the given DEPTH."
               (set-visited cell t)
               (if (block-light-p cell)
                   (progn
-                    (unless in-wall
+                    (unless (and in-wall starting-wall)
                       (setq in-wall t)
                       (rlk--fov-compute-fov-part level
                                                  transformer
@@ -126,8 +132,8 @@ starting to the given DEPTH."
                                                  (1+ depth)))
                     (setq start-line (create-start-line transformer origin cell-pos)))
                 (progn
-                  (setq in-wall nil))))))
-        (setq end-reached (equal cell-pos last-cell-pos))
+                  (setq in-wall nil
+                        starting-wall nil))))))
         (setq cell-pos (get-next-cell transformer cell-pos)))
       (unless in-wall
         (rlk--fov-compute-fov-part level transformer start-line end-line radius (1+ depth))))))

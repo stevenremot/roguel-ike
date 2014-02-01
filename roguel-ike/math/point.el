@@ -41,23 +41,28 @@
       :documentation "Ordinate."))
   "A two-dimensionnal point.")
 
-(defmethod add ((point rlk--math-point) vector)
-  "Add VECTOR coordinates to POINT coordinates."
+(defmethod add ((self rlk--math-point) vector)
+  "Add VECTOR coordinates to SELF coordinates."
   (rlk--math-point "Point"
-         :x (+ (get-x point) (get-x vector))
-         :y (+ (get-y point) (get-y vector))))
+         :x (+ (get-x self) (get-x vector))
+         :y (+ (get-y self) (get-y vector))))
 
-(defmethod subtract ((point rlk--math-point) vector)
-  "Subtract VECTOR coordinates to POINT coordinates."
+(defmethod subtract ((self rlk--math-point) vector)
+  "Subtract VECTOR coordinates to SELF coordinates."
   (rlk--math-point "Point"
-         :x (- (get-x point) (get-x vector))
-         :y (- (get-y point) (get-y vector))))
+         :x (- (get-x self) (get-x vector))
+         :y (- (get-y self) (get-y vector))))
 
-(defmethod multiply ((point rlk--math-point) factor)
-  "Multiply POINT coordinates by FACTOR."
+(defmethod multiply ((self rlk--math-point) factor)
+  "Multiply SELF coordinates by FACTOR."
   (rlk--math-point "Point"
-         :x (* (get-x point) factor)
-         :y (* (get-y point) factor)))
+         :x (* (get-x self) factor)
+         :y (* (get-y self) factor)))
+
+(defmethod apply-scalar ((self rlk--math-point) vector)
+  "Compute the scalar product for two vectors."
+  (+ (* (get-x self) (get-x vector))
+     (* (get-y self) (get-y vector))))
 
 
 (defmethod get-distance ((point1 rlk--math-point) point2)
