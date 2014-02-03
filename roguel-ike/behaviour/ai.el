@@ -57,7 +57,7 @@ Return the number of turns spent if it could move, 1 for waiting otherwise."
   "See rlk--behaviour."
   (let ((nb-turns (move-randomly self)))
     (spend-time (get-entity self) nb-turns)
-    (funcall callback nb-turns)))
+    nb-turns))
 
 (provide 'roguel-ike/behaviour/ai)
 

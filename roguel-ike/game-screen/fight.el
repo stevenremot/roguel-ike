@@ -79,7 +79,6 @@
     (set-buffer (get-game-buffer buffer-manager))
     (rlk--fight-mode)
     (setq rlk--local-controller controller)
-    (call-renderers controller)
     (do-step (get-time-manager level))))
 
 (defmethod create-level ((self rlk--game-screen-fight))
@@ -93,7 +92,7 @@
 (defmethod win ((self rlk--game-screen-fight))
   "Called when the game is won."
   (display-message (get-message-logger self) "You win!")
-  (sit-for 0.5)
+  (read-key-sequence "Press any key to leave")
   (call-end-callback self
                      'rlk--game-screen-select-mode
                      (rlk--entity-create-hero-data
@@ -103,7 +102,7 @@
 (defmethod loose ((self rlk--game-screen-fight))
   "Called when the game is lost."
   (display-message (get-message-logger self) "You win!")
-  (sit-for 0.5)
+  (read-key-sequence "Press any key to leave")
   (call-end-callback self
                      'rlk--game-screen-select-mode
                      (get-base-hero-data self)))

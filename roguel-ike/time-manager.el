@@ -125,9 +125,6 @@ Can update priorities, and retrieve object with higher priority.")
   ((queue :type rlk--time-priority-queue
           :protection :private
           :documentation "Inner priority queue.")
-   (current-object :initform nil
-                   :protection :private
-                   :documentation "The object currently doing an action.")
    (after-step-hook :initform nil
                     :protection :private
                     :documentation "Hook executed after an entity did an action."))
@@ -145,22 +142,36 @@ Can update priorities, and retrieve object with higher priority.")
   "Remove an object from the priority queue."
   (remove-object (oref self queue) object))
 
-(defmethod resume-step ((self rlk--time-manager) turns-spent)
+(defmethod resume-step ((self rlk--time-manager) current-object turns-spent)
   "Updates priorities with current object and TURNS-SPENT, and initiate a new step."
   (let ((after-step-hook (oref self after-step-hook)))
-    (run-hooks 'after-step-hook)
-    (update-priorities (oref self queue) (oref self current-object) turns-spent)
+    (apply-turns self current-object turns-spent)
     (do-step self)))
 
-(defmethod get-resume-callback ((self rlk--time-manager))
+(defmethod get-resume-callback ((self rlk--time-manager) current-object)
   "Return a callback to call resume-step with SELF already binded."
-  (apply-partially 'resume-step self))
+  (apply-partially 'resume-step self current-object))
 
 (defmethod do-step ((self rlk--time-manager))
-  "Ask an object to do an action, giving it the callback to resume the algorithm."
-  (let ((object (get-prioritized-object (oref self queue))))
-    (oset self current-object object)
-    (do-action object (get-resume-callback self))))
+  "Ask an object to do an action, giving it the callback to resume the algorithm.
+
+Objects are not required to apply the callback. They should return the number of turns they spent
+if they can, to avoid deep recursion."
+  (let ((object nil)
+        (turns-spent nil)
+        (continue t))
+    (while continue
+      (setq object (get-prioritized-object (oref self queue)))
+      (setq turns-spent (do-action object (get-resume-callback self object)))
+      (if (numberp turns-spent)
+          (apply-turns self object turns-spent)
+        (setq continue nil)))))
+
+(defmethod apply-turns ((self rlk--time-manager) object turns-spent)
+  "Update priority queue doing as OBJECT spent TURNS-SPENT turns."
+  (let ((after-step-hook (oref self after-step-hook)))
+    (update-priorities (oref self queue) object turns-spent)
+    (run-hooks 'after-step-hook)))
 
 (defmethod add-after-step-hook ((self rlk--time-manager) hook)
   "Register a HOOK to execute after each step."
