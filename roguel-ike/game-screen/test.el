@@ -65,7 +65,8 @@
 
     (add-object (get-cell-at level 5 3) door)
 
-    (register (get-dispatcher rat) :died (apply-partially 'win self))))
+    (register (get-dispatcher rat) :died (apply-partially 'win self))
+    (set-target (get-behaviour rat) hero)))
 
 (provide 'roguel-ike/game-screen/test)
 
