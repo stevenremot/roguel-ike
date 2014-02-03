@@ -122,14 +122,15 @@ starting to the given DEPTH."
               (set-visited cell t)
               (if (block-light-p cell)
                   (progn
-                    (unless (and in-wall starting-wall)
+                    (unless in-wall
                       (setq in-wall t)
-                      (rlk--fov-compute-fov-part level
-                                                 transformer
-                                                 start-line
-                                                 (create-end-line transformer origin cell-pos)
-                                                 radius
-                                                 (1+ depth)))
+                      (unless starting-wall
+                        (rlk--fov-compute-fov-part level
+                                                   transformer
+                                                   start-line
+                                                   (create-end-line transformer origin cell-pos)
+                                                   radius
+                                                   (1+ depth))))
                     (setq start-line (create-start-line transformer origin cell-pos)))
                 (progn
                   (setq in-wall nil
