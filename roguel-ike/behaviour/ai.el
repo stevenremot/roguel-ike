@@ -23,11 +23,61 @@
 
 ;;; Code:
 (require 'roguel-ike/behaviour)
+(require 'roguel-ike/los)
+(require 'roguel-ike/path-finding)
 
 (defclass rlk--behaviour-ai (rlk--behaviour)
-  ()
+  ((target :type rlk--entity
+           :reader get-target
+           :writer set-target
+           :protection :private
+           :documentation "The entity hunted by the behaviour.")
+   (line-of-sight :initarg :line-of-sigth
+                  :initform 15
+                  :type integer
+                  :reader get-line-of-sight
+                  :writer set-line-of-sight
+                  :protection :private
+                  :documentation "The behaviour won't hunt target over this value."))
   "Behaviour of entities controlled by the computer.")
 
+(defmethod do-action ((self rlk--behaviour-ai) callback)
+  "See rlk--behaviour."
+  (let ((nb-turns (try-hunt-target self)))
+    (unless (numberp nb-turns)
+      (setq nb-turns (move-randomly self)))
+    (spend-time (get-entity self) nb-turns)
+    nb-turns))
+
+(defmethod try-hunt-target ((self rlk--behaviour-ai))
+  "Try to move to the target.
+
+Will attack it if it is nearby."
+  (let* ((target-entity (get-target self))
+         (entity (get-entity self))
+         (level (get-level entity))
+         (x1 (get-x entity))
+         (y1 (get-y entity))
+         (x2 (get-x target-entity))
+         (y2 (get-y target-entity))
+         (origin (cons x1 y1))
+         (target (cons x2 y2))
+         (x-offset (- x1 x2))
+         (y-offset (- y1 y2))
+         (distance (sqrt (+ (* x-offset x-offset)
+                            (* y-offset y-offset)))))
+    (if (<= distance (get-line-of-sight self))
+        (if (< distance 2)
+            (progn
+              (attack entity target-entity)
+              1)
+          (when (rlk--los-can-see-p origin target level)
+            (let ((direction (rlk--path-finding-get-direction-to-target origin
+                                                                        target
+                                                                        level)))
+              (when direction
+                  (try-move entity (car direction) (cdr direction))
+                  1)))))))
 
 (defmethod move-randomly ((self rlk--behaviour-ai))
   "Try to move on a random neighbour cell.
@@ -53,11 +103,6 @@ Return the number of turns spent if it could move, 1 for waiting otherwise."
       (try-move entity (car choosen-cell) (cdr choosen-cell)))
     1))
 
-(defmethod do-action ((self rlk--behaviour-ai) callback)
-  "See rlk--behaviour."
-  (let ((nb-turns (move-randomly self)))
-    (spend-time (get-entity self) nb-turns)
-    nb-turns))
 
 (provide 'roguel-ike/behaviour/ai)
 

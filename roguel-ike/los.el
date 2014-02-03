@@ -30,7 +30,6 @@
 
 ;;; Code:
 (require 'roguel-ike/math/point)
-(require 'roguel-ike/math/line)
 (require 'roguel-ike/level)
 (require 'roguel-ike/level/cell)
 

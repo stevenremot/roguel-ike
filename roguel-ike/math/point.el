@@ -64,6 +64,11 @@
   (+ (* (get-x self) (get-x vector))
      (* (get-y self) (get-y vector))))
 
+(defmethod equal-p ((self rlk--math-point) point)
+  "Return t if SELF and POINT has same coordinates."
+  (and (= (get-x self) (get-x point))
+       (= (get-y self) (get-y point))))
+
 
 (defmethod get-distance ((point1 rlk--math-point) point2)
   "Compute destance between POINT1 and POINT2.

@@ -136,6 +136,7 @@
 
       (dolist (enemy enemies)
         (set-message-logger enemy message-logger)
+        (set-target (get-behaviour enemy) hero)
         (register (get-dispatcher enemy)
                   :died
                   (apply-partially 'decrement-enemy-count self))))))
