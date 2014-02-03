@@ -51,7 +51,7 @@ It knows how to transform initial coordinates to go to the next row / next cell 
 (defmethod get-next-cell ((transformer rlk--fov-coordinate-transformer) pos)
   "Return the next cell's position in the row.
 
-FOr the sake of optimization, POS is recycled to create the next position."
+For the sake of optimization, POS is recycled to create the next position."
   (let ((row-direction (get-row-direction transformer)))
     (set-x pos (+ (get-x pos) (get-x row-direction)))
     (set-y pos (+ (get-y pos) (get-y row-direction)))
