@@ -75,6 +75,7 @@
     (setup-level self)
     (register (get-dispatcher hero) :died (apply-partially 'loose self))
 
+    (clear message-logger)
     (setup-game-layout buffer-manager)
     (set-buffer (get-game-buffer buffer-manager))
     (rlk--fight-mode)

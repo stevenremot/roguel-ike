@@ -33,11 +33,16 @@
                    :documentation "Buffer in which messages are displayed."))
   "Display game messages in a buffer.")
 
-(defmethod display-message ((logger rlk--message-logger) message)
+(defmethod display-message ((self rlk--message-logger) message)
   "Display a message in the message buffer"
-  (with-current-buffer (get-message-buffer logger)
+  (with-current-buffer (get-message-buffer self)
     (goto-char (point-min))
     (insert (concat message "\n"))))
+
+(defmethod clear ((self rlk--message-logger))
+  "Erase all the previous messages."
+  (with-current-buffer (get-message-buffer self)
+    (erase-buffer)))
 
 (provide 'roguel-ike/message-logger)
 
