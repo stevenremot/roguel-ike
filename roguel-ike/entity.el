@@ -148,7 +148,7 @@ Return t if the entity could move, nil otherwise."
         (y (+ (get-y self) dy))
         (cell (get-cell-at (get-level self) x y)))
     (if (and cell (is-accessible-p cell))
-        (prog2
+        (progn
             (set-pos self x y)
             (dispatch (get-dispatcher self) :moved)
             t)
