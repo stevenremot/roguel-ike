@@ -37,10 +37,10 @@
               (list
                :health 2
                :stamina 2
-               :strength 1
-               :constitution 1
-               :speed 1
-               :spirit 1)
+               :strength 3
+               :constitution 3
+               :speed 3
+               :spirit 3)
               (list
                :punch))
 
@@ -54,12 +54,12 @@
                :speed 7
                :spirit 0)
               (list
-               :health 1
-               :stamina 1
-               :strength 1
-               :constitution 1
+               :health 5
+               :stamina 5
+               :strength 5
+               :constitution 5
                :speed 2
-               :spirit 0)
+               :spirit 10)
               '())
 
 (rlk--defrace :troll
@@ -72,12 +72,12 @@
                :speed 3
                :spirit 0)
               (list
-               :health 1
-               :stamina 1
-               :strength 2
-               :constitution 2
-               :speed 1
-               :spirit 1)
+               :health 3
+               :stamina 3
+               :strength 1
+               :constitution 1
+               :speed 5
+               :spirit 5)
               (list
                :punch))
 

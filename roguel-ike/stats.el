@@ -34,22 +34,6 @@
           :documentation "An associated list whose keys are slot names and values are slots."))
    "Entity's statistics.")
 
-(defmethod initialize-instance ((self rlk--stats) slots)
-  "Initialize the slots."
-  (let ((stat-slots '())
-        (slot-names '(:health
-                      :stamina
-                      :strength
-                      :constitution
-                      :speed
-                      :spirit)))
-    (dolist (name slot-names)
-      (add-to-list 'stat-slots
-                   (cons name
-                         (rlk--stats-slot (format "%s slot" name)
-                                                :max-value (plist-get  slots name)))))
-  (call-next-method self (list :slots stat-slots))))
-
 (defmethod get-slot ((self rlk--stats) slot)
   "Return the slot named SLOT."
   (cdr (assoc slot (oref self slots))))

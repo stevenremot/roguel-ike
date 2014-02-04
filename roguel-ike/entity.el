@@ -60,6 +60,18 @@
 
 Here are the events that can occur to an entity with their arguments:
 
+* :moved
+  Occur when the entity does a move.
+
+* :attacked
+  Occur when the entity succesfully attacks
+
+* :used-skill
+  Occur when the entity succesfully use a skill
+
+* :received-damages
+  Occur when the entity is hurt by something
+
 * :turns-spent NB-TURNS
   Occur when the entity does an action that spends a turn.
   NB-TURNS is the number of turns the action took.
@@ -82,7 +94,8 @@ Here are the events that can occur to an entity with their arguments:
                                                       :spirit))))
     (register (get-dispatcher self)
               :turns-spent
-              (apply-partially 'add-turns regenerator))))
+              (apply-partially 'add-turns regenerator))
+    (setup-experience-system self)))
 
 (defmethod get-layer ((self rlk--entity))
   "See rlk--level-cell-object."
@@ -137,6 +150,7 @@ Return t if the entity could move, nil otherwise."
     (if (and cell (is-accessible-p cell))
         (prog2
             (set-pos self x y)
+            (dispatch (get-dispatcher self) :moved)
             t)
       nil)))
 
@@ -174,6 +188,7 @@ Return t if the entity could move, nil otherwise."
 (defmethod hurt ((self rlk--entity) points)
   "Substract to the entity's heatlh POINT health points."
   (set-health self (- (get-health self) points))
+  (dispatch (get-dispatcher self) :received-damages)
   (when (<= (get-health self) 0)
     (die self)))
 
@@ -203,6 +218,37 @@ Return t if the entity could move, nil otherwise."
 (defmethod get-speed ((self rlk--entity))
   "Return the entity's current speed."
   (get-current-value (get-stat-slot self :speed)))
+
+(defmethod add-experience ((self rlk--entity) slot experience)
+  "Add experience point to a slot.
+
+SLOT is a stat slot name.
+
+EXPERIENCE is the amount of experience to add."
+  (add-experience (get-stat-slot self slot) experience))
+
+(defmethod setup-experience-system ((self rlk--entity))
+  "Register all handlers for the experience system."
+  (let ((dispatcher (get-dispatcher self)))
+    (register dispatcher :attacked (apply-partially 'add-experience
+                                                    (get-stat-slot self :strength)
+                                                    1))
+    (register dispatcher :received-damages (apply-partially 'add-experience
+                                                            (get-stat-slot self :constitution)
+                                                            1)) ;; TODO add dispatch
+    (register dispatcher :received-damages (apply-partially 'add-experience
+                                                            (get-stat-slot self :health)
+                                                            1)) ;; TODO add dispatch
+    (register dispatcher :used-skill (apply-partially 'add-experience
+                                                      (get-stat-slot self :stamina)
+                                                      1))
+    (register dispatcher :moved (apply-partially 'add-experience
+                                                 (get-stat-slot self :speed)
+                                                 1))
+    (register dispatcher :used-skill (apply-partially 'add-experience
+                                                      (get-stat-slot self :spirit)
+                                                      1))
+    ))
 
 ;;;;;;;;;;;;
 ;; Action ;;
@@ -279,7 +325,8 @@ This method contains randomness."
                                       (get-verb self "attack" "attacks")
                                       (downcase (get-name target))
                                       damages))
-        (hurt target damages))
+        (hurt target damages)
+        (dispatch (get-dispatcher self) :attacked))
     (display-message self (format "%s %s %s"
                                   (get-name self)
                                   (get-verb self "miss" "misses")
@@ -333,6 +380,7 @@ SKILL's tags."
     (if (apply 'do-action skill arguments)
         (progn
           (spend-stats-for-skill self skill)
+          (dispatch (get-dispatcher self) :used-skill)
           t)
       nil)))
 
@@ -364,6 +412,39 @@ SKILL's tags."
 ;; Entity creation ;;
 ;;;;;;;;;;;;;;;;;;;;;
 
+
+(defun rlk--entity-create-stats-from-list-and-race (race list)
+  "Create stats using RACE and LIST.
+
+RACE is a rlk--race.
+LIST is a plist which keys are stat slot names, and values
+are max-values, or conses in the form (max-value . experience)."
+
+  (let ((stats-slots '())
+        (slot-names '(:health
+                      :stamina
+                      :strength
+                      :constitution
+                      :speed
+                      :spirit))
+        (race-evolution (get-stats-evolution race)))
+    (dolist (name slot-names)
+      (let* ((slot-base-value (plist-get list name))
+             (max-value (if (numberp slot-base-value)
+                            slot-base-value
+                          (car slot-base-value)))
+             (experience (if (numberp slot-base-value)
+                             0
+                           (cdr slot-base-value)))
+             (experience-rate (plist-get race-evolution name)))
+        (add-to-list 'stats-slots (cons name
+                                        (rlk--stats-slot (format "%s slot" name)
+                                                         :max-value max-value
+                                                         :experience experience
+                                                         :experience-rate experience-rate)))))
+    (rlk--stats "Stats"
+                :slots stats-slots)))
+
 (defun rlk--entity-create (race stats behaviour)
   "Create an entity.
 RACE is the race of the entity.
@@ -372,11 +453,11 @@ BEHAVIOUR is the entity's behaviour.
 MESSAGE-LOGGER is the message logging system used by the entity."
   (when (symbolp race)
     (setq race (rlk--race-get-race race)))
+
   (rlk--entity "Entity"
                :race race
-               :stats (apply rlk--stats
-                             "Entity's stats"
-                             stats)
+               :stats (rlk--entity-create-stats-from-list-and-race race
+                                                                   stats)
                :behaviour behaviour))
 
 (defun rlk--entity-create-new (race behaviour)

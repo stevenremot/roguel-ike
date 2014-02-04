@@ -34,7 +34,20 @@
    (current-value :type number
                   :protection :private
                   :documentation "The current value of the statistic.
-Cannot be out of the range 0 - max-value."))
+Cannot be out of the range 0 - max-value.")
+   (experience :initarg :experience
+               :initform 0
+               :type number
+               :reader get-experience
+               :protection :private
+               :documentation "The current experience for this slot.
+
+When experience reaches a certain point, the max value increases.")
+   (experience-rate :initarg :experience-rate
+                    :type number
+                    :reader get-experience-rate
+                    :protection :private
+                    :documentation "The maximum value will be incremented when experience reached experience-rate * max-value."))
   "Statistic slot.
 Handle maximum value and current value.")
 
@@ -55,6 +68,15 @@ Restrain it to the range 0 - max-value."
                (get-max-value self))
               (t
                current-value))))
+
+(defmethod add-experience ((self rlk--stats-slot) experience)
+  "Add EXPERIENCE to current experience points."
+  (let ((threshold (* (get-experience-rate self) (get-max-value self))))
+    (oset self experience (+ (get-experience self) experience))
+
+    (when (>= (get-experience self) threshold)
+      (oset self experience (- (get-experience self) threshold))
+      (set-max-value self (1+ (get-max-value self))))))
 
 (provide 'roguel-ike/stats/slot)
 

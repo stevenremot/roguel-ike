@@ -51,7 +51,9 @@
                     :type list
                     :reader get-stats-evolution
                     :protection :private
-                    :documentation "The points added to each stat slot when it gains a level.")
+                    :documentation "The period of each stat's evolution.
+
+The lesser is the period, the quicker is the evolution.")
    (skills :initarg :skills
            :type list
            :protection :private
