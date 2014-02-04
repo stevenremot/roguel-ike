@@ -76,8 +76,8 @@ LEVEL is a rlk--level."
          (current-point origin)
          (cell nil))
     (catch 'can-see
-      (while (not (and (= (get-x current-point) x2)
-                       (= (get-y current-point) y2)))
+      (while (not (= (apply-scalar current-point main-direction)
+                     (apply-scalar target main-direction)))
         (setq current-point (add current-point main-direction)
               current-slope (+ current-slope slope))
         (if (>= current-slope 1)
