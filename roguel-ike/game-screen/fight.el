@@ -92,23 +92,27 @@
 (defmethod win ((self rlk--game-screen-fight))
   "Called when the game is won."
   (display-message (get-message-logger self) "You win!")
-  (read-key-sequence "Press any key to leave")
-  (call-end-callback self
-                     'rlk--game-screen-select-mode
-                     (rlk--entity-create-hero-data
+  (end-fight self (rlk--entity-create-hero-data
                       (get-name (get-base-hero-data self))
                       (get-hero (get-game (get-controller self))))))
 
 (defmethod loose ((self rlk--game-screen-fight))
   "Called when the game is lost."
-  (display-message (get-message-logger self) "You win!")
+  (display-message (get-message-logger self) "You lost.")
+  (end-fight self (get-base-hero-data self)))
+
+(defmethod end-fight ((self rlk--game-screen-fight) hero-data)
+  "Stop the level and return to the mode selection screen.
+
+Return HERO-DATA to mode selection screen."
+  (stop (get-time-manager (get-current-level (get-game (get-controller self)))))
   (read-key-sequence "Press any key to leave")
   (call-end-callback self
                      'rlk--game-screen-select-mode
-                     (get-base-hero-data self)))
+                     hero-data))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Associated major mode ;;
+;; associated major mode ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defvar rlk--fight-mode-map (get-keymap rlk--controller)

@@ -117,6 +117,10 @@ Can update priorities, and retrieve object with higher priority.")
                                         (* (/ (float turns-spent) (float (get-speed updated-object)))
                                            (float (get-speed object))))))))))
 
+(defmethod clear ((self rlk--time-priority-queue))
+  "Empty the priority queue."
+  (oset self objects '()))
+
 ;;;;;;;;;;;;;;;;;;
 ;; Time manager ;;
 ;;;;;;;;;;;;;;;;;;
@@ -162,9 +166,11 @@ if they can, to avoid deep recursion."
         (continue t))
     (while continue
       (setq object (get-prioritized-object (oref self queue)))
-      (setq turns-spent (do-action object (get-resume-callback self object)))
-      (if (numberp turns-spent)
-          (apply-turns self object turns-spent)
+      (if object (progn
+                   (setq turns-spent (do-action object (get-resume-callback self object)))
+                   (if (numberp turns-spent)
+                       (apply-turns self object turns-spent)
+                     (setq continue nil)))
         (setq continue nil)))))
 
 (defmethod apply-turns ((self rlk--time-manager) object turns-spent)
@@ -178,6 +184,10 @@ if they can, to avoid deep recursion."
   (let ((after-step-hook (oref self after-step-hook)))
     (add-hook 'after-step-hook hook)
     (oset self after-step-hook after-step-hook)))
+
+(defmethod stop ((self rlk--time-manager))
+  "Stop the time management loop."
+  (clear (oref self queue)))
 
 (provide 'roguel-ike/time-manager)
 ;;; time-manager.el ends here
