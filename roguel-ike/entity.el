@@ -69,6 +69,12 @@ Here are the events that can occur to an entity with their arguments:
 * :used-skill
   Occur when the entity succesfully use a skill
 
+* :used-physical-skill
+  Occur when the entity succesfully use a physical skill
+
+* :used-magical-skill
+  Occur when the entity succesfully use a magical skill
+
 * :received-damages
   Occur when the entity is hurt by something
 
@@ -233,21 +239,24 @@ EXPERIENCE is the amount of experience to add."
     (register dispatcher :attacked (apply-partially 'add-experience
                                                     (get-stat-slot self :strength)
                                                     1))
+    (register dispatcher :used-physical-skill (apply-partially 'add-experience
+                                                               (get-stat-slot self :strength)
+                                                               1))
     (register dispatcher :received-damages (apply-partially 'add-experience
                                                             (get-stat-slot self :constitution)
-                                                            1)) ;; TODO add dispatch
+                                                            1))
     (register dispatcher :received-damages (apply-partially 'add-experience
                                                             (get-stat-slot self :health)
-                                                            1)) ;; TODO add dispatch
+                                                            1))
     (register dispatcher :used-skill (apply-partially 'add-experience
                                                       (get-stat-slot self :stamina)
                                                       1))
     (register dispatcher :moved (apply-partially 'add-experience
                                                  (get-stat-slot self :speed)
                                                  1))
-    (register dispatcher :used-skill (apply-partially 'add-experience
-                                                      (get-stat-slot self :spirit)
-                                                      1))))
+    (register dispatcher :used-magical-skill (apply-partially 'add-experience
+                                                              (get-stat-slot self :spirit)
+                                                              1))))
 
 ;;;;;;;;;;;;
 ;; Action ;;
@@ -375,11 +384,19 @@ Return t when the skill's action could be done, nil otherwise.
 
 ACTION-ARGUMENTS are the optional and various arguments that depends on the
 SKILL's tags."
-  (let ((arguments (append (list self) action-arguments)))
+  (let ((arguments (append (list self) action-arguments))
+        (dispatcher (get-dispatcher self)))
     (if (apply 'do-action skill arguments)
         (progn
           (spend-stats-for-skill self skill)
-          (dispatch (get-dispatcher self) :used-skill)
+          (dispatch dispatcher :used-skill)
+
+          (when (has-tag-p skill :physical)
+            (dispatch dispatcher :used-physical-skill))
+
+          (when (has-tag-p skill :magical)
+            (dispatch dispatcher :used-magical-skill))
+
           t)
       nil)))
 

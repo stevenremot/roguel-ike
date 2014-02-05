@@ -45,7 +45,7 @@ If not, feel free to open an issue.
 
 ## Dependencies ##
 
-* popup-el : [https://github.com/auto-complete/popup-el]
+* popup-el: [https://github.com/auto-complete/popup-el]
 
 ## License ##
 

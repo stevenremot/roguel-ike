@@ -28,7 +28,7 @@
 
 (rlk--defskill :punch
                "Punch"
-               '(:directional)
+               '(:directional :physical)
                '((:strength . 5))
                '((:stamina . 2))
                (lambda (entity dx dy)

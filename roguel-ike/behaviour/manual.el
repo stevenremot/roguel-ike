@@ -156,7 +156,7 @@ Apply the time callback."
 If it could be used, spend a turn for it."
   (let ((arguments '())
         (direction nil))
-    (when (member :directional (get-tags skill))
+    (when (has-tag-p skill :directional)
       (setq direction (ask-direction (get-controller self)))
       (setq arguments (append arguments (list (car direction) (cdr direction)))))
     (when (apply 'use-skill (get-entity self) skill arguments)

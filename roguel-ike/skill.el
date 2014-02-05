@@ -42,7 +42,9 @@
          :documentation "A list of tags that classifies the skill.
 
 Current tags:
-- :directional : when it is present, it means the action also considers a direction.")
+- :directional : when it is present, it means the action also considers a direction.
+- :physical : when it is present, it means the action implies a physical effort.
+- :magical : when it is present, it means the action implies a magical effort")
    (requirements :initarg :requirements
                  :type list
                  :reader get-requirements
@@ -68,6 +70,10 @@ nil otherwise.
 If the directionnal tag is present, the action must take two additionnal
 parameters dx and dy."))
   "Define a skill.")
+
+(defmethod has-tag-p ((self rlk--skill) tag)
+  "Return t if the skill has the tag TAG."
+  (member tag (get-tags self)))
 
 (defmethod do-action ((self rlk--skill) &rest arguments)
   "Apply skill's action with ARGUMENTS."
