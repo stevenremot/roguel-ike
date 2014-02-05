@@ -26,6 +26,7 @@
 (require 'roguel-ike/hero-data/manager)
 (require 'roguel-ike/race)
 (require 'roguel-ike/game-screen/select-mode)
+(require 'roguel-ike/graphics/faces)
 
 (defvar rlk--races nil)
 
@@ -49,12 +50,15 @@ It also allows to go to the hero creation screen.")
   (let ((hero-data-manager (get-hero-data-manager self)))
     (setq buffer-read-only nil)
     (erase-buffer)
-    (insert "Select your hero :\n---\n")
+
+    (insert (propertize "Select your hero :" 'face 'rlk-face-title))
+    (insert "\n\n")
+
     (dolist (hero (get-saved-heros hero-data-manager))
       (insert-text-button hero
                           'action (apply-partially 'select-hero self))
       (insert "\n"))
-    (insert "---\n")
+    (insert "\n--------\n")
     (insert-text-button "Create a new hero"
                         'action (apply-partially 'create-hero self))
     (setq buffer-read-only t)))

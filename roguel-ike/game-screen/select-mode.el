@@ -7,12 +7,15 @@
 (require 'roguel-ike/mode/menu)
 (require 'roguel-ike/game-screen/test)
 (require 'roguel-ike/game-screen/arena)
+(require 'roguel-ike/entity/factory/hero)
+(require 'roguel-ike/graphics/widget/entity)
+(require 'roguel-ike/graphics/faces)
 
 (defclass rlk--game-screen-select-mode (rlk--game-screen)
   ((hero-data :type rlk--hero-data
-               :reader get-hero-data
-               :protection :private
-               :documentation "Current hero data."))
+              :reader get-hero-data
+              :protection :private
+              :documentation "Current hero data."))
   "Mode selection screen.")
 
 (defmethod setup ((self rlk--game-screen-select-mode) hero-data)
@@ -47,7 +50,8 @@
                                            (get-hero-data self)))))))
     (setq buffer-read-only nil)
     (erase-buffer)
-    (insert "Select a game mode:\n\n")
+    (insert (propertize "Select a game mode:" 'face 'rlk-face-title))
+    (insert "\n\n")
 
     (dolist (game-mode game-modes)
       (insert-text-button (car game-mode)
@@ -55,6 +59,12 @@
       (insert (concat "\n"
                       (nth 1 game-mode)
                       "\n\n")))
+
+    (insert (propertize "Your character:" 'face 'rlk-face-title))
+    (insert "\n\n")
+    (insert (render (rlk--graphics-widget-entity "Entity widget"
+                                                 :entity (rlk--entity-create-from-hero-data (get-hero-data self))
+                                                 :parts '(:stats :skills))))
 
     (setq buffer-read-only t)))
 

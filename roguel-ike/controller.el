@@ -169,7 +169,8 @@ BODY is the method definition."
           (beginning-of-line (1+ (get-y entity)))
           (forward-char (get-x entity))
           (oset self popup (popup-tip (render (rlk--graphics-widget-entity "Entity widget"
-                                                                           :entity entity))
+                                                                           :entity entity
+                                                                           :parts '(:name :stats)))
                                       :point (point)
                                       :nowait t))
           (popup-draw (oref self popup)))))))

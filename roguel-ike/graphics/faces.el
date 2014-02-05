@@ -37,39 +37,46 @@
   "Standard roguel-ike face"
   :group 'rlk-faces)
 
+(defface rlk-face-title
+  '((((class color) (min-colors 8))
+     :inherit 'rlk-face-default
+     :height 240))
+  "Menu title face"
+  :group 'roguel-ike-faces)
+
 (defface rlk-face-wall
   '((((class color) (min-colors 88))
       :inherit 'rlk-face-default))
   "Wall face"
-  :group 'rlk-faces)
+  :group 'roguel-ike-faces)
 
 (defface rlk-face-ground
   '((((class color) (min-colors 88))
       :inherit 'rlk-face-default
       :foreground "dim gray"))
   "Ground face"
-  :group 'rlk-faces)
+  :group 'roguel-ike-faces)
 
 (defface rlk-face-door
   '((((class color) (min-colors 88))
      :inherit 'rlk-face-default
      :foreground "sandy brown"))
   "Door face"
-  :group 'rlk-faces)
+  :group 'roguel-ike-faces)
 
 (defface rlk-face-shadow
   '((((class color) (min-colors 8))
      :inherit 'rlk-face-default
      :foreground "gray25"))
   "Face for visited objects the player cannot see now."
-  :group 'rlk-faces)
+  :group 'roguel-ike-faces)
 
 (defface rlk-face-hero
   '((((class color) (min-colors 8))
      :inherit 'rlk-face-default
      :foreground "yellow3"))
   "Hero face"
-  :group 'rlk-faces)
+  :group 'roguel-ike-faces)
 
 
 (defface rlk-face-human
@@ -77,42 +84,42 @@
     :inherit 'rlk-face-default
     :foreground "purple"))
   "Human face"
-  :group 'rlk-faces)
+  :group 'roguel-ike-faces)
 
 (defface rlk-face-rat
   '((((class color) (min-colors 8))
     :inherit 'rlk-face-default
     :foreground "red"))
   "Rat face"
-  :group 'rlk-faces)
+  :group 'roguel-ike-faces)
 
 (defface rlk-face-troll
   '((((class color) (min-colors 8))
     :inherit 'rlk-face-default
     :foreground "green"))
   "Troll face"
-  :group 'rlk-faces)
+  :group 'roguel-ike-faces)
 
 (defface rlk-face-good-stat
   '((((class color) (min-colors 8))
      :inherit 'rlk-face-default
      :foreground "green"))
   "Good statistic face"
-  :group 'rlk-faces)
+  :group 'roguel-ike-faces)
 
 (defface rlk-face-average-stat
   '((((class color) (min-colors 8))
      :inherit 'rlk-face-default
      :foreground "yellow"))
   "Average statistic face"
-  :group 'rlk-faces)
+  :group 'roguel-ike-faces)
 
 (defface rlk-face-bad-stat
   '((((class color) (min-colors 8))
      :inherit 'rlk-face-default
      :foreground "red"))
   "Bad statistic face"
-  :group 'rlk-faces)
+  :group 'roguel-ike-faces)
 
 (provide 'roguel-ike/graphics/faces)
 
