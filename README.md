@@ -23,6 +23,7 @@ Then, type `M-x roguel-ike`.
 
 * use _y, u, h, j, k, l, b, n_ for movements
 * use _._ to wait one turn
+* use _:_ to get information about your enemies
 * use _s_ to use a skill
 * use _q_ to quit
 
@@ -41,6 +42,10 @@ This is an experiment :
 
 It has been tested on Emacs 24.3, it should work under Emacs 23 too.
 If not, feel free to open an issue.
+
+## Dependencies ##
+
+* popup-el : [https://github.com/auto-complete/popup-el]
 
 ## License ##
 

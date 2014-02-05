@@ -25,8 +25,10 @@
 (require 'roguel-ike/game)
 (require 'roguel-ike/graphics/renderer/game)
 (require 'roguel-ike/graphics/renderer/stats)
+(require 'roguel-ike/graphics/widget/entity)
 (require 'roguel-ike/fov)
 (require 'roguel-ike/physics/world)
+(require 'popup)
 
 (defvar-local rlk--local-controller nil
   "Game controller associated to the buffer.")
@@ -58,12 +60,19 @@
                             ("." . wait)
                             ("s" . select-and-use-skill)
                             ("c" . close-door)
+                            (":" . examine-next-enemy)
                             ("q" . quit-rlk))
                  :type list
                  :reader get-key-bindings
                  :protection :private
                  :allocation :class
-                 :documentation "Game controls."))
+                 :documentation "Game controls.")
+   (visible-enemies :initform ()
+                    :type list
+                    :protection :private
+                    :documentation "List of all visible enemies not examinated yet.")
+   (popup :protection :private
+          :documentation "Interface popup."))
   "In-game controller.")
 
 (defmacro rlk--defcommand (name args docstring &rest body)
@@ -76,14 +85,15 @@ BODY is the method definition."
   (declare (indent defun))
   (list
    'progn
-   (append (list 'defmethod name args docstring) body)
+   (append (list 'defmethod name args docstring)
+           (list '(hide-popup self))
+           body)
    (list 'defun
          (intern (concat "rlk-command-" (symbol-name name)))
          '()
          docstring
          '(interactive)
-         (list name 'rlk--local-controller))
-   ))
+         (list name 'rlk--local-controller))))
 
 (defmethod get-hero ((self rlk--controller))
   "Return the hero in the game associated to the controller."
@@ -93,6 +103,12 @@ BODY is the method definition."
   "Return the hero's behaviour for the game associated to the controller."
   (get-behaviour (get-hero self)))
 
+(defmethod hide-popup ((self rlk--controller))
+  "Hide the popup if there is any."
+  (when (slot-boundp self 'popup)
+    (popup-hide (oref self popup))
+    (slot-makeunbound self 'popup)))
+
 ;; TODO try to displace fov elsewhere
 (defmethod call-renderers ((self rlk--controller))
   "Ask the game-renderer to render game's level."
@@ -100,6 +116,7 @@ BODY is the method definition."
         (level (get-current-level game))
         (hero (get-hero game)))
     (rlk--fov-apply level hero)
+    (oset self visible-enemies '())
     (setq buffer-read-only nil)
     (draw-level (get-game-renderer self) level)
     (draw-stats (get-stats-renderer self))
@@ -135,6 +152,27 @@ BODY is the method definition."
 (rlk--defcommand select-and-use-skill ((self rlk--controller))
   "Ask the user for a skill and use it."
   (select-and-use-skill (get-hero-behaviour self)))
+
+(rlk--defcommand examine-next-enemy ((self rlk--controller))
+  "Examine the next visible enemy if there is one."
+  (let ((visible-enemies (oref self visible-enemies)))
+    (when (null visible-enemies)
+      (setq visible-enemies (get-lit-entities (get-current-level (get-game self)))))
+
+    (unless (null visible-enemies)
+      (let ((entity (car visible-enemies)))
+        (oset self visible-enemies (cdr visible-enemies))
+
+        (if (is-hero-p entity)
+            (examine-next-enemy self)
+          (goto-char (point-min))
+          (beginning-of-line (1+ (get-y entity)))
+          (forward-char (get-x entity))
+          (oset self popup (popup-tip (render (rlk--graphics-widget-entity "Entity widget"
+                                                                           :entity entity))
+                                      :point (point)
+                                      :nowait t))
+          (popup-draw (oref self popup)))))))
 
 (rlk--defcommand quit-rlk ((self rlk--controller))
   "Quit roguel-ike."

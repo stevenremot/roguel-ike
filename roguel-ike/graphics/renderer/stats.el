@@ -24,49 +24,31 @@
 
 ;;; Code:
 (require 'roguel-ike/stats)
-(require 'roguel-ike/graphics/faces)
+(require 'roguel-ike/graphics/widget/stats)
 
 (defclass rlk--graphics-renderer-stats ()
-  ((stats :initarg :stats
-          :type rlk--stats
-          :protection :private
-          :documentation "Rendered statistics.")
+  ((widget :initarg :widget
+           :type rlk--graphics-widget-stats
+           :protection :private
+           :documentation "Rendered statistics.")
    (buffer :initarg :buffer
            :type buffer
            :protection :private
            :documentation "Buffer on which statistcis are renderered."))
   "Render statistics")
 
-(defmethod get-stat-face ((self rlk--graphics-renderer-stats) slot)
-  "Return the stat's face according to its levelr elatively to te maximum of the stat."
-  (let* ((stat (get-current-value slot))
-         (max-stat (get-max-value slot))
-         (ratio (/ (float stat) (float max-stat))))
-    (cond
-     ((> ratio 0.75) 'rlk-face-good-stat)
-     ((> ratio 0.25) 'rlk-face-average-stat)
-     (t 'rlk-face-bad-stat))))
-
-(defmethod draw-stat-slot ((self rlk--graphics-renderer-stats) name slot)
-  "Draw the statistic."
-  (insert (propertize (concat name " : ") 'face 'rlk-face-default))
-  (insert (propertize (format "%d/%d" (get-current-value slot) (get-max-value slot))
-                      'face (get-stat-face self slot)))
-  (insert "\n"))
+(defmethod initialize-instance ((self rlk--graphics-renderer-stats) slots)
+  (let ((stats (plist-get slots :stats))
+        (buffer (plist-get slots :buffer)))
+    (call-next-method self (list :widget (rlk--graphics-widget-stats "Stats widget"
+                                                                     :stats stats)
+                                 :buffer buffer))))
 
 (defmethod draw-stats ((self rlk--graphics-renderer-stats))
   "Draw hero statistics on the buffer"
-  (let
-      ((stats (oref self stats)))
-    (with-current-buffer (oref self buffer)
-      (erase-buffer)
-      (draw-stat-slot self "Health      " (get-slot stats :health))
-      (draw-stat-slot self "Stamina     " (get-slot stats :stamina))
-      (insert "\n")
-      (draw-stat-slot self "Strength    " (get-slot stats :strength))
-      (draw-stat-slot self "Constitution" (get-slot stats :constitution))
-      (draw-stat-slot self "Speed       " (get-slot stats :speed))
-      (draw-stat-slot self "Spirit      " (get-slot stats :spirit)))))
+  (with-current-buffer (oref self buffer)
+    (erase-buffer)
+    (insert (render (oref self widget)))))
 
 (provide 'roguel-ike/graphics/renderer/stats)
 

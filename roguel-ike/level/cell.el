@@ -58,6 +58,12 @@ e.g. wall, ground, etc...")
   "Return t if the cell blocks the light, nil otherwise."
   t)
 
+(defgeneric has-entity-p (cell)
+  "Return t when a container entity has an entity standing on it.")
+
+(defgeneric get-entity (cell)
+  "Return the entity standing on the container cell.")
+
 (provide 'roguel-ike/level/cell)
 
 ;;; cell.el ends here

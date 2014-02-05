@@ -25,6 +25,7 @@
 (require 'eieio)
 (require 'roguel-ike/time-manager)
 (require 'roguel-ike/physics/world)
+(require 'roguel-ike/level/cell)
 
 (defvar-local rlk--local-controller nil)
 
@@ -78,6 +79,17 @@
 (defmethod remove-entity ((self rlk--level) entity)
   "Remove an entity from the level."
   (remove-object (get-time-manager self) entity))
+
+(defmethod get-lit-entities ((self rlk--level))
+  "Return all entities standing on lit cells in the level."
+  (let ((entities '()))
+    (dolist (line (get-cells self))
+      (dolist (cell line)
+        (when (and (is-lit-p cell)
+                   (is-container-p cell)
+                   (has-entity-p cell))
+          (add-to-list 'entities (get-entity cell)))))
+    entities))
 
 (defmethod add-motion ((self rlk--level) entity direction energy)
   "Create a motion affecting ENTITY, for the given DIRECTION and ENERGY.
