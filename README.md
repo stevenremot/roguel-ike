@@ -14,7 +14,7 @@ character's strength.
 
 ## Usage ##
 
-To load the file write this in your emacs configuration:
+To load the file write this in your Emacs configuration:
 
     (add-to-list 'load-path "/path/to/roguel-ike/")
     (require 'roguel-ike)
