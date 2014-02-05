@@ -194,12 +194,12 @@ Return t if the entity could move, nil otherwise."
 
 (defmethod die ((self rlk--entity))
   "Make the entity disappear from the level."
-  (dispatch (get-dispatcher self) :died)
-  (remove-entity (get-level self) self)
-  (set-entity (get-cell self) nil)
   (display-message self (format "%s %s."
                                 (get-name self)
-                                (get-verb self "die" "dies"))))
+                                (get-verb self "die" "dies")))
+  (dispatch (get-dispatcher self) :died)
+  (remove-entity (get-level self) self)
+  (set-entity (get-cell self) nil))
 
 (defmethod heal ((self rlk--entity) points)
   "Add to the entity's current health POINT health points."
@@ -247,8 +247,7 @@ EXPERIENCE is the amount of experience to add."
                                                  1))
     (register dispatcher :used-skill (apply-partially 'add-experience
                                                       (get-stat-slot self :spirit)
-                                                      1))
-    ))
+                                                      1))))
 
 ;;;;;;;;;;;;
 ;; Action ;;
