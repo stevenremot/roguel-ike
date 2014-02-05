@@ -68,8 +68,8 @@ STATS-LIST is a prperty list the represents statistics."
     valid-races))
 
 (defun rlk--level-populator-arena-create-entity (available-races
-                                                  min-stats
-                                                  max-stats)
+                                                 min-stats
+                                                 max-stats)
   "Create a new entity.
 
 Its race is choosen among AVAILABLE-RACES.
@@ -84,15 +84,14 @@ All AVAILABLE-RACES's base stats must be under MAX-STATS."
          (evolution-stats (get-stats-evolution race))
          (base-stats-sum (rlk--level-populator-arena-sum-plist base-stats))
          (evolution-stats-sum (rlk--level-populator-arena-sum-plist evolution-stats))
-         (minimal-level (ceiling (- min-stats base-stats-sum)
-                                 evolution-stats-sum))
-         (maximal-level (ceiling (- max-stats base-stats-sum)
-                                 evolution-stats-sum))
+         (minimal-level (max 0 (ceiling (- min-stats base-stats-sum)
+                                        evolution-stats-sum)))
+         (maximal-level (max 0 (ceiling (- max-stats base-stats-sum)
+                                        evolution-stats-sum)))
          (choosen-level (+ minimal-level (random (- maximal-level
                                                     minimal-level))))
          (stats '())
          (entity '()))
-
     (while base-stats
       (setq stats (append stats (list (car base-stats)
                                       (+ (cadr base-stats)

@@ -26,18 +26,18 @@
 
 (defclass rlk--stats-slot ()
   ((max-value :initarg :max-value
-              :type number
+              :type integer
               :reader get-max-value
               :writer set-max-value
               :protection :private
               :documentation "The maximum value of the statistic.")
-   (current-value :type number
+   (current-value :type integer
                   :protection :private
                   :documentation "The current value of the statistic.
 Cannot be out of the range 0 - max-value.")
    (experience :initarg :experience
                :initform 0
-               :type number
+               :type integer
                :reader get-experience
                :protection :private
                :documentation "The current experience for this slot.

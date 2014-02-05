@@ -166,11 +166,12 @@ if they can, to avoid deep recursion."
         (continue t))
     (while continue
       (setq object (get-prioritized-object (oref self queue)))
-      (if object (progn
-                   (setq turns-spent (do-action object (get-resume-callback self object)))
-                   (if (numberp turns-spent)
-                       (apply-turns self object turns-spent)
-                     (setq continue nil)))
+      (if object
+          (progn
+            (setq turns-spent (do-action object (get-resume-callback self object)))
+            (if (numberp turns-spent)
+                (apply-turns self object turns-spent)
+              (setq continue nil)))
         (setq continue nil)))))
 
 (defmethod apply-turns ((self rlk--time-manager) object turns-spent)

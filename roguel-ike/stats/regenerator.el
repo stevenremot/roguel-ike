@@ -63,7 +63,7 @@
       (setq current-value (get-current-value slot))
       (setq max-value (get-max-value slot))
       (when (< current-value max-value)
-        (set-current-value slot (+ current-value (max 1 (* rate max-value))))))))
+        (set-current-value slot (+ current-value (max 1 (floor (* rate max-value)))))))))
 
 (defmethod add-turns ((self rlk--stats-regenerator) nb-turns)
   "Add NB-TURNS in the turns count, and regenerate the period is reached."
