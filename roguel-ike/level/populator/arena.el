@@ -88,8 +88,8 @@ All AVAILABLE-RACES's base stats must be under MAX-STATS."
                                         evolution-stats-sum)))
          (maximal-level (max 0 (ceiling (- max-stats base-stats-sum)
                                         evolution-stats-sum)))
-         (choosen-level (+ minimal-level (random (- maximal-level
-                                                    minimal-level))))
+         (choosen-level (+ minimal-level (random (max 1 (- maximal-level
+                                                           minimal-level)))))
          (stats '())
          (entity '()))
     (while base-stats
