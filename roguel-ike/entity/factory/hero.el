@@ -34,13 +34,16 @@
 
 (defun rlk--entity-create-hero-data (name entity)
   "Create hero data for name NAME from ENTITY."
-  (let ((stats-list nil))
+  (let ((stats-list '())
+        (experience-list '()))
     (dolist (slot-name (get-slot-names (get-stats entity)))
-      (setq stats-list
-            (append stats-list
-                    (list
-                     slot-name
-                     (get-max-value (get-stat-slot entity slot-name))))))
+      (let ((stat-slot (get-stat-slot entity slot-name)))
+        (setq stats-list
+              (append stats-list
+                      (list
+                       slot-name
+                       (cons (get-max-value stat-slot)
+                             (get-experience stat-slot)))))))
     (rlk--hero-data "Hero data"
                     :name name
                     :race (get-type (get-race entity))
