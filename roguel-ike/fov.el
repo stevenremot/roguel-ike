@@ -113,74 +113,85 @@ starting to the given DEPTH."
           (last-cell-pos (get-cell-from-line transformer end-line depth))
           (origin (get-point1 start-line))
           (in-wall t)
-          (starting-wall t))
-      (while (not (end-reached-p transformer origin cell-pos last-cell-pos))
-        (when (<= (get-distance cell-pos origin) radius)
-          (let ((cell (get-cell-at level (get-x cell-pos) (get-y cell-pos))))
-            (when cell
-              (set-lit cell t)
-              (set-visited cell t)
-              (if (block-light-p cell)
+          (starting-wall t)
+          (end-reached nil))
+
+      ;; Firstly check if the first position is not after the last position
+      ;; with the powerful method end-reached-p.  As this method is expensive
+      ;; prefer the use of equal-p in the loop now that we are sure cell-pos
+      ;; will eventually equal last-cell-pos.
+      (unless (end-reached-p transformer origin cell-pos last-cell-pos)
+        (while (not end-reached)
+          (when (<= (get-distance cell-pos origin) radius)
+            (let ((cell (get-cell-at level (get-x cell-pos) (get-y cell-pos))))
+              (when cell
+                (set-lit cell t)
+                (set-visited cell t)
+
+                (if (block-light-p cell)
+                    (progn
+                      (unless in-wall
+                        (setq in-wall t)
+                        (unless starting-wall
+                          (rlk--fov-compute-fov-part level
+                                                     transformer
+                                                     start-line
+                                                     (create-end-line transformer origin cell-pos)
+                                                     radius
+                                                     (1+ depth))))
+                      (setq start-line (create-start-line transformer origin cell-pos)))
                   (progn
-                    (unless in-wall
-                      (setq in-wall t)
-                      (unless starting-wall
-                        (rlk--fov-compute-fov-part level
-                                                   transformer
-                                                   start-line
-                                                   (create-end-line transformer origin cell-pos)
-                                                   radius
-                                                   (1+ depth))))
-                    (setq start-line (create-start-line transformer origin cell-pos)))
-                (progn
-                  (setq in-wall nil
-                        starting-wall nil))))))
-        (setq cell-pos (get-next-cell transformer cell-pos)))
+                    (setq in-wall nil
+                          starting-wall nil))))))
+
+          (setq end-reached (equal-p cell-pos last-cell-pos)
+                cell-pos (get-next-cell transformer cell-pos))))
+
       (unless in-wall
         (rlk--fov-compute-fov-part level transformer start-line end-line radius (1+ depth))))))
 
 (defconst rlk--fov-octans
   (list
-                 (list
-                  (rlk--math-point "Start direction point" :x -1 :y -1)
-                  (rlk--math-point "End direction point" :x 0 :y -1)
-                  (rlk--math-point "Row direction" :x 1 :y 0)
-                  (rlk--math-point "Column direction" :x 0 :y -1))
-                 (list
-                  (rlk--math-point "Start direction point" :x 1 :y -1)
-                  (rlk--math-point "End direction point" :x 0 :y -1)
-                  (rlk--math-point "Row direction" :x -1 :y 0)
-                  (rlk--math-point "Column direction" :x 0 :y -1))
-                 (list
-                  (rlk--math-point "Start direction point" :x 1 :y -1)
-                  (rlk--math-point "End direction point" :x 1 :y 0)
-                  (rlk--math-point "Row direction" :x 0 :y 1)
-                  (rlk--math-point "Column direction" :x 1 :y 0))
-                 (list
-                  (rlk--math-point "Start direction point" :x 1 :y 1)
-                  (rlk--math-point "End direction point" :x 1 :y 0)
-                  (rlk--math-point "Row direction" :x 0 :y -1)
-                  (rlk--math-point "Column direction" :x 1 :y 0))
-                 (list
-                  (rlk--math-point "Start direction point" :x 1 :y 1)
-                  (rlk--math-point "End direction point" :x 0 :y 1)
-                  (rlk--math-point "Row direction" :x -1 :y 0)
-                  (rlk--math-point "Column direction" :x 0 :y 1))
-                 (list
-                  (rlk--math-point "Start direction point" :x -1 :y 1)
-                  (rlk--math-point "End direction point" :x 0 :y 1)
-                  (rlk--math-point "Row direction" :x 1 :y 0)
-                  (rlk--math-point "Column direction" :x 0 :y 1))
-                 (list
-                  (rlk--math-point "Start direction point" :x -1 :y 1)
-                  (rlk--math-point "End direction point" :x -1 :y 0)
-                  (rlk--math-point "Row direction" :x 0 :y -1)
-                  (rlk--math-point "Column direction" :x -1 :y 0))
-                 (list
-                  (rlk--math-point "Start direction point" :x -1 :y -1)
-                  (rlk--math-point "End direction point" :x -1 :y 0)
-                  (rlk--math-point "Row direction" :x 0 :y 1)
-                  (rlk--math-point "Column direction" :x -1 :y 0)))
+   (list
+    (rlk--math-point "Start direction point" :x -1 :y -1)
+    (rlk--math-point "End direction point" :x 0 :y -1)
+    (rlk--math-point "Row direction" :x 1 :y 0)
+    (rlk--math-point "Column direction" :x 0 :y -1))
+   (list
+    (rlk--math-point "Start direction point" :x 1 :y -1)
+    (rlk--math-point "End direction point" :x 0 :y -1)
+    (rlk--math-point "Row direction" :x -1 :y 0)
+    (rlk--math-point "Column direction" :x 0 :y -1))
+   (list
+    (rlk--math-point "Start direction point" :x 1 :y -1)
+    (rlk--math-point "End direction point" :x 1 :y 0)
+    (rlk--math-point "Row direction" :x 0 :y 1)
+    (rlk--math-point "Column direction" :x 1 :y 0))
+   (list
+    (rlk--math-point "Start direction point" :x 1 :y 1)
+    (rlk--math-point "End direction point" :x 1 :y 0)
+    (rlk--math-point "Row direction" :x 0 :y -1)
+    (rlk--math-point "Column direction" :x 1 :y 0))
+   (list
+    (rlk--math-point "Start direction point" :x 1 :y 1)
+    (rlk--math-point "End direction point" :x 0 :y 1)
+    (rlk--math-point "Row direction" :x -1 :y 0)
+    (rlk--math-point "Column direction" :x 0 :y 1))
+   (list
+    (rlk--math-point "Start direction point" :x -1 :y 1)
+    (rlk--math-point "End direction point" :x 0 :y 1)
+    (rlk--math-point "Row direction" :x 1 :y 0)
+    (rlk--math-point "Column direction" :x 0 :y 1))
+   (list
+    (rlk--math-point "Start direction point" :x -1 :y 1)
+    (rlk--math-point "End direction point" :x -1 :y 0)
+    (rlk--math-point "Row direction" :x 0 :y -1)
+    (rlk--math-point "Column direction" :x -1 :y 0))
+   (list
+    (rlk--math-point "Start direction point" :x -1 :y -1)
+    (rlk--math-point "End direction point" :x -1 :y 0)
+    (rlk--math-point "Row direction" :x 0 :y 1)
+    (rlk--math-point "Column direction" :x -1 :y 0)))
   "Field of view octans.")
 
 (defun rlk--fov-compute-fov (level x y radius)
