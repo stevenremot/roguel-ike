@@ -300,7 +300,7 @@ Won't project itself if dead."
 (defmethod attack-successfull-p ((self rlk--entity) target)
   "Return nil if the TARGET dodged the attack, t otherwise.
 This method contains randomness."
-  (= 0 (random (max (- (get-speed target) (get-speed self)) 1))))
+  (= 0 (random (max (- (get-speed target) (get-speed self)) 2))))
 
 (defmethod get-base-damages ((self rlk--entity))
   "Return the base damages the entity can inflict."
