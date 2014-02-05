@@ -104,13 +104,15 @@ All AVAILABLE-RACES's base stats must be under MAX-STATS."
                         stats
                         (rlk--behaviour-ai "AI Behaviour"))))
 
-(defun rlk--level-populator-arena-populate-level (level global-stats)
+(defun rlk--level-populator-arena-populate-level (level global-stats max-entities-number)
   "Populate LEVEL with entities.
 
 GLOBAL-STATS is the goal for the sum of the entities' statistics.
+
+MAX-ENTITIES-NUMBER is the maximal number of entities the method can create.
+
 The population mechanism stops when it is reached."
   (let* ((available-cells (rlk--level-populator-arena-get-accessible-cells level))
-         (max-entities-number (floor (length available-cells) 10))
          (min-stats (ceiling global-stats max-entities-number))
          (max-stats global-stats)
          (available-races (rlk--level-populator-arena-restrict-races rlk--races

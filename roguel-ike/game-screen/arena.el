@@ -131,7 +131,8 @@
       (setq enemies (rlk--level-populator-arena-populate-level level
                                                                (+ 30
                                                                   (* difficulty-number
-                                                                     12))))
+                                                                     12))
+                                                               5))
       (oset self enemy-count (length enemies))
 
       (dolist (enemy enemies)
