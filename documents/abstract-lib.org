@@ -1,0 +1,196 @@
+#+TITLE: "Abstract library"
+
+
+* Base principle
+
+
+
+* Core data structure
+
+** Level
+
+   A cell grid.
+
+   Implements the generics:
+
+   | name        | arguments | comment                              |
+   |-------------+-----------+--------------------------------------|
+   | get-cells   | LEVEL     | Return the cells in the form of a    |
+   |             |           | two-dimensional sequence of cell     |
+   |             |           | objects.                             |
+   |-------------+-----------+--------------------------------------|
+   | get-height  | LEVEL     | Retrieve the level's height          |
+   |-------------+-----------+--------------------------------------|
+   | get-width   | LEVEL     | Retrieve the level's width           |
+   |-------------+-----------+--------------------------------------|
+   | get-cell-at | LEVEL X Y | Return the cell at the position X, Y |
+   |             |           | in the LEVEL                         |
+
+
+
+** Cell
+
+   A cell in a level. It can initially be any object.
+
+* ASCII Rendering
+
+  The level renderer can generate a colored ASCII string from a level.
+
+  It has the following slots:
+
+  | name          | type             | comment                                  |
+  |---------------+------------------+------------------------------------------|
+  | symbols-table | Association list | This maps the different game types       |
+  |               |                  | to theirdisplay settings.                |
+  |               |                  |                                          |
+  |               |                  | Each key in this list is a game type.    |
+  |               |                  | A game type is specific to the game,     |
+  |               |                  | and can be a simple symbol.              |
+  |               |                  |                                          |
+  |               |                  | For each key, its value is a cons which  |
+  |               |                  | car is the caracter to display for this  |
+  |               |                  | type as a string, and cdr is the face to |
+  |               |                  | use to display the character.            |
+  |               |                  |                                          |
+  |               |                  | Example:                                 |
+  |               |                  | '((:ground . ("." . face-ground))        |
+  |               |                  | (:wall . ("#" . face-wall))              |
+  |               |                  | (:hero . ("@" . face-hero)))             |
+
+  It defines the following methods:
+
+  | name         | arguments      | comment                                 |
+  |--------------+----------------+-----------------------------------------|
+  | render-level | RENDERER LEVEL | Return the level renderer as a          |
+  |              |                | colored ASCII string. The most simple   |
+  |              |                | use of this string is to be inserted    |
+  |              |                | in a buffer.                            |
+  |--------------+----------------+-----------------------------------------|
+  | render-cell  | RENDERER CELL  | Return the cell rendered as a colored   |
+  |              |                | ASCII character.                        |
+  |              |                |                                         |
+  |              |                | CELL must implement `get-visible-type', |
+  |              |                | see below.                              |
+
+
+** Cell generics
+
+   In order to be renderered, cells must implement these generics:
+
+   | name             | arguments | comment                                     |
+   |------------------+-----------+---------------------------------------------|
+   | get-visible-type | CELL      | Return the type that should be used to      |
+   |                  |           | display the cell.                           |
+   |                  |           |                                             |
+   |                  |           | For a wall, it could be :wall.              |
+   |                  |           | For a ground in which the hero is standing, |
+   |                  |           | it could be :hero.                          |
+   |                  |           | For a cell the player currently doesn't     |
+   |                  |           | see, it could be :shadow.                   |
+
+* Field of view computation
+
+  Decide which cells are visible or not in the level from a single point.
+
+  Field of view is done with a function in the form:
+
+  | name        | arguments        | comment                                     |
+  |-------------+------------------+---------------------------------------------|
+  | compute-fov | LEVEL X Y RADIUS | Compute the field of view in the LEVEL      |
+  |             |                  | using X, Y as origin.                       |
+  |             |                  |                                             |
+  |             |                  | The computation will only consider cells    |
+  |             |                  | which distance from field of view origin    |
+  |             |                  | is less than RADIUS.                        |
+  |             |                  | If RADIUS is nil, there is no distance      |
+  |             |                  | restriction in the field of view.           |
+  |             |                  |                                             |
+  |             |                  | LEVEL's cells must implement                |
+  |             |                  | `block-light-p', `set-lit', and may         |
+  |             |                  | implement `set-visited'.                    |
+  |             |                  |                                             |
+  |             |                  | Computing field of view means litting cells |
+  |             |                  | that are visible from the origin.           |
+
+  Be careful, field of view computer won't set all other cells unlit. It will
+  only lit cells that are visible. It is up to the user to unlit all other cells
+  before computing field of view.
+
+
+** Cell generics
+
+   In order to apply the field of view, cells must implement these generics:
+
+   | name          | arguments | comment                                |
+   |---------------+-----------+----------------------------------------|
+   | block-light-p | CELL      | Return t when the cells behing CELL    |
+   |               |           | should not be lit.                     |
+   |---------------+-----------+----------------------------------------|
+   | set-lit       | CELL LIT  | Unlit the cell when LIT is nil, lit it |
+   |               |           | otherwise.                             |
+
+   Additionnally to these generics, cells may implement:
+
+   | name        | arguments    | comment                                       |
+   |-------------+--------------+-----------------------------------------------|
+   | set-visited | CELL VISITED | When VISITED is non-nil, tells that           |
+   |             |              | the cell has already been lit, even in        |
+   |             |              | a previous fov computation.                   |
+   |             |              |                                               |
+   |             |              | This method is useful to register the level   |
+   |             |              | layout. Without this flag, as cell is either  |
+   |             |              | lit or unlit. visited can make the difference |
+   |             |              | between a cell that have never been           |
+   |             |              | discovered, an a cell previously discovered   |
+   |             |              | currently unlit.                              |
+
+* Line of sight
+
+  Line of sight can tell wether a point A can see a point B in a level.
+  It is implemented as a function in the form:
+
+  | name      | arguments           | comment                                 |
+  |-----------+---------------------+-----------------------------------------|
+  | can-see-p | ORIGIN TARGET LEVEL | Return t if ORIGIN can see TARGET       |
+  |           |                     | in the LEVEL.                           |
+  |           |                     |                                         |
+  |           |                     | ORIGIN and TARGET are conses in the     |
+  |           |                     | form (x . y).                           |
+  |           |                     |                                         |
+  |           |                     | To do its job, can-see-p requires cells |
+  |           |                     | to implement `block-light-p'.           |
+
+* Path finding
+
+  The role of this module is to find a path from one point to another
+  in a level. It is implemented as a function in the form:
+
+  | name      | arguments                | comment                               |
+  |-----------+--------------------------+---------------------------------------|
+  | find-path | ORIGIN TARGET LEVEL COST | Find the sequence of contiguous cells |
+  |           |                          | to go from ORIGIN to TARGET in LEVEL. |
+  |           |                          |                                       |
+  |           |                          | ORIGIN and TARGET are conses in the   |
+  |           |                          | form (x . y).                         |
+  |           |                          |                                       |
+  |           |                          | COST is a function that takes 4       |
+  |           |                          | arguments:                            |
+  |           |                          |                                       |
+  |           |                          | ORIGIN-POINT ORIGIN-CELL              |
+  |           |                          | TARGET-POINT TARGET-CELL              |
+  |           |                          |                                       |
+  |           |                          | and return the cost to go from        |
+  |           |                          | ORIGIN-CELL located at ORIGIN-POINT   |
+  |           |                          | to TARGET-CELL located at             |
+  |           |                          | TARGET-POINT, assuming these cells    |
+  |           |                          | are contiguous.                       |
+  |           |                          |                                       |
+  |           |                          | If COST return nil, it means that     |
+  |           |                          | TARGET-CELL is unreachable.           |
+  |           |                          |                                       |
+  |           |                          | The function return the list of       |
+  |           |                          | points that allows to go to TARGET at |
+  |           |                          | the least cost regarding the values   |
+  |           |                          | of the COST function. The points are  |
+  |           |                          | ordered from the nearest from ORIGIN  |
+  |           |                          | to TARGET.                            |
