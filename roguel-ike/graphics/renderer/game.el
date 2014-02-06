@@ -25,24 +25,27 @@
 (require 'roguel-ike/level)
 (require 'roguel-ike/entity)
 (require 'roguel-ike/graphics/faces)
+(require 'roguel-ike-lib/renderer)
+
+(defcustom roguel-ike-default-graphics
+  '((:ground . ("." . rlk-face-ground))
+    (:wall  . ("#" . rlk-face-wall))
+    (:door-opened . ("~" . rlk-face-door))
+    (:door-closed . ("+" . rlk-face-door))
+    (:void . (" " . rlk-face-default))
+    (:hero . ("@" . rlk-face-hero))
+    (:human . ("@" . rlk-face-human))
+    (:rat . ("r" . rlk-face-rat))
+    (:troll . ("T" . rlk-face-troll)))
+  "The default mapping between game type and graphics."
+  :group 'roguel-ike)
 
 (defclass rlk--graphics-renderer-game ()
-  ((symbols-table :initarg :symbols-table
-                  :initform ((:ground . ("." . rlk-face-ground))
-                             (:wall  . ("#" . rlk-face-wall))
-                             (:door-opened . ("~" . rlk-face-door))
-                             (:door-closed . ("+" . rlk-face-door))
-                             (:void . (" " . rlk-face-default))
-                             (:hero . ("@" . rlk-face-hero))
-                             (:human . ("@" . rlk-face-human))
-                             (:rat . ("r" . rlk-face-rat))
-                             (:troll . ("T" . rlk-face-troll)))
-                  :reader get-symbols-table
-                  :type (or list symbol)
-                  :protection :private
-                  :documentation "The mapping between object type and ASCII symbol.
-
-See rlk--graphics-ascii-symbol-table for the format.")
+  ((renderer :initarg :renderer
+             :type roguel-ike-renderer
+             :reader get-renderer
+             :protection :private
+             :documentation "The renderer used to generate level's strings.")
    (buffer :initarg :buffer
            :type buffer
            :reader get-target-buffer
@@ -50,37 +53,22 @@ See rlk--graphics-ascii-symbol-table for the format.")
            :documentation "The buffer on which the level will be rendered."))
   "Renderer for game level")
 
-(defmethod draw-cell ((renderer rlk--graphics-renderer-game) cell)
-  "Draw the cell on the current buffer, at the current position.
-symbols is a hash table whose keys are cell types, and values are
-corresponding symbols."
-  (let* ((symbol (if (is-lit-p cell)
-                     (if (and (is-container-p cell)
-                              (get-highest-layer-object cell))
-                         (get-type (get-highest-layer-object cell))
-                       (get-type cell))
-                   (if (is-visited-p cell)
-                       (get-type cell)
-                     :void)))
-         (symbols (get-symbols-table renderer))
-         (parameters (cdr (assoc symbol symbols)))
-         (character (car parameters))
-         (face (if (is-lit-p cell)
-                   (cdr parameters)
-                 'rlk-face-shadow)))
-    (insert (propertize character 'face face))))
+(defmethod initialize-instance :after ((self rlk--graphics-renderer-game) slots)
+  "Initialize renderer."
+  (unless (slot-boundp self 'renderer)
+    (oset self renderer
+          (roguel-ike-renderer "Level renderer"
+                               :symbols-table roguel-ike-default-graphics
+                               :unlit-face 'rlk-face-shadow))))
 
-(defmethod draw-level ((renderer rlk--graphics-renderer-game) level)
+(defmethod draw-level ((self rlk--graphics-renderer-game) level)
   "Draw the level on the current buffer.
 Symbols is the hash table with cell types as key and characters
 as values."
-  (with-current-buffer (get-target-buffer renderer)
+  (with-current-buffer (get-target-buffer self)
     (setq buffer-read-only nil)
     (erase-buffer)
-    (dolist (line (get-cells level))
-      (dolist (cell line)
-        (draw-cell renderer cell))
-      (insert "\n"))
+    (render-level (get-renderer self) level)
     (setq buffer-read-only t)))
 
 (provide 'roguel-ike/graphics/renderer/game)

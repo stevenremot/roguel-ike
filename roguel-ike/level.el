@@ -54,11 +54,11 @@
                                           (run-world self))
                                         self)))
 
-(defmethod height ((self rlk--level))
+(defmethod get-height ((self rlk--level))
   "Return the horizontal number of cells."
   (length (oref self cells)))
 
-(defmethod width ((self rlk--level))
+(defmethod get-width ((self rlk--level))
   "Return the vertical number of cells."
   (if (eq (height self) 0)
       0

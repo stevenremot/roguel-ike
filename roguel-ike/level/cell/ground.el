@@ -38,6 +38,14 @@
             :documentation "All the objects lying on the cell."))
   "A ground cell")
 
+(defmethod get-visible-type ((self rlk--level-cell-ground))
+  "Return the visible type of the cell."
+  (let ((highest-object (get-highest-layer-object self)))
+    (if (and (is-lit-p self)
+             highest-object)
+        (get-type highest-object)
+      (call-next-method))))
+
 (defmethod is-container-p ((self rlk--level-cell-ground))
   "Return t if the cell can contain objects, nil otherwise."
   t)

@@ -46,6 +46,12 @@ e.g. wall, ground, etc...")
             :documentation "Tells if the cell has been seen or not."))
   "A class representing a level's cell")
 
+(defmethod get-visible-type ((self rlk--level-cell))
+  "Return the visible type of the cell."
+  (if (is-visited-p self)
+      (get-type self)
+    :void))
+
 (defmethod is-container-p ((self rlk--level-cell))
   "Return t if the cell can contain objects, nil otherwise."
   nil)

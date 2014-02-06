@@ -15,10 +15,6 @@
 
    | name        | arguments | comment                              |
    |-------------+-----------+--------------------------------------|
-   | get-cells   | LEVEL     | Return the cells in the form of a    |
-   |             |           | two-dimensional sequence of cell     |
-   |             |           | objects.                             |
-   |-------------+-----------+--------------------------------------|
    | get-height  | LEVEL     | Retrieve the level's height          |
    |-------------+-----------+--------------------------------------|
    | get-width   | LEVEL     | Retrieve the level's width           |
@@ -34,43 +30,56 @@
 
 * ASCII Rendering
 
-  The level renderer can generate a colored ASCII string from a level.
+  The level renderer can insert a colored ASCII text representation of a level
+  in the current buffer.
 
   It has the following slots:
 
-  | name          | type             | comment                                  |
-  |---------------+------------------+------------------------------------------|
-  | symbols-table | Association list | This maps the different game types       |
-  |               |                  | to theirdisplay settings.                |
-  |               |                  |                                          |
-  |               |                  | Each key in this list is a game type.    |
-  |               |                  | A game type is specific to the game,     |
-  |               |                  | and can be a simple symbol.              |
-  |               |                  |                                          |
-  |               |                  | For each key, its value is a cons which  |
-  |               |                  | car is the caracter to display for this  |
-  |               |                  | type as a string, and cdr is the face to |
-  |               |                  | use to display the character.            |
-  |               |                  |                                          |
-  |               |                  | Example:                                 |
-  |               |                  | '((:ground . ("." . face-ground))        |
-  |               |                  | (:wall . ("#" . face-wall))              |
-  |               |                  | (:hero . ("@" . face-hero)))             |
+  | name          | type             | comment                                   |
+  |---------------+------------------+-------------------------------------------|
+  | symbols-table | Association list | This maps the different game types        |
+  |               |                  | to their display settings.                |
+  |               |                  |                                           |
+  |               |                  | Each key in this list is a game type.     |
+  |               |                  | A game type is specific to the game,      |
+  |               |                  | and can be a simple symbol.               |
+  |               |                  |                                           |
+  |               |                  | For each key, its value is a cons which   |
+  |               |                  | car is the caracter to display for this   |
+  |               |                  | type as a string, and cdr is the face to  |
+  |               |                  | use to display the character.             |
+  |               |                  |                                           |
+  |               |                  | Example:                                  |
+  |               |                  | '((:ground . ("." . face-ground))         |
+  |               |                  | (:wall . ("#" . face-wall))               |
+  |               |                  | (:hero . ("@" . face-hero)))              |
+  |---------------+------------------+-------------------------------------------|
+  | unlit-face    | symbol or nil    | This is the face to use to represent      |
+  |               |                  | unlit cells.                              |
+  |               |                  |                                           |
+  |               |                  | When UNLIT-FACE is nil, lighting          |
+  |               |                  | information won't be used do display      |
+  |               |                  | cells.                                    |
+  |               |                  |                                           |
+  |               |                  | When unlit-face is non-nil, cells must    |
+  |               |                  | implement `is-lit-p' in order to provide  |
+  |               |                  | the required information to the rendering |
+  |               |                  | system.                                   |
 
   It defines the following methods:
 
-  | name         | arguments      | comment                                 |
-  |--------------+----------------+-----------------------------------------|
-  | render-level | RENDERER LEVEL | Return the level renderer as a          |
-  |              |                | colored ASCII string. The most simple   |
-  |              |                | use of this string is to be inserted    |
-  |              |                | in a buffer.                            |
-  |--------------+----------------+-----------------------------------------|
-  | render-cell  | RENDERER CELL  | Return the cell rendered as a colored   |
-  |              |                | ASCII character.                        |
-  |              |                |                                         |
-  |              |                | CELL must implement `get-visible-type', |
-  |              |                | see below.                              |
+  | name         | arguments      | comment                                     |
+  |--------------+----------------+---------------------------------------------|
+  | render-level | RENDERER LEVEL | Insert the level renderer as a              |
+  |              |                | colored ASCII string in the current buffer. |
+  |              |                | The most simple use of this string is to be |
+  |              |                | inserted in a buffer.                       |
+  |--------------+----------------+---------------------------------------------|
+  | render-cell  | RENDERER CELL  | Insert the cell rendered as a colored       |
+  |              |                | ASCII character in the current buffer.      |
+  |              |                |                                             |
+  |              |                | CELL must implement `get-visible-type',     |
+  |              |                | see below.                                  |
 
 
 ** Cell generics
