@@ -23,7 +23,7 @@
 
 ;;; Code:
 (require 'roguel-ike/behaviour)
-(require 'roguel-ike/los)
+(require 'roguel-ike-lib/los)
 (require 'roguel-ike/path-finding)
 
 (defclass rlk--behaviour-ai (rlk--behaviour)
@@ -71,7 +71,7 @@ Will attack it if it is nearby."
             (progn
               (attack entity target-entity)
               1)
-          (when (rlk--los-can-see-p origin target level)
+          (when (roguel-ike-los-can-see-p origin target level)
             (let ((direction (rlk--path-finding-get-direction-to-target origin
                                                                         target
                                                                         level)))

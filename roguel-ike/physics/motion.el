@@ -22,7 +22,7 @@
 ;; A physical motion make an object move in the level.
 
 ;;; Code:
-(require 'roguel-ike/math/line)
+(require 'roguel-ike-lib/math/line)
 
 ;;;;;;;;;;;;;;
 ;; Generics ;;
@@ -61,7 +61,7 @@ DIRECTION is the base motion direction, and ENERGY is the current motion energy.
            :protection :private
            :documentation "The duration of the movement.")
    (direction :initarg :direction
-              :type rlk--math-point
+              :type roguel-ike-math-point
               :reader get-direction
               :protection :private
               :documentation "The direction of the movement."))
@@ -72,7 +72,7 @@ DIRECTION is the base motion direction, and ENERGY is the current motion energy.
 Apply all effects, including collisions and movement attenuation."
   (let* ((object (get-object self))
          (direction (get-direction self))
-         (base-pos (rlk--math-point "Base position"
+         (base-pos (roguel-ike-math-point "Base position"
                                     :x (get-x object)
                                     :y (get-y object)))
          (next-cell (get-neighbour-cell object
@@ -85,5 +85,4 @@ Apply all effects, including collisions and movement attenuation."
         (oset self energy 0)))))
 
 (provide 'roguel-ike/physics/motion)
-
 ;;; motion.el ends here

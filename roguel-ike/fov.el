@@ -28,7 +28,7 @@
 ;;; Code:
 (require 'roguel-ike/level)
 (require 'roguel-ike/level/cell)
-(require 'roguel-ike/math/line)
+(require 'roguel-ike-lib/math/line)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Coordinates transformer ;;
@@ -36,12 +36,12 @@
 
 (defclass rlk--fov-coordinate-transformer ()
   ((row-direction :initarg :row-direction
-                  :type rlk--math-point
+                  :type roguel-ike-math-point
                   :reader get-row-direction
                   :protection :private
                   :documentation "Direction of the rows.")
    (column-direction :initarg :column-direction
-                     :type rlk--math-point
+                     :type roguel-ike-math-point
                      :reader get-column-direction
                      :protection :private
                      :documentation "Direction of the columns."))
@@ -67,16 +67,16 @@ For the sake of optimization, POS is recycled to create the next position."
     (if (eql dx 0)
         (let* ((y (+ y1 (* dy depth)))
                (x (round (get-x-from-y line y))))
-          (rlk--math-point "Point" :x x :y y))
+          (roguel-ike-math-point "Point" :x x :y y))
       (let* ((x (+ x1 (* dx depth)))
              (y (round (get-y-from-x line x))))
-        (rlk--math-point "Point" :x x :y y)))))
+        (roguel-ike-math-point "Point" :x x :y y)))))
 
 (defmethod create-start-line ((transformer rlk--fov-coordinate-transformer) origin start-cell)
   "Create a line going from ORIGIN to an start-CELL corner.
 
 This line is intended to be used as an start limit for the shadowcasting algorithm."
-  (rlk--math-line "Line"
+  (roguel-ike-math-line "Line"
                   :points (list origin
                                 (add start-cell (multiply (add (get-column-direction transformer)
                                                                   (get-row-direction transformer))
@@ -86,7 +86,7 @@ This line is intended to be used as an start limit for the shadowcasting algorit
   "Create a line going from ORIGIN to an END-CELL corner.
 
 This line is intended to be used as an end limit for the shadowcasting algorithm."
-  (rlk--math-line "Line"
+  (roguel-ike-math-line "Line"
                   :points (list origin
                                 (subtract end-cell (multiply (add (get-column-direction transformer)
                                                                   (get-row-direction transformer))
@@ -153,50 +153,50 @@ starting to the given DEPTH."
 (defconst rlk--fov-octans
   (list
    (list
-    (rlk--math-point "Start direction point" :x -1 :y -1)
-    (rlk--math-point "End direction point" :x 0 :y -1)
-    (rlk--math-point "Row direction" :x 1 :y 0)
-    (rlk--math-point "Column direction" :x 0 :y -1))
+    (roguel-ike-math-point "Start direction point" :x -1 :y -1)
+    (roguel-ike-math-point "End direction point" :x 0 :y -1)
+    (roguel-ike-math-point "Row direction" :x 1 :y 0)
+    (roguel-ike-math-point "Column direction" :x 0 :y -1))
    (list
-    (rlk--math-point "Start direction point" :x 1 :y -1)
-    (rlk--math-point "End direction point" :x 0 :y -1)
-    (rlk--math-point "Row direction" :x -1 :y 0)
-    (rlk--math-point "Column direction" :x 0 :y -1))
+    (roguel-ike-math-point "Start direction point" :x 1 :y -1)
+    (roguel-ike-math-point "End direction point" :x 0 :y -1)
+    (roguel-ike-math-point "Row direction" :x -1 :y 0)
+    (roguel-ike-math-point "Column direction" :x 0 :y -1))
    (list
-    (rlk--math-point "Start direction point" :x 1 :y -1)
-    (rlk--math-point "End direction point" :x 1 :y 0)
-    (rlk--math-point "Row direction" :x 0 :y 1)
-    (rlk--math-point "Column direction" :x 1 :y 0))
+    (roguel-ike-math-point "Start direction point" :x 1 :y -1)
+    (roguel-ike-math-point "End direction point" :x 1 :y 0)
+    (roguel-ike-math-point "Row direction" :x 0 :y 1)
+    (roguel-ike-math-point "Column direction" :x 1 :y 0))
    (list
-    (rlk--math-point "Start direction point" :x 1 :y 1)
-    (rlk--math-point "End direction point" :x 1 :y 0)
-    (rlk--math-point "Row direction" :x 0 :y -1)
-    (rlk--math-point "Column direction" :x 1 :y 0))
+    (roguel-ike-math-point "Start direction point" :x 1 :y 1)
+    (roguel-ike-math-point "End direction point" :x 1 :y 0)
+    (roguel-ike-math-point "Row direction" :x 0 :y -1)
+    (roguel-ike-math-point "Column direction" :x 1 :y 0))
    (list
-    (rlk--math-point "Start direction point" :x 1 :y 1)
-    (rlk--math-point "End direction point" :x 0 :y 1)
-    (rlk--math-point "Row direction" :x -1 :y 0)
-    (rlk--math-point "Column direction" :x 0 :y 1))
+    (roguel-ike-math-point "Start direction point" :x 1 :y 1)
+    (roguel-ike-math-point "End direction point" :x 0 :y 1)
+    (roguel-ike-math-point "Row direction" :x -1 :y 0)
+    (roguel-ike-math-point "Column direction" :x 0 :y 1))
    (list
-    (rlk--math-point "Start direction point" :x -1 :y 1)
-    (rlk--math-point "End direction point" :x 0 :y 1)
-    (rlk--math-point "Row direction" :x 1 :y 0)
-    (rlk--math-point "Column direction" :x 0 :y 1))
+    (roguel-ike-math-point "Start direction point" :x -1 :y 1)
+    (roguel-ike-math-point "End direction point" :x 0 :y 1)
+    (roguel-ike-math-point "Row direction" :x 1 :y 0)
+    (roguel-ike-math-point "Column direction" :x 0 :y 1))
    (list
-    (rlk--math-point "Start direction point" :x -1 :y 1)
-    (rlk--math-point "End direction point" :x -1 :y 0)
-    (rlk--math-point "Row direction" :x 0 :y -1)
-    (rlk--math-point "Column direction" :x -1 :y 0))
+    (roguel-ike-math-point "Start direction point" :x -1 :y 1)
+    (roguel-ike-math-point "End direction point" :x -1 :y 0)
+    (roguel-ike-math-point "Row direction" :x 0 :y -1)
+    (roguel-ike-math-point "Column direction" :x -1 :y 0))
    (list
-    (rlk--math-point "Start direction point" :x -1 :y -1)
-    (rlk--math-point "End direction point" :x -1 :y 0)
-    (rlk--math-point "Row direction" :x 0 :y 1)
-    (rlk--math-point "Column direction" :x -1 :y 0)))
+    (roguel-ike-math-point "Start direction point" :x -1 :y -1)
+    (roguel-ike-math-point "End direction point" :x -1 :y 0)
+    (roguel-ike-math-point "Row direction" :x 0 :y 1)
+    (roguel-ike-math-point "Column direction" :x -1 :y 0)))
   "Field of view octans.")
 
 (defun rlk--fov-compute-fov (level x y radius)
   "Compute field of view for LEVEL starting from X, Y for the given RADIUS."
-  (let ((origin (rlk--math-point "Origin" :x x :y y)))
+  (let ((origin (roguel-ike-math-point "Origin" :x x :y y)))
     (dolist (octan rlk--fov-octans)
       (let ((start-direction (car octan))
             (end-direction (cadr octan))
@@ -206,10 +206,10 @@ starting to the given DEPTH."
                                    (rlk--fov-coordinate-transformer "Transformer"
                                                                     :row-direction row-direction
                                                                     :column-direction column-direction)
-                                   (rlk--math-line "Start line"
+                                   (roguel-ike-math-line "Start line"
                                                    :points (list origin
                                                                  (add origin start-direction)))
-                                   (rlk--math-line "End line"
+                                   (roguel-ike-math-line "End line"
                                                    :points (list origin
                                                                  (add origin end-direction)))
                                    radius
@@ -227,5 +227,4 @@ starting to the given DEPTH."
   (rlk--fov-compute-fov level (get-x hero) (get-y hero) 15))
 
 (provide 'roguel-ike/fov)
-
 ;;; fov.el ends here

@@ -25,11 +25,11 @@
 ;;; Code:
 (require 'roguel-ike/level)
 (require 'roguel-ike/level/cell)
-(require 'roguel-ike/math/point)
+(require 'roguel-ike-lib/math/point)
 
 (defclass rlk--path-finding-node ()
   ((point :initarg :point
-          :type rlk--math-point
+          :type roguel-ike-math-point
           :reader get-point
           :protection :private
           :documentation "The node's point.")
@@ -51,28 +51,28 @@ Used to keep the path in mind.")
 
 (defconst rlk--path-finding-neighbours
   (list
-   (rlk--math-point "Neighbour direction"
+   (roguel-ike-math-point "Neighbour direction"
                     :x 0
                     :y 1)
-   (rlk--math-point "Neighbour direction"
+   (roguel-ike-math-point "Neighbour direction"
                     :x 1
                     :y 1)
-   (rlk--math-point "Neighbour direction"
+   (roguel-ike-math-point "Neighbour direction"
                     :x 1
                     :y 0)
-   (rlk--math-point "Neighbour direction"
+   (roguel-ike-math-point "Neighbour direction"
                     :x 1
                     :y -1)
-   (rlk--math-point "Neighbour direction"
+   (roguel-ike-math-point "Neighbour direction"
                     :x 0
                     :y -1)
-   (rlk--math-point "Neighbour direction"
+   (roguel-ike-math-point "Neighbour direction"
                     :x -1
                     :y -1)
-   (rlk--math-point "Neighbour direction"
+   (roguel-ike-math-point "Neighbour direction"
                     :x -1
                     :y 0)
-   (rlk--math-point "Neighbour direction"
+   (roguel-ike-math-point "Neighbour direction"
                     :x -1
                     :y 1))
   "Pre-instanciated directions for neighbour cells.")
@@ -106,10 +106,10 @@ The points are conses in the form (x . y)."
   "Find the shortest path fom ORIGIN to TARGET in LEVEL.
 
 Return nil if there is not path from ORIGIN to TARGET."
-  (unless (rlk--math-point-p origin)
-    (setq origin (rlk--math-point "Origin" :x (car origin) :y (cdr origin))))
-  (unless (rlk--math-point-p target)
-    (setq target (rlk--math-point "Target" :x (car target) :y (cdr target))))
+  (unless (roguel-ike-math-point-p origin)
+    (setq origin (roguel-ike-math-point "Origin" :x (car origin) :y (cdr origin))))
+  (unless (roguel-ike-math-point-p target)
+    (setq target (roguel-ike-math-point "Target" :x (car target) :y (cdr target))))
 
   (let ((opened-list (list (cons (get-distance origin target)
                                   (rlk--path-finding-node "Origin node"
@@ -165,5 +165,4 @@ Return nil if there is no path from ORIGIN to TARGET."
       nil)))
 
 (provide 'roguel-ike/path-finding)
-
 ;;; path-finding.el ends here

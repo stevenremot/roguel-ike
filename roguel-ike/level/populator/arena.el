@@ -52,8 +52,8 @@ STATS-LIST is a prperty list the represents statistics."
 (defun rlk--level-populator-arena-get-accessible-cells (level)
   "Return the accessible cells in the LEVEL."
   (let ((cells '()))
-    (dotimes (x (width level))
-      (dotimes (y (height level))
+    (dotimes (x (get-width level))
+      (dotimes (y (get-height level))
         (when (is-accessible-p (get-cell-at level x y))
           (add-to-list 'cells (cons x y)))))
     cells))

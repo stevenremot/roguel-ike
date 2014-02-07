@@ -45,6 +45,9 @@ For a cell the player currently doesn't see, it could be :shadow.")
 
 A cell is visible for example when the hero can see it.")
 
+(defgeneric block-light-p (cell)
+  "Return t if nothing behing the cell should be visible.")
+
 (provide 'roguel-ike-lib/cell)
 
 ;;; cell.el ends here

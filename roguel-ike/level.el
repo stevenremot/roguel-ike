@@ -60,7 +60,7 @@
 
 (defmethod get-width ((self rlk--level))
   "Return the vertical number of cells."
-  (if (eq (height self) 0)
+  (if (eq (get-height self) 0)
       0
     (length (car (oref self cells)))))
 
@@ -95,9 +95,9 @@
   "Create a motion affecting ENTITY, for the given DIRECTION and ENERGY.
 
 if DIRECTION is a cons in the form (DX, DY), it will be converted to
-a rlk--math-point. This avoids useless dependencies with rlk--math."
+a roguel-ike-math-point. This avoids useless dependencies with rlk--math."
   (when (consp direction)
-    (setq direction (rlk--math-point "Motion direction"
+    (setq direction (roguel-ike-math-point "Motion direction"
                                      :x (car direction)
                                      :y (cdr direction))))
   (add-motion (get-physics-world self) (rlk--physics-motion "Motion"

@@ -1,4 +1,4 @@
-;;; point.el --- 2-dimensional point
+;;; point.el --- Point data structure
 
 ;; Copyright (C) 2014 Steven Rémot
 
@@ -19,12 +19,14 @@
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ;;; Commentary:
-;;
+;; Define a basic data structure for a two-dimensional point.
+;; This data structure is intended to be used in geometrical
+;; computation.
 
 ;;; Code:
 (require 'eieio)
 
-(defclass rlk--math-point ()
+(defclass roguel-ike-math-point ()
   ((x :initarg :x
       :initform 0
       :type number
@@ -39,44 +41,48 @@
       :writer set-y
       :protection :private
       :documentation "Ordinate."))
-  "A two-dimensionnal point.")
+  "A two-dimensionnal point.
 
-(defmethod add ((self rlk--math-point) vector)
-  "Add VECTOR coordinates to SELF coordinates."
-  (rlk--math-point "Point"
+This class implements different geometrical methods, and is therefore
+intended to be used for geometrical computations implying points or
+vectors.")
+
+(defmethod add ((self roguel-ike-math-point) vector)
+  "Return the sum of SELF and VECTOR."
+  (roguel-ike-math-point "Point"
          :x (+ (get-x self) (get-x vector))
          :y (+ (get-y self) (get-y vector))))
 
-(defmethod subtract ((self rlk--math-point) vector)
-  "Subtract VECTOR coordinates to SELF coordinates."
-  (rlk--math-point "Point"
+(defmethod subtract ((self roguel-ike-math-point) vector)
+  "Return the subtraction of SELF and VECTOR."
+  (roguel-ike-math-point "Point"
          :x (- (get-x self) (get-x vector))
          :y (- (get-y self) (get-y vector))))
 
-(defmethod multiply ((self rlk--math-point) factor)
-  "Multiply SELF coordinates by FACTOR."
-  (rlk--math-point "Point"
+(defmethod multiply ((self roguel-ike-math-point) factor)
+  "Return SELF multiplyed by FACTOR.
+
+FACTOR is a number."
+  (roguel-ike-math-point "Point"
          :x (* (get-x self) factor)
          :y (* (get-y self) factor)))
 
-(defmethod apply-scalar ((self rlk--math-point) vector)
+(defmethod apply-scalar ((self roguel-ike-math-point) vector)
   "Compute the scalar product for two vectors."
   (+ (* (get-x self) (get-x vector))
      (* (get-y self) (get-y vector))))
 
-(defmethod equal-p ((self rlk--math-point) point)
+(defmethod equal-p ((self roguel-ike-math-point) point)
   "Return t if SELF and POINT has same coordinates."
   (and (= (get-x self) (get-x point))
        (= (get-y self) (get-y point))))
 
 
-(defmethod get-distance ((point1 rlk--math-point) point2)
-  "Compute destance between POINT1 and POINT2.
-POINT1 and POINT2 are conses of the form (x . y)"
-  (let ((dx (- (get-x point1) (get-x point2)))
-        (dy (- (get-y point1) (get-y point2))))
+(defmethod get-distance ((self roguel-ike-math-point) point)
+  "Compute euclidian distance between SELF and POINT."
+  (let ((dx (- (get-x self) (get-x point)))
+        (dy (- (get-y self) (get-y point))))
     (sqrt (+ (* dx dx) (* dy dy)))))
 
-(provide 'roguel-ike/math/point)
-
+(provide 'roguel-ike-lib/math/point)
 ;;; point.el ends here

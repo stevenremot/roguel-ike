@@ -1,4 +1,4 @@
-;;; los.el --- Line of sight system
+;;; los.el --- Line of sight calculation
 
 ;; Copyright (C) 2014 Steven Rémot
 
@@ -19,31 +19,34 @@
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ;;; Commentary:
-;; Defines field of view calculation system
+;; Implement a line of sight algorithm.
 
-;; The field of view is currently computed using recursive shadowcasting.
-;; See http://www.roguebasin.com/index.php?title=FOV_using_recursive_shadowcasting
-;; to get a introduction to the method.
+;; A line of sight algorithm determines if some point A is visible
+;; from point B in a level.  To do this, the algorithm simply draw
+;; the line going from B to A, and checks if there isn't any cell
+;; blocking light on this line.
 
-;;; Commentary:
-;;
+;; The drawing of the line is done using a simple Bresenham algorithm.
+
+;; This method is the most basic, and should be avoided for realistic line
+;; of sight computations.  It is OK in most cases though.
 
 ;;; Code:
-(require 'roguel-ike/math/point)
-(require 'roguel-ike/level)
-(require 'roguel-ike/level/cell)
+(require 'roguel-ike-lib/cell)
+(require 'roguel-ike-lib/level)
+(require 'roguel-ike-lib/math/point)
 
-(defun rlk--los-can-see-p (origin target level)
+(defun roguel-ike-los-can-see-p (origin target level)
   "Return t if ORIGIN can see TARGET in LEVEL.
 
 ORIGIN and TARGET are conses of the form (x . y) or points.
-LEVEL is a rlk--level."
-  (unless (rlk--math-point-child-p origin)
-    (setq origin (rlk--math-point "LOS origin"
+LEVEL is a roguel-ike-level."
+  (unless (roguel-ike-math-point-child-p origin)
+    (setq origin (roguel-ike-math-point "LOS origin"
                                   :x (car origin)
                                   :y (cdr origin))))
-  (unless (rlk--math-point-child-p target)
-    (setq target (rlk--math-point "LOS target"
+  (unless (roguel-ike-math-point-child-p target)
+    (setq target (roguel-ike-math-point "LOS target"
                                   :x (car target)
                                   :y (cdr target))))
 
@@ -53,18 +56,18 @@ LEVEL is a rlk--level."
          (y2 (get-y target))
          (main-direction (if (> (abs (- y2 y1)) (abs (- x2 x1)))
                              (if (> y2 y1)
-                                 (rlk--math-point "Direction" :x 0 :y 1)
-                               (rlk--math-point "Direction" :x 0 :y -1))
+                                 (roguel-ike-math-point "Direction" :x 0 :y 1)
+                               (roguel-ike-math-point "Direction" :x 0 :y -1))
                            (if (> x2 x1)
-                               (rlk--math-point "Direction" :x 1 :y 0)
-                             (rlk--math-point "Direction" :x -1 :y 0))))
+                               (roguel-ike-math-point "Direction" :x 1 :y 0)
+                             (roguel-ike-math-point "Direction" :x -1 :y 0))))
          (secondary-direction (if (<= (abs (- y2 y1)) (abs (- x2 x1)))
                              (if (> y2 y1)
-                                 (rlk--math-point "Direction" :x 0 :y 1)
-                               (rlk--math-point "Direction" :x 0 :y -1))
+                                 (roguel-ike-math-point "Direction" :x 0 :y 1)
+                               (roguel-ike-math-point "Direction" :x 0 :y -1))
                            (if (> x2 x1)
-                               (rlk--math-point "Direction" :x 1 :y 0)
-                             (rlk--math-point "Direction" :x -1 :y 0))))
+                               (roguel-ike-math-point "Direction" :x 1 :y 0)
+                             (roguel-ike-math-point "Direction" :x -1 :y 0))))
          (slope (abs (if (<= (abs (- y2 y1)) (abs (- x2 x1)))
                          (if (= x2 x1)
                              0.0
@@ -88,6 +91,6 @@ LEVEL is a rlk--level."
           (throw 'can-see nil)))
       t)))
 
-(provide 'roguel-ike/los)
+(provide 'roguel-ike-lib/los)
 
 ;;; los.el ends here
