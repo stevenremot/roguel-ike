@@ -1,10 +1,6 @@
 #+TITLE: "Abstract library"
 
 
-* Base principle
-
-
-
 * Core data structure
 
 ** Level

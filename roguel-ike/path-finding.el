@@ -25,11 +25,11 @@
 ;;; Code:
 (require 'roguel-ike/level)
 (require 'roguel-ike/level/cell)
-(require 'roguel-ike-lib/math/point)
+(require 'roguel-ike-lib/math)
 
 (defclass rlk--path-finding-node ()
   ((point :initarg :point
-          :type roguel-ike-math-point
+          :type cons
           :reader get-point
           :protection :private
           :documentation "The node's point.")
@@ -51,30 +51,14 @@ Used to keep the path in mind.")
 
 (defconst rlk--path-finding-neighbours
   (list
-   (roguel-ike-math-point "Neighbour direction"
-                    :x 0
-                    :y 1)
-   (roguel-ike-math-point "Neighbour direction"
-                    :x 1
-                    :y 1)
-   (roguel-ike-math-point "Neighbour direction"
-                    :x 1
-                    :y 0)
-   (roguel-ike-math-point "Neighbour direction"
-                    :x 1
-                    :y -1)
-   (roguel-ike-math-point "Neighbour direction"
-                    :x 0
-                    :y -1)
-   (roguel-ike-math-point "Neighbour direction"
-                    :x -1
-                    :y -1)
-   (roguel-ike-math-point "Neighbour direction"
-                    :x -1
-                    :y 0)
-   (roguel-ike-math-point "Neighbour direction"
-                    :x -1
-                    :y 1))
+   (cons 0 1)
+   (cons 1 1)
+   (cons 1 0)
+   (cons 1 -1)
+   (cons 0 -1)
+   (cons -1 -1)
+   (cons -1 0)
+   (cons -1 1))
   "Pre-instanciated directions for neighbour cells.")
 
 (defun rlk--path-finding-get-minimal-cons (opened-list)
@@ -98,7 +82,7 @@ The points are conses in the form (x . y)."
         (current-node end-node))
     (while current-node
       (let ((point (get-point current-node)))
-        (setq path (cons (cons (get-x point) (get-y point)) path)
+        (setq path (cons point path)
               current-node (get-parent current-node))))
     path))
 
@@ -106,45 +90,44 @@ The points are conses in the form (x . y)."
   "Find the shortest path fom ORIGIN to TARGET in LEVEL.
 
 Return nil if there is not path from ORIGIN to TARGET."
-  (unless (roguel-ike-math-point-p origin)
-    (setq origin (roguel-ike-math-point "Origin" :x (car origin) :y (cdr origin))))
-  (unless (roguel-ike-math-point-p target)
-    (setq target (roguel-ike-math-point "Target" :x (car target) :y (cdr target))))
-
-  (let ((opened-list (list (cons (get-distance origin target)
-                                  (rlk--path-finding-node "Origin node"
-                                                          :point origin
-                                                          :parent nil
-                                                          :partial-cost 0))))
+    (let ((opened-list (list (cons (roguel-ike-math-get-distance origin target)
+                                   (rlk--path-finding-node "Origin node"
+                                                           :point origin
+                                                           :parent nil
+                                                           :partial-cost 0))))
         (closed-list '())
         (end-node nil))
     (while (and opened-list
                 (not end-node))
       (let* ((considered-cons (rlk--path-finding-get-minimal-cons opened-list))
-             (considered-node (cdr considered-cons)))
-        (if (equal-p (get-point considered-node) target)
+             (considered-node (cdr considered-cons))
+             (considered-point (get-point considered-node)))
+        (if (equal (get-point considered-node) target)
             (setq end-node considered-node)
           (setq opened-list (delete considered-cons opened-list))
 
           (dolist (neighbour-direction rlk--path-finding-neighbours)
-            (let* ((neighbour-point (add neighbour-direction (get-point considered-node)))
+            (let* ((neighbour-point (cons (+ (car neighbour-direction) (car considered-point))
+                                          (+ (cdr neighbour-direction) (cdr considered-point))))
                    (neighbour-node (rlk--path-finding-node "Neighbour node"
                                                            :point neighbour-point
                                                            :parent considered-node
                                                            :partial-cost (1+ (get-partial-cost considered-node)))))
-              (if (equal-p neighbour-point target)
+              (if (equal neighbour-point target)
                   (setq end-node neighbour-node)
-                (when (is-accessible-p (get-cell-at level (get-x neighbour-point) (get-y neighbour-point)))
-                  (unless (catch 'in-closed-list (dolist (closed-node closed-list)
-                                                   (when (equal-p neighbour-point (get-point closed-node))
-                                                     (when
-                                                         (< (get-partial-cost neighbour-node) (get-partial-cost closed-node))
-                                                       (set-parent closed-node considered-node)
-                                                       (set-partial-cost closed-node (get-partial-cost neighbour-node)))
-                                                     (throw 'in-closed-list t)))
-                                 nil)
+
+                (when (is-accessible-p (get-cell-at level (car neighbour-point) (cdr neighbour-point)))
+                  (unless (catch 'in-closed-list
+                            (dolist (closed-node closed-list)
+                              (when (equal neighbour-point (get-point closed-node))
+                                (when
+                                    (< (get-partial-cost neighbour-node) (get-partial-cost closed-node))
+                                  (set-parent closed-node considered-node)
+                                  (set-partial-cost closed-node (get-partial-cost neighbour-node)))
+                                (throw 'in-closed-list t)))
+                            nil)
                     (add-to-list 'opened-list (cons (+ (get-partial-cost neighbour-node)
-                                                       (get-distance neighbour-point target))
+                                                       (roguel-ike-math-get-distance neighbour-point target))
                                                     neighbour-node))))))))
         (add-to-list 'closed-list considered-node)))
 
