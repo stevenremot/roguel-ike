@@ -94,12 +94,7 @@
 (defmethod add-motion ((self rlk--level) entity direction energy)
   "Create a motion affecting ENTITY, for the given DIRECTION and ENERGY.
 
-if DIRECTION is a cons in the form (DX, DY), it will be converted to
-a roguel-ike-math-point. This avoids useless dependencies with rlk--math."
-  (when (consp direction)
-    (setq direction (roguel-ike-math-point "Motion direction"
-                                     :x (car direction)
-                                     :y (cdr direction))))
+DIRECTION is a vector represented by a cons in the form (DX . DY)."
   (add-motion (get-physics-world self) (rlk--physics-motion "Motion"
                                                             :object entity
                                                             :direction direction
