@@ -41,7 +41,6 @@
 
 ORIGIN and TARGET are conses of the form (x . y).
 LEVEL is a roguel-ike-level."
-  (message "Start")
   (let* ((x1 (car origin))
          (y1 (cdr origin))
          (x2 (car target))
