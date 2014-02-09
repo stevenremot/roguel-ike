@@ -23,7 +23,6 @@
 
 ;;; Code:
 (require 'roguel-ike-lib/level)
-(require 'roguel-ike-lib/cell)
 (require 'roguel-ike-lib/math)
 
 (defclass roguel-ike-path-finding-node ()
@@ -85,8 +84,13 @@ The points are conses in the form (x . y)."
               current-node (get-parent current-node))))
     path))
 
-(defun roguel-ike-path-finding-find-path (origin target level)
+(defun roguel-ike-path-finding-find-path (origin target level get-cost)
   "Find the shortest path fom ORIGIN to TARGET in LEVEL.
+
+GET-COST is a function taking as argument a level, and two points FROM and TO,
+and that returns the cost to walk from FROM to TO, assuming they are two
+adjacent positions.  If GET-COST returns nil, it means it is not possible to go
+from FROM to TO.
 
 Return nil if there is not path from ORIGIN to TARGET.
 
@@ -110,14 +114,18 @@ LEVEL's cells must implement `is-accessible-p'."
           (dolist (neighbour-direction roguel-ike-path-finding-neighbours)
             (let* ((neighbour-point (cons (+ (car neighbour-direction) (car considered-point))
                                           (+ (cdr neighbour-direction) (cdr considered-point))))
-                   (neighbour-node (roguel-ike-path-finding-node "Neighbour node"
-                                                           :point neighbour-point
-                                                           :parent considered-node
-                                                           :partial-cost (1+ (get-partial-cost considered-node)))))
-              (if (equal neighbour-point target)
-                  (setq end-node neighbour-node)
+                   (cost (funcall get-cost level considered-point neighbour-point))
+                   (neighbour-node nil))
 
-                (when (is-accessible-p (get-cell-at level (car neighbour-point) (cdr neighbour-point)))
+              (if (equal neighbour-point target)
+                  (setq end-node (roguel-ike-path-finding-node "End node"
+                                                               :point neighbour-point
+                                                               :parent considered-node))
+                (when cost
+                  (setq neighbour-node (roguel-ike-path-finding-node "Neighbour node"
+                                                                     :point neighbour-point
+                                                                     :parent considered-node
+                                                                     :partial-cost (+ cost (get-partial-cost considered-node))))
                   (unless (catch 'in-closed-list
                             (dolist (closed-node closed-list)
                               (when (equal neighbour-point (get-point closed-node))
@@ -135,5 +143,4 @@ LEVEL's cells must implement `is-accessible-p'."
     (roguel-ike-path-finding-create-path-from-node end-node)))
 
 (provide 'roguel-ike-lib/path-finding)
-
 ;;; path-finding.el ends here

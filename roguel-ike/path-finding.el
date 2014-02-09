@@ -25,13 +25,24 @@
 ;;; Code:
 (require 'roguel-ike-lib/path-finding)
 
+(defun rlk--path-finding-get-cost (level from to)
+  "Return the cost for walking in LEVEL from FROM to TO.
+
+Assume that FROM and TO are two contiguous points.
+
+Return nil if going from FROM to TO is impossible."
+  (if (is-accessible-p (get-cell-at level (car to) (cdr to)))
+      1
+    nil))
+
 (defun rlk--path-finding-get-direction-to-target (origin target level)
   "Return the direction ORIGIN should take to go to TARGET in LEVEL.
 
 ORIGIN and TARGET are conses in the form (x . y).
 
 Return nil if there is no path from ORIGIN to TARGET."
-  (let* ((path (roguel-ike-path-finding-find-path origin target level))
+  (let* ((path (roguel-ike-path-finding-find-path origin target level
+                                                  'rlk--path-finding-get-cost))
          (first-point (nth 1 path)))
     (if path
         (progn

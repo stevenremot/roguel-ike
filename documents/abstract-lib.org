@@ -170,35 +170,31 @@
   The role of this module is to find a path from one point to another
   in a level. It is implemented as a function in the form:
 
-  | name      | arguments                | comment                               |
-  |-----------+--------------------------+---------------------------------------|
-  | find-path | ORIGIN TARGET LEVEL COST | Find the sequence of contiguous cells |
-  |           |                          | to go from ORIGIN to TARGET in LEVEL. |
-  |           |                          |                                       |
-  |           |                          | ORIGIN and TARGET are conses in the   |
-  |           |                          | form (x . y).                         |
-  |           |                          |                                       |
-  |           |                          | COST is a function that takes 4       |
-  |           |                          | arguments:                            |
-  |           |                          |                                       |
-  |           |                          | ORIGIN-POINT ORIGIN-CELL              |
-  |           |                          | TARGET-POINT TARGET-CELL              |
-  |           |                          |                                       |
-  |           |                          | and return the cost to go from        |
-  |           |                          | ORIGIN-CELL located at ORIGIN-POINT   |
-  |           |                          | to TARGET-CELL located at             |
-  |           |                          | TARGET-POINT, assuming these cells    |
-  |           |                          | are contiguous.                       |
-  |           |                          |                                       |
-  |           |                          | If COST return nil, it means that     |
-  |           |                          | TARGET-CELL is unreachable.           |
-  |           |                          |                                       |
-  |           |                          | The function return the list of       |
-  |           |                          | points that allows to go to TARGET at |
-  |           |                          | the least cost regarding the values   |
-  |           |                          | of the COST function. The points are  |
-  |           |                          | ordered from the nearest from ORIGIN  |
-  |           |                          | to TARGET.                            |
+  | name      | arguments           | comment                                   |
+  |-----------+---------------------+-------------------------------------------|
+  | find-path | ORIGIN TARGET LEVEL | Find the sequence of contiguous cells     |
+  |           | GET-COST            | to go from ORIGIN to TARGET in LEVEL.     |
+  |           |                     |                                           |
+  |           |                     | ORIGIN and TARGET are conses in the       |
+  |           |                     | form (x . y).                             |
+  |           |                     |                                           |
+  |           |                     | GET-COST is a function that takes 3       |
+  |           |                     | arguments:                                |
+  |           |                     |                                           |
+  |           |                     | LEVEL FROM TO                             |
+  |           |                     |                                           |
+  |           |                     | and return the cost to go from the        |
+  |           |                     | points FROM to TO in the LEVEL.           |
+  |           |                     |                                           |
+  |           |                     | If GET-COST return nil, it means that     |
+  |           |                     | TARGET-CELL is unreachable.               |
+  |           |                     |                                           |
+  |           |                     | The function return the list of points    |
+  |           |                     | that allows to go to TARGET at the least  |
+  |           |                     | cost regarding the values of the COST     |
+  |           |                     | function. The points are ordered from the |
+  |           |                     | nearest from ORIGIN to TARGET.            |
+
 * Maths
 
   This module defines different mathematics utilities, especialy for
