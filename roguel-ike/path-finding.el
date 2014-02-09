@@ -23,6 +23,7 @@
 ;; one point to another in a level.
 
 ;;; Code:
+(require 'roguel-ike/level/cell)
 (require 'roguel-ike-lib/path-finding)
 
 (defun rlk--path-finding-get-cost (level from to)
@@ -35,20 +36,10 @@ Return nil if going from FROM to TO is impossible."
       1
     nil))
 
-(defun rlk--path-finding-get-direction-to-target (origin target level)
-  "Return the direction ORIGIN should take to go to TARGET in LEVEL.
-
-ORIGIN and TARGET are conses in the form (x . y).
-
-Return nil if there is no path from ORIGIN to TARGET."
-  (let* ((path (roguel-ike-path-finding-find-path origin target level
-                                                  'rlk--path-finding-get-cost))
-         (first-point (nth 1 path)))
-    (if path
-        (progn
-          (cons (- (car first-point) (car origin))
-                (- (cdr first-point) (cdr origin))))
-      nil)))
+(defun rlk--path-finding-find-path (origin target level)
+  "Return the whole path from ORIGIN to TARGET in LEVEL."
+  (roguel-ike-path-finding-find-path origin target level
+                                     'rlk--path-finding-get-cost))
 
 (provide 'roguel-ike/path-finding)
 ;;; path-finding.el ends here

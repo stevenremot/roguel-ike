@@ -40,7 +40,11 @@
                   :protection :private
                   :documentation "The behaviour won't hunt target over this value.
 
-If it is nil, there is no distance limitation."))
+If it is nil, there is no distance limitation.")
+   (memorized-path :initform nil
+                   :type list
+                   :protection :private
+                   :documentation "The current path the entity is following."))
   "Behaviour of entities controlled by the computer.")
 
 (defmethod do-action ((self rlk--behaviour-ai) callback)
@@ -76,12 +80,25 @@ Will attack it if it is nearby."
               (attack entity target-entity)
               1)
           (when (roguel-ike-los-can-see-p origin target level)
-            (let ((direction (rlk--path-finding-get-direction-to-target origin
+            (oset self memorized-path (cdr (rlk--path-finding-find-path origin
                                                                         target
-                                                                        level)))
-              (when direction
-                  (try-move entity (car direction) (cdr direction))
-                  1)))))))
+                                                                        level))))
+          (let ((direction (pop-next-direction self)))
+            (when direction
+              (if (try-move entity (car direction) (cdr direction))
+                  1
+                (oset self memorized-path nil))))))))
+
+(defmethod pop-next-direction ((self rlk--behaviour-ai))
+  "Return the next direction of the followed path if any.
+
+Remove it from the path."
+  (let ((entity (get-entity self))
+        (point (car (oref self memorized-path))))
+    (when point
+      (oset self memorized-path (cdr (oref self memorized-path)))
+      (cons (- (car point) (get-x entity))
+            (- (cdr point) (get-y entity))))))
 
 (defmethod move-randomly ((self rlk--behaviour-ai))
   "Try to move on a random neighbour cell.
