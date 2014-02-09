@@ -45,8 +45,18 @@
 STATS-LIST is a prperty list the represents statistics."
   (let ((sum 0))
     (while stats-list
-      (setq sum (+ sum (cadr stats-list)))
-      (setq stats-list (cddr stats-list)))
+      (setq sum (+ sum (cadr stats-list))
+            stats-list (cddr stats-list)))
+    sum))
+
+(defun rlk--level-populator-arena-sum-evolution (stats-list)
+  "Sum the inverse of all the slots in STATS-LIST.
+
+STATS-LIST is a property list representing the stats evolution."
+  (let ((sum 0.0))
+    (while stats-list
+      (setq sum (+ sum (/ 1.0 (float (cadr stats-list))))
+            stats-list (cddr stats-list)))
     sum))
 
 (defun rlk--level-populator-arena-get-accessible-cells (level)
@@ -83,10 +93,10 @@ All AVAILABLE-RACES's base stats must be under MAX-STATS."
          (base-stats (get-base-stats race))
          (evolution-stats (get-stats-evolution race))
          (base-stats-sum (rlk--level-populator-arena-sum-plist base-stats))
-         (evolution-stats-sum (rlk--level-populator-arena-sum-plist evolution-stats))
-         (minimal-level (max 0 (ceiling (- min-stats base-stats-sum)
+         (evolution-stats-sum (rlk--level-populator-arena-sum-evolution evolution-stats))
+         (minimal-level (max 0 (ceiling (float (- min-stats base-stats-sum))
                                         evolution-stats-sum)))
-         (maximal-level (max 0 (ceiling (- max-stats base-stats-sum)
+         (maximal-level (max 0 (ceiling (float (- max-stats base-stats-sum))
                                         evolution-stats-sum)))
          (choosen-level (+ minimal-level (random (max 1 (- maximal-level
                                                            minimal-level)))))
@@ -95,8 +105,8 @@ All AVAILABLE-RACES's base stats must be under MAX-STATS."
     (while base-stats
       (setq stats (append stats (list (car base-stats)
                                       (+ (cadr base-stats)
-                                         (* choosen-level
-                                            (cadr evolution-stats)))))
+                                         (ceiling (* choosen-level
+                                                     (/ 1.0 (cadr evolution-stats)))))))
             base-stats (cddr base-stats)
             evolution-stats (cddr evolution-stats)))
 
