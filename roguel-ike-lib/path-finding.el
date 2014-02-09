@@ -107,6 +107,7 @@ LEVEL's cells must implement `is-accessible-p'."
       (let* ((considered-cons (roguel-ike-path-finding-get-minimal-cons opened-list))
              (considered-node (cdr considered-cons))
              (considered-point (get-point considered-node)))
+
         (if (equal (get-point considered-node) target)
             (setq end-node considered-node)
           (setq opened-list (delete considered-cons opened-list))
@@ -126,6 +127,8 @@ LEVEL's cells must implement `is-accessible-p'."
                                                                      :point neighbour-point
                                                                      :parent considered-node
                                                                      :partial-cost (+ cost (get-partial-cost considered-node))))
+
+                  ;; If the point is in closed list, just check if this one use a better path
                   (unless (catch 'in-closed-list
                             (dolist (closed-node closed-list)
                               (when (equal neighbour-point (get-point closed-node))
@@ -135,9 +138,16 @@ LEVEL's cells must implement `is-accessible-p'."
                                   (set-partial-cost closed-node (get-partial-cost neighbour-node)))
                                 (throw 'in-closed-list t)))
                             nil)
-                    (add-to-list 'opened-list (cons (+ (get-partial-cost neighbour-node)
-                                                       (roguel-ike-math-get-distance neighbour-point target))
-                                                    neighbour-node))))))))
+                    ;; If the point is already in opened list, only put it if ti has a better partial cost
+                    (when (catch 'add-to-opened-list
+                            (dolist (opened-cons opened-list)
+                              (let ((opened-node (cdr opened-cons)))
+                                (when (equal neighbour-point (get-point opened-node))
+                                  (throw 'add-to-opened-list (< (get-partial-cost neighbour-node) (get-partial-cost opened-node))))))
+                            t)
+                      (add-to-list 'opened-list (cons (+ (get-partial-cost neighbour-node)
+                                                         (roguel-ike-math-get-distance neighbour-point target))
+                                                      neighbour-node)))))))))
         (add-to-list 'closed-list considered-node)))
 
     (roguel-ike-path-finding-create-path-from-node end-node)))
