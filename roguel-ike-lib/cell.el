@@ -67,6 +67,13 @@ VISITED is a boolean.
 This method is a placeholder that does nothing"
   nil)
 
+;;;;;;;;;;
+;; Path ;;
+;;;;;;;;;;
+
+(defgeneric is-accessible-p (cell)
+  "Return t the CELL can be walked.")
+
 (provide 'roguel-ike-lib/cell)
 
 ;;; cell.el ends here
