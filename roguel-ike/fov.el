@@ -34,7 +34,7 @@
   (dolist (cell-list (get-cells level))
     (dolist (cell cell-list)
       (set-lit cell nil)))
-  (roguel-ike-fov-compute-fov level (get-x hero) (get-y hero) 15))
+  (roguel-ike-fov-compute-fov level (get-x hero) (get-y hero)))
 
 (provide 'roguel-ike/fov)
 ;;; fov.el ends here

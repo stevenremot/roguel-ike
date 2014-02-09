@@ -110,7 +110,8 @@ This line is intended to be used as an end limit for the shadowcasting algorithm
 Navigate in cells using TRANSFORMER.
 Compute fov between START-LINE and END-LINE, limited to the given RADIUS,
 starting to the given DEPTH."
-  (when (<= depth radius)
+  (when (or (null radius)
+            (<= depth radius))
     (let ((cell-pos (get-cell-from-line transformer start-line depth))
           (last-cell-pos (get-cell-from-line transformer end-line depth))
           (origin (cons (caar start-line) (cdar start-line)))
@@ -122,9 +123,14 @@ starting to the given DEPTH."
       ;; with the powerful method end-reached-p.  As this method is expensive
       ;; prefer the use of equal-p in the loop now that we are sure cell-pos
       ;; will eventually equal last-cell-pos.
-      (unless (end-reached-p transformer origin cell-pos last-cell-pos)
+      ;;
+      ;; Check if the row if not out of the level at the same time.
+      (unless (or (end-reached-p transformer origin cell-pos last-cell-pos)
+                  (and (null (get-cell-at level (car cell-pos) (cdr cell-pos)))
+                       (null (get-cell-at level (car last-cell-pos) (cdr last-cell-pos)))))
         (while (not end-reached)
-          (when (<= (roguel-ike-math-get-distance cell-pos origin) radius)
+          (when (or (null radius)
+                     (<= (roguel-ike-math-get-distance cell-pos origin) radius))
             (let ((cell (get-cell-at level (car cell-pos) (cdr cell-pos))))
               (when cell
                 (set-lit cell t)
@@ -196,8 +202,12 @@ starting to the given DEPTH."
     (cons -1 0)))
   "Field of view octans.")
 
-(defun roguel-ike-fov-compute-fov (level x y radius)
-  "Compute field of view for LEVEL starting from X, Y for the given RADIUS."
+(defun roguel-ike-fov-compute-fov (level x y &optional radius)
+  "Compute field of view for LEVEL starting from X, Y.
+
+If RADIUS is provided, it must be a number specifying that field of view
+computation stops when the distance between X, Y and the cells are over
+RADIUS.  If RADIUS is nil, there is not such limitation."
   (let ((origin (cons x y)))
     (dolist (octan roguel-ike-fov-octans)
       (let ((start-direction (car octan))
