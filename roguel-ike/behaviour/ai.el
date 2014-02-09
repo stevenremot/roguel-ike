@@ -33,12 +33,14 @@
            :protection :private
            :documentation "The entity hunted by the behaviour.")
    (line-of-sight :initarg :line-of-sigth
-                  :initform 15
-                  :type integer
+                  :initform nil
+                  :type (or integer null)
                   :reader get-line-of-sight
                   :writer set-line-of-sight
                   :protection :private
-                  :documentation "The behaviour won't hunt target over this value."))
+                  :documentation "The behaviour won't hunt target over this value.
+
+If it is nil, there is no distance limitation."))
   "Behaviour of entities controlled by the computer.")
 
 (defmethod do-action ((self rlk--behaviour-ai) callback)
@@ -65,8 +67,10 @@ Will attack it if it is nearby."
          (x-offset (- x1 x2))
          (y-offset (- y1 y2))
          (distance (sqrt (+ (* x-offset x-offset)
-                            (* y-offset y-offset)))))
-    (if (<= distance (get-line-of-sight self))
+                            (* y-offset y-offset))))
+         (line-of-sight (get-line-of-sight self)))
+    (if (or (null line-of-sight)
+            (<= distance line-of-sight))
         (if (< distance 2)
             (progn
               (attack entity target-entity)
