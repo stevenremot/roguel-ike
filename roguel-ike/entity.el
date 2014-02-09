@@ -26,7 +26,7 @@
 (require 'roguel-ike/level/cell/ground)
 (require 'roguel-ike/message-logger)
 (require 'roguel-ike/race)
-(require 'roguel-ike/dispatcher)
+(require 'roguel-ike-lib/dispatcher)
 
 ;;;;;;;;;;;;;;;;;;;;;
 ;; Abstract entity ;;
@@ -54,7 +54,7 @@
               :protection :private
               :documentation "Entity's behaviour.")
    (dispatcher :reader get-dispatcher
-               :type rlk--dispatcher
+               :type roguel-ike-dispatcher
                :protection :private
                :documentation "Entity's event dispatcher.
 
@@ -89,7 +89,7 @@ Here are the events that can occur to an entity with their arguments:
 (defmethod initialize-instance :after ((self rlk--entity) slots)
   "Initializes entity's objects."
   (set-entity (get-behaviour self) self)
-  (oset self dispatcher (rlk--dispatcher "Entity dispatcher"))
+  (oset self dispatcher (roguel-ike-dispatcher "Entity dispatcher"))
   (let ((regenerator (rlk--stats-regenerator "Entity's stat regenerator"
                                              :stats (get-stats self)
                                              :slots '(:health

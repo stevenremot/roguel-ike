@@ -199,3 +199,40 @@
   |           |                          | of the COST function. The points are  |
   |           |                          | ordered from the nearest from ORIGIN  |
   |           |                          | to TARGET.                            |
+* Maths
+
+  This module defines different mathematics utilities, especialy for
+  geometrical computations.
+
+  Two basic data structures are manipulated in this file. The first is a
+  two-dimensional vector. It is represented as a cons in the form `(x . y)'.
+  It can also be used for points, as vectors and points are equivalent.
+
+  The second data structure is a two-dimensional line, represented as a cons
+  of points.
+
+  Several basic functions are defined to manipulate these data structures,
+  like scalar product, or getting the slope of a line. see math.el for more
+  information.
+
+* Dispatcher
+
+  This module define a basic event manager system. It allows to register some
+  callbacks for different events in a dispatch object, an to execute all these
+  functions on an event, with arbitrary arguments.
+
+  There can be multiple dispatchers at the same time.
+
+  A dispatcher has the following methods:
+
+  | name       | arguments                 | comment                             |
+  |------------+---------------------------+-------------------------------------|
+  | register   | DISPATCHER EVENT CALLBACK | Ask the DISPATCHER to call CALLBACK |
+  |            |                           | when EVENT is dispatched            |
+  |------------+---------------------------+-------------------------------------|
+  | unregister | DISPATCHER EVENT CALLBACK | Ask the dispatcher not to call      |
+  |            |                           | CALLBACK when EVENT is dispatched.  |
+  |------------+---------------------------+-------------------------------------|
+  | dispatch   | DISPATCHER EVENT          | Call all DISPATCHER's callbacks     |
+  |            | &rest ARGUMENTS           | registered for EVENT with           |
+  |            |                           | ARGUMENTS as arguments.             |

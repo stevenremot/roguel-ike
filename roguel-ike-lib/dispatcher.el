@@ -1,4 +1,4 @@
-;;; dispatcher.el --- Event dispatcher
+;;; dispatcher.el --- Event dispatch system
 
 ;; Copyright (C) 2014 Steven Rémot
 
@@ -19,15 +19,13 @@
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ;;; Commentary:
-;; An implementation of a lightweight and modular event dispatcher.
+;; Defines a lightweight event dispatcher
 
 ;;; Code:
-
 (require 'eieio)
 
-(defclass rlk--dispatcher ()
+(defclass roguel-ike-dispatcher ()
   ((hooks :type hash-table
-          :reader get-hooks ;; TODO remove
           :protection :private
           :documentation "A hash table making the link between events and functions."))
   "An event dispatcher.
@@ -37,30 +35,28 @@ be called on event dispatch.
 
 There is no restriction regarding the arguments provided on dispatch.")
 
-(defmethod initialize-instance :after ((self rlk--dispatcher) slots)
+(defmethod initialize-instance :after ((self roguel-ike-dispatcher) slots)
   "Initialize hooks."
   (oset self hooks (make-hash-table)))
 
-(defmethod register ((self rlk--dispatcher) event function)
+(defmethod register ((self roguel-ike-dispatcher) event function)
   "Ask the dispatcher to call FUNCTION on EVENT dispatch."
   (let* ((hooks (oref self hooks))
          (hook (gethash event hooks '())))
     (add-to-list 'hook function)
     (puthash event hook hooks)))
 
-(defmethod unregister ((self rlk--dispatcher) event function)
+(defmethod unregister ((self roguel-ike-dispatcher) event function)
   "Ask the dispatcher not to call FUNCTION on EVENT dispatch."
   (let* ((hooks (oref self hooks))
          (hook (gethash event hooks '())))
     (puthash event (delete function hook) hooks)))
 
-(defmethod dispatch ((self rlk--dispatcher) event &rest arguments)
+(defmethod dispatch ((self roguel-ike-dispatcher) event &rest arguments)
   "Call all functions associated to EVENT with ARGUMENTS."
   (let* ((hooks (oref self hooks))
          (hook (gethash event hooks '())))
     (apply 'run-hook-with-args 'hook arguments)))
 
-
-(provide 'roguel-ike/dispatcher)
-
+(provide 'roguel-ike-lib/dispatcher)
 ;;; dispatcher.el ends here
