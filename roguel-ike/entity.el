@@ -28,6 +28,13 @@
 (require 'roguel-ike/race)
 (require 'roguel-ike-lib/dispatcher)
 
+;;;;;;;;;;;;;;
+;; Generics ;;
+;;;;;;;;;;;;;;
+
+(defgeneric set-entity (cell entity)
+  "Set the ENTITY standing on CELL.")
+
 ;;;;;;;;;;;;;;;;;;;;;
 ;; Abstract entity ;;
 ;;;;;;;;;;;;;;;;;;;;;
@@ -83,7 +90,12 @@ Here are the events that can occur to an entity with their arguments:
   NB-TURNS is the number of turns the action took.
 
 * :died
-  Occur when the entity dies, just before it is removed from the level."))
+  Occur when the entity dies, just before it is removed from the level.")
+   (current-effects :initform ()
+                    :reader get-current-effects
+                    :type list
+                    :protection :private
+                    :documentation "Return the current effects appliers associated to the entity."))
   "The base class for game entities.")
 
 (defmethod initialize-instance :after ((self rlk--entity) slots)
@@ -254,6 +266,18 @@ EXPERIENCE is the amount of experience to add."
     (register dispatcher :used-magical-skill (apply-partially 'add-experience
                                                               (get-stat-slot self :spirit)
                                                               1))))
+
+;;;;;;;;;;;;;
+;; Effects ;;
+;;;;;;;;;;;;;
+
+(defmethod register-effect-applier ((self rlk--entity) applier)
+  "Add the APPLIER to the list of the current applied effects."
+  (oset self current-effects (append (get-current-effects self) (list applier))))
+
+(defmethod unregister-effect-applier ((self rlk--entity) applier)
+  "Remove APPLIER from registered effect appliers."
+  (oset self current-effects (delete applier (get-current-effects self))))
 
 ;;;;;;;;;;;;
 ;; Action ;;

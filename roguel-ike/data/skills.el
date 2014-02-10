@@ -26,6 +26,7 @@
 (require 'roguel-ike/skill)
 (require 'roguel-ike/entity)
 (require 'roguel-ike/skill/object/fireball)
+(require 'roguel-ike/stats/effect)
 
 (rlk--defskill :punch
                "Punch"
@@ -70,7 +71,34 @@
                        (level (get-level entity)))
                    (set-level fireball level)
                    (set-pos fireball (get-x entity) (get-y entity))
-                   (add-motion level fireball (cons dx dy) nil))))
+                   (add-motion level fireball (cons dx dy) nil)
+                   t)))
+
+(rlk--defskill :bite
+               "Bite"
+               '(:directional :physical)
+               '((:strength . 3))
+               '((:stamina . 1))
+               (lambda (entity dx dy)
+                 (let ((cell (get-neighbour-cell entity dx dy))
+                       (target nil)
+                       (damages 0))
+                   (if (and (is-container-p cell) (has-entity-p cell))
+                       (progn
+                         (setq target (get-entity cell)
+                               damages (compute-damages target
+                                                        (get-base-damages entity)))
+                         (display-message entity
+                                          (format "%s %s %s for %i damages"
+                                                  (get-name entity)
+                                                  (get-verb entity "bite" "bites")
+                                                  (downcase (get-name target))
+                                                  damages))
+                         (hurt target damages)
+                         (apply-on (rlk--effect-get-effect :poison) target)
+                         t)
+                     (display-message entity "There is no enemy here...")
+                     nil))))
 
 (provide 'roguel-ike/data/skills)
 

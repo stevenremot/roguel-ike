@@ -61,7 +61,8 @@
                :constitution 5
                :speed 2
                :spirit 10)
-              '())
+              (list
+               :bite))
 
 (rlk--defrace :troll
               "troll"
