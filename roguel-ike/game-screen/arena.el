@@ -101,9 +101,8 @@
 
 (defmethod create-level ((self rlk--game-screen-arena))
   "Choose a level in arena's predefined ones."
-  ;; (rlk--level-create-from-string-list (nth (random (length rlk--arenas))
-  ;;                                          rlk--arenas)))
-  (rlk--level-create-from-string-list (nth 1 rlk--arenas))) ;; TODO remove
+  (rlk--level-create-from-string-list (nth (random (length rlk--arenas))
+                                           rlk--arenas)))
 
 (defmethod setup-level ((self rlk--game-screen-arena))
   "Set all the level's elements."

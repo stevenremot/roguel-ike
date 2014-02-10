@@ -23,7 +23,7 @@
 
 ;;; Code:
 (require 'roguel-ike/stats/regenerator)
-(require 'roguel-ike/level/cell/ground)
+(require 'roguel-ike/level/cell/object)
 (require 'roguel-ike/message-logger)
 (require 'roguel-ike/race)
 (require 'roguel-ike-lib/dispatcher)
@@ -137,28 +137,21 @@ Unregister from the old level"
 Register to the new level."
   (add-entity level self))
 
-
 (defmethod set-cell ((self rlk--entity) cell)
   "Set the new cell of the entity.
 This method is instead for private use ONLY.
 If you want to change entity position, use set-pos instead."
   (let ((old-cell (get-cell self)))
-    (when (rlk--level-cell-ground-child-p old-cell)
+    (when (is-container-p old-cell)
       (set-entity old-cell nil))
     (set-entity cell self)))
 
 (defmethod try-move ((self rlk--entity) dx dy)
   "If the entity can move to the cell (x + DX, y + DY), will move to it.
 Return t if the entity could move, nil otherwise."
-  (let* ((x (+ (get-x self) dx))
-        (y (+ (get-y self) dy))
-        (cell (get-cell-at (get-level self) x y)))
-    (if (and cell (is-accessible-p cell))
-        (progn
-            (set-pos self x y)
-            (dispatch (get-dispatcher self) :moved)
-            t)
-      nil)))
+  (when (call-next-method)
+    (dispatch (get-dispatcher self) :moved)
+    t))
 
 (defmethod is-alive-p ((self rlk--entity))
   "Return t if the entity is alive, nil otherwise."
@@ -224,6 +217,10 @@ Return t if the entity could move, nil otherwise."
 (defmethod get-speed ((self rlk--entity))
   "Return the entity's current speed."
   (get-current-value (get-stat-slot self :speed)))
+
+(defmethod get-spirit ((self rlk--entity))
+  "Return the entity's current spirit."
+  (get-current-value (get-stat-slot self :spirit)))
 
 (defmethod add-experience ((self rlk--entity) slot experience)
   "Add experience point to a slot.

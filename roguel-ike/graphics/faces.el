@@ -100,6 +100,13 @@
   "Troll face"
   :group 'roguel-ike-faces)
 
+(defface rlk-face-fireball
+  '((((class color) (min-colors 8))
+    :inherit 'rlk-face-default
+    :foreground "red"))
+  "Fireball face"
+  :group 'roguel-ike-faces)
+
 (defface rlk-face-good-stat
   '((((class color) (min-colors 8))
      :inherit 'rlk-face-default

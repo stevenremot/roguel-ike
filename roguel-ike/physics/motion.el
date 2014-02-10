@@ -57,9 +57,12 @@ DIRECTION is the base motion direction, and ENERGY is the current motion energy.
            :protection :private
            :documentation "The object on which the motion applies.")
    (energy :initarg :energy
+           :type (or integer null)
            :reader get-energy
            :protection :private
-           :documentation "The duration of the movement.")
+           :documentation "The duration of the movement.
+
+A null value means the movement won't stop until it bumps into something.")
    (direction :initarg :direction
               :type cons
               :reader get-direction
@@ -78,7 +81,8 @@ Apply all effects, including collisions and movement attenuation."
                                         (car direction)
                                         (cdr direction))))
     (if (try-move object (car direction) (cdr direction))
-        (oset self energy (1- (get-energy self)))
+        (when (get-energy self)
+          (oset self energy (1- (get-energy self))))
       (progn
         (collide-with-cell object next-cell direction (get-energy self))
         (oset self energy 0)))))

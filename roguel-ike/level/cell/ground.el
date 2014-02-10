@@ -22,8 +22,6 @@
 ;; Special cell that can contain object.
 
 ;;; Code:
-
-(require 'eieio)
 (require 'roguel-ike/level/cell)
 (require 'roguel-ike/level/cell/object)
 

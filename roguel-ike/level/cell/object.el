@@ -23,7 +23,6 @@
 ;; Here is the base class for objects present on a level cell.
 
 ;;; Code:
-(require 'eieio)
 (require 'roguel-ike/level/cell)
 (require 'roguel-ike/level)
 
@@ -95,6 +94,18 @@ Use set-pos to change the object's position."
       (set-cell self cell)
       (oset self x x)
       (oset self y y))))
+
+(defmethod try-move ((self rlk--level-cell-object) dx dy)
+  "If the entity can move to the cell (x + DX, y + DY), will move to it.
+Return t if the entity could move, nil otherwise."
+  (let* ((x (+ (get-x self) dx))
+        (y (+ (get-y self) dy))
+        (cell (get-cell-at (get-level self) x y)))
+    (if (and cell (is-accessible-p cell))
+        (progn
+            (set-pos self x y)
+            t)
+      nil)))
 
 (provide 'roguel-ike/level/cell/object)
 

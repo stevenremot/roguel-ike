@@ -36,7 +36,8 @@
   "Add a MOTION to the world.
 
 Won't accept motion with null or negative energy."
-  (when (> (get-energy motion) 0)
+  (when (or (null (get-energy motion))
+            (> (get-energy motion) 0))
     (let ((motions (get-motions self)))
       (oset self motions (add-to-list 'motions motion)))))
 
@@ -54,7 +55,8 @@ Return t if at least one MOTION remains, nil otherwise."
   (let ((motions (get-motions self)))
     (dolist (motion motions)
       (update motion)
-      (when (= (get-energy motion) 0)
+      (when (and (get-energy motion)
+                 (= (get-energy motion) 0))
         (remove-motion self motion)))
     (> (length (get-motions self)) 0)))
 

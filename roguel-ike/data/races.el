@@ -42,7 +42,8 @@
                :speed 3
                :spirit 3)
               (list
-               :punch))
+               :punch
+               :fireball))
 
 (rlk--defrace :rat
               "rat"

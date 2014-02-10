@@ -44,8 +44,9 @@
                           result
                           "Skills:\n\n"
                           (mapcar (lambda (skill)
-                                    (concat "* "
-                                            (get-name skill)))
+                                    (concat " * "
+                                            (get-name skill)
+                                            "\n"))
                                    (get-usable-skills entity)))))
     result))
 

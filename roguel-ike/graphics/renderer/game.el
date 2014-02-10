@@ -36,7 +36,8 @@
     (:hero . ("@" . rlk-face-hero))
     (:human . ("@" . rlk-face-human))
     (:rat . ("r" . rlk-face-rat))
-    (:troll . ("T" . rlk-face-troll)))
+    (:troll . ("T" . rlk-face-troll))
+    (:fireball . ("o" . rlk-face-fireball)))
   "The default mapping between game type and graphics."
   :group 'roguel-ike)
 

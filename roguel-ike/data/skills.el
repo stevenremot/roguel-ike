@@ -25,6 +25,7 @@
 
 (require 'roguel-ike/skill)
 (require 'roguel-ike/entity)
+(require 'roguel-ike/skill/object/fireball)
 
 (rlk--defskill :punch
                "Punch"
@@ -57,6 +58,19 @@
                      (progn
                        (display-message entity "There is no enemy here...")
                        nil)))))
+
+(rlk--defskill :fireball
+               "Fireball"
+               '(:directional :magical)
+               '((:spirit . 5))
+               '((:stamina . 2))
+               (lambda (entity dx dy)
+                 (let ((fireball (rlk--skill-object-fireball "Fireball"
+                                                             :caster entity))
+                       (level (get-level entity)))
+                   (set-level fireball level)
+                   (set-pos fireball (get-x entity) (get-y entity))
+                   (add-motion level fireball (cons dx dy) nil))))
 
 (provide 'roguel-ike/data/skills)
 
