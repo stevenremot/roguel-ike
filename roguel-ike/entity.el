@@ -133,9 +133,43 @@ Here are the events that can occur to an entity with their arguments:
   "See rlk--level-cell-object."
   nil)
 
-(defmethod display-message ((self rlk--entity) message)
+(defmethod format-message ((self rlk--entity) message)
+  "Create a string from MESSAGE.
+
+If MESSAGE is a string, simply return it.
+
+If MESSAGE is a list, each of its elements will be converted to a string using this rules:
+- If the element is a string, use it
+- If the element is the symbol `Me', use SELF's name
+- If the element is the symbol `me', use SELF's name downcased
+- If it is a cons, its elements will be sent to `get-verb'
+- Otherwise, use the item's string representation"
+  (if (stringp message)
+      message
+    (let ((result ""))
+      (dolist (item message)
+        (setq result (concat result
+                             (if (> (length result) 0)
+                                 " "
+                               "")
+                             (cond ((stringp item)
+                                      item)
+                                   ((eq 'Me item)
+                                    (get-name self))
+                                   ((eq 'me item)
+                                    (downcase (get-name item)))
+                                   ((consp item)
+                                    (get-verb self (car item) (cdr item)))
+                                   (t
+                                    (prin1-to-string item))))))
+      result)))
+
+(defmethod display-message ((self rlk--entity) message &rest format-arguments)
   "Use the message logger to display a message."
-  (display-message (get-message-logger self) message))
+  (apply 'display-message
+         (get-message-logger self)
+         (format-message self message)
+         format-arguments))
 
 
 (defmethod set-level :before ((self rlk--entity) level)
@@ -205,9 +239,7 @@ Return t if the entity could move, nil otherwise."
 
 (defmethod die ((self rlk--entity))
   "Make the entity disappear from the level."
-  (display-message self (format "%s %s."
-                                (get-name self)
-                                (get-verb self "die" "dies")))
+  (display-message self '(Me ("die." . "dies.")))
   (dispatch (get-dispatcher self) :died)
   (remove-entity (get-level self) self)
   (set-entity (get-cell self) nil))
@@ -308,10 +340,8 @@ The entity is hurt with the remaining ENERGY."
                half-energy)
       (setq damages (- energy half-energy)))
     (setq damages (compute-damages self damages))
-    (display-message self (format "%s %s %i projection damages."
-                                  (get-name self)
-                                  (get-verb self "take" "takes")
-                                  damages))
+    (display-message self '(Me ("take" . "takes") "%i projection damages.")
+                     damages)
     (hurt self damages)))
 
 (defmethod project ((self rlk--entity) direction energy)
@@ -349,17 +379,13 @@ This method contains randomness."
 This method contains randomness."
   (if (attack-successfull-p self target)
       (let ((damages (compute-damages target (get-base-damages self))))
-        (display-message self (format "%s %s %s for %d damages"
-                                      (get-name self)
-                                      (get-verb self "attack" "attacks")
-                                      (downcase (get-name target))
-                                      damages))
+        (display-message self '(Me ("attack" . "attacks") "%s for %d damages")
+                         (downcase (get-name target))
+                         damages)
         (hurt target damages)
         (dispatch (get-dispatcher self) :attacked))
-    (display-message self (format "%s %s %s"
-                                  (get-name self)
-                                  (get-verb self "miss" "misses")
-                                  (downcase (get-name target))))))
+    (display-message self '(Me ("miss" . "misses") "%s")
+                     (downcase (get-name target)))))
 
 ;;;;;;;;;;;;
 ;; Skills ;;

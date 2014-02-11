@@ -33,11 +33,13 @@
                    :documentation "Buffer in which messages are displayed."))
   "Display game messages in a buffer.")
 
-(defmethod display-message ((self rlk--message-logger) message)
-  "Display a message in the message buffer"
+(defmethod display-message ((self rlk--message-logger) message &rest format-arguments)
+  "Display a message in the message buffer
+
+MESSAGE and FORMAT-ARGUMENTS are passed to the `format' function."
   (with-current-buffer (get-message-buffer self)
     (goto-char (point-min))
-    (insert (concat message "\n"))))
+    (insert (concat (apply 'format message format-arguments) "\n"))))
 
 (defmethod clear ((self rlk--message-logger))
   "Erase all the previous messages."
