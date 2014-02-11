@@ -66,7 +66,12 @@ This message will be sent to entity's method `display-message'.")
                  :type list
                  :reader get-stats-change
                  :protection :private
-                 :documentation "A property list telling which stat will be impacted, and by how many."))
+                 :documentation "A property list telling which stat will be impacted, and by how many.")
+   (minimal-values :initarg :minimal-values
+                   :type list
+                   :reader get-minimal-values
+                   :protection :private
+                   :documentation "A property list telling the threshold for negative stats changes."))
   "Stat effect applies temporary and periodical bonuses or penalties on entities.")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;
@@ -137,10 +142,16 @@ This message will be sent to entity's method `display-message'.")
 (defmethod apply-effect ((self rlk--stats-effect-applier))
   "Apply the effect one time."
   (let ((stats-change (get-stats-change (get-effect self)))
-        (entity (get-entity self)))
+        (entity (get-entity self))
+        (minimal-values (get-minimal-values (get-effect self))))
     (while stats-change
-      (let ((slot (get-stat-slot entity (car stats-change))))
-        (set-current-value slot (+ (get-current-value slot) (cadr stats-change)))
+      (let ((slot (get-stat-slot entity (car stats-change)))
+            (minimal-value (plist-get minimal-values (car stats-change)))
+            (change (cadr stats-change)))
+        (when (or (> change 0)
+                  (null minimal-value)
+                  (> (get-current-value slot) minimal-value))
+          (set-current-value slot (+ (get-current-value slot) (cadr stats-change))))
         (setq stats-change (cddr stats-change))))
     (oset self application-count (1+ (oref self application-count)))))
 
@@ -168,19 +179,27 @@ This message will be sent to entity's method `display-message'.")
                                end-message
                                period
                                apply-number
-                               stats-change)
+                               stats-change
+                               (minimal-values nil))
   "Define a new stat effect.
 
 TYPE is the identifier of the effect.
 
 NAME is its displayed name.
 
+START-MESSAGE is the message displayed when the effect starts on an entity.
+
+END-MESSAGE is the message displayed when the effect ends on an entity.
+
 PERIOD is the number of turns between each effect application.
 
 APPLY-NUMBER is the number of times the effect will be applied.
 
 STATS-CHANGE is a property list containing the impacted slots, and by
-how much each one will increase / decrease."
+how much each one will increase / decrease.
+
+MINIMAL-VALUES is a property list containing for each impacted slot the
+threshold under which a negative effect does not apply anymore."
   (add-to-list 'rlk--effects (rlk--stats-effect (format "Effect %s" name)
                                                :type type
                                                :name name
@@ -188,7 +207,8 @@ how much each one will increase / decrease."
                                                :end-message end-message
                                                :period period
                                                :apply-number apply-number
-                                               :stats-change stats-change)))
+                                               :stats-change stats-change
+                                               :minimal-values minimal-values)))
 
 (defun rlk--effect-get-effect (type)
   "Return the effect whose type is TYPE.

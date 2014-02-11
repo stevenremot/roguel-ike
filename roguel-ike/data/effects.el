@@ -30,7 +30,8 @@
                 :end-message '(Me ("are" . "is") "no longer poisonned.")
                 :period 5
                 :apply-number 10
-                :stats-change '(:health -1))
+                :stats-change '(:health -1)
+                :minimal-values '(:health 1))
 
 (provide 'roguel-ike/data/effects)
 ;;; effects.el ends here
