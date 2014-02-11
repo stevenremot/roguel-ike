@@ -23,6 +23,9 @@
 
 ;;; Code:
 (require 'roguel-ike/entity)
+(unless (require 'cl-lib nil :no-error)
+  (require 'cl)
+  (defalias 'cl-defun 'defun*))
 
 (defclass rlk--stats-effect ()
   ((type :initarg :type
@@ -35,6 +38,20 @@
          :reader get-name
          :protection :private
          :documentation "Name of the effect.")
+   (start-message :initarg :start-message
+                  :type (or string list)
+                  :reader get-start-message
+                  :protection :private
+                  :documentation "The message displayed when the effect starts.
+
+This message will be sent to entity's method `display-message'.")
+   (end-message :initarg :end-message
+                  :type (or string list)
+                  :reader get-end-message
+                  :protection :private
+                  :documentation "The message displayed when the effect ends.
+
+This message will be sent to entity's method `display-message'.")
    (period :initarg :period
            :type integer
            :reader get-period
@@ -87,12 +104,14 @@
 (defmethod start ((self rlk--stats-effect-applier))
   "Start applying the effect."
   (let ((entity (get-entity self)))
+    (display-message entity (get-start-message (get-effect self)))
     (register (get-dispatcher entity) :turns-spent (oref self turn-callback))
     (register-effect-applier entity self)))
 
 (defmethod stop ((self rlk--stats-effect-applier))
   "Stop applying the effect."
   (let ((entity (get-entity self)))
+    (display-message entity (get-end-message (get-effect self)))
     (unregister (get-dispatcher entity) :turns-spent (oref self turn-callback))
     (unregister-effect-applier entity self)))
 
@@ -143,7 +162,13 @@
 (defvar rlk--effects '()
   "All the define effects.")
 
-(defun rlk--defeffect (type name period apply-number stats-change)
+(cl-defun rlk--defeffect (&key type
+                               name
+                               start-message
+                               end-message
+                               period
+                               apply-number
+                               stats-change)
   "Define a new stat effect.
 
 TYPE is the identifier of the effect.
@@ -159,6 +184,8 @@ how much each one will increase / decrease."
   (add-to-list 'rlk--effects (rlk--stats-effect (format "Effect %s" name)
                                                :type type
                                                :name name
+                                               :start-message start-message
+                                               :end-message end-message
                                                :period period
                                                :apply-number apply-number
                                                :stats-change stats-change)))

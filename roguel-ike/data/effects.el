@@ -24,12 +24,13 @@
 ;;; Code:
 (require 'roguel-ike/stats/effect)
 
-(rlk--defeffect :poison
-                "Poison"
-                5
-                10
-                (list
-                 :health -1))
+(rlk--defeffect :type :poison
+                :name "Poison"
+                :start-message '(Me ("are" . "is") "poisonned.")
+                :end-message '(Me ("are" . "is") "no longer poisonned.")
+                :period 5
+                :apply-number 10
+                :stats-change '(:health -1))
 
 (provide 'roguel-ike/data/effects)
 ;;; effects.el ends here
