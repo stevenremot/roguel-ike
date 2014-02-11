@@ -36,7 +36,6 @@
 (rlk--defeffect :type :tough
                 :name "Tough"
                 :start-message '(Me ("feel" . "feels") "tough!")
-                :end-message ""
                 :period 1
                 :apply-number 1
                 :stats-change '(:strength 10

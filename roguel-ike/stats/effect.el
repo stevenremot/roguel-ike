@@ -108,15 +108,21 @@ This message will be sent to entity's method `display-message'.")
 
 (defmethod start ((self rlk--stats-effect-applier))
   "Start applying the effect."
-  (let ((entity (get-entity self)))
-    (display-message entity (get-start-message (get-effect self)))
+  (let ((entity (get-entity self))
+        (start-message (get-start-message (get-effect self))))
+    (when (> (length start-message) 0)
+      (display-message entity start-message))
+
     (register (get-dispatcher entity) :turns-spent (oref self turn-callback))
     (register-effect-applier entity self)))
 
 (defmethod stop ((self rlk--stats-effect-applier))
   "Stop applying the effect."
-  (let ((entity (get-entity self)))
-    (display-message entity (get-end-message (get-effect self)))
+  (let ((entity (get-entity self))
+        (end-message (get-end-message (get-effect self))))
+    (when (> (length end-message) 0)
+      (display-message entity end-message))
+
     (unregister (get-dispatcher entity) :turns-spent (oref self turn-callback))
     (unregister-effect-applier entity self)))
 
@@ -175,8 +181,8 @@ This message will be sent to entity's method `display-message'.")
 
 (cl-defun rlk--defeffect (&key type
                                name
-                               start-message
-                               end-message
+                               (start-message "")
+                               (end-message "")
                                period
                                apply-number
                                stats-change
