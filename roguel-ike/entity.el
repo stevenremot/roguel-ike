@@ -220,7 +220,7 @@ Return t if the entity could move, nil otherwise."
 
 (defmethod get-max-health ((self rlk--entity))
   "Return the maximum health the entity can have."
-  (get-max-value (get-stat-slot self :health)))
+  (get-base-value (get-stat-slot self :health)))
 
 (defmethod get-health ((self rlk--entity))
   "Return the entity's current health."
@@ -481,7 +481,7 @@ SKILL's tags."
 
 RACE is a rlk--race.
 LIST is a plist which keys are stat slot names, and values
-are max-values, or conses in the form (max-value . experience)."
+are base-values, or conses in the form (base-value . experience)."
 
   (let ((stats-slots '())
         (slot-names '(:health
@@ -493,7 +493,7 @@ are max-values, or conses in the form (max-value . experience)."
         (race-evolution (get-stats-evolution race)))
     (dolist (name slot-names)
       (let* ((slot-base-value (plist-get list name))
-             (max-value (if (numberp slot-base-value)
+             (base-value (if (numberp slot-base-value)
                             slot-base-value
                           (car slot-base-value)))
              (experience (if (numberp slot-base-value)
@@ -502,7 +502,7 @@ are max-values, or conses in the form (max-value . experience)."
              (experience-rate (plist-get race-evolution name)))
         (add-to-list 'stats-slots (cons name
                                         (rlk--stats-slot (format "%s slot" name)
-                                                         :max-value max-value
+                                                         :base-value base-value
                                                          :experience experience
                                                          :experience-rate experience-rate)))))
     (rlk--stats "Stats"

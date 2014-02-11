@@ -25,16 +25,16 @@
 (require 'eieio)
 
 (defclass rlk--stats-slot ()
-  ((max-value :initarg :max-value
+  ((base-value :initarg :base-value
               :type integer
-              :reader get-max-value
-              :writer set-max-value
+              :reader get-base-value
+              :writer set-base-value
               :protection :private
-              :documentation "The maximum value of the statistic.")
+              :documentation "The base value of the statistic.")
    (current-value :type integer
                   :protection :private
                   :documentation "The current value of the statistic.
-Cannot be out of the range 0 - max-value.")
+Cannot be out of the range 0 - base-value.")
    (experience :initarg :experience
                :initform 0
                :type integer
@@ -47,36 +47,32 @@ When experience reaches a certain point, the max value increases.")
                     :type number
                     :reader get-experience-rate
                     :protection :private
-                    :documentation "The maximum value will be incremented when experience reached experience-rate * max-value."))
+                    :documentation "The maximum value will be incremented when experience reached experience-rate * base-value."))
   "Statistic slot.
 Handle maximum value and current value.")
 
 (defmethod get-current-value ((self rlk--stats-slot))
   "Return the current slot value.
-Set it to max-value if not set yet."
+
+Set it to base-value if not set yet."
   (unless (slot-boundp self 'current-value)
-    (set-current-value self (get-max-value self)))
+    (set-current-value self (get-base-value self)))
   (oref self current-value))
 
 (defmethod set-current-value ((self rlk--stats-slot) current-value)
   "Set the current slot value.
-Restrain it to the range 0 - max-value."
-  (oset self current-value
-        (cond ((< current-value 0)
-               0)
-              ((> current-value (get-max-value self))
-               (get-max-value self))
-              (t
-               current-value))))
+
+Restrain it to be positive."
+  (oset self current-value (max 0 current-value)))
 
 (defmethod add-experience ((self rlk--stats-slot) experience)
   "Add EXPERIENCE to current experience points."
-  (let ((threshold (* (get-experience-rate self) (get-max-value self))))
+  (let ((threshold (* (get-experience-rate self) (get-base-value self))))
     (oset self experience (+ (get-experience self) experience))
 
     (when (>= (get-experience self) threshold)
       (oset self experience (- (get-experience self) threshold))
-      (set-max-value self (1+ (get-max-value self))))))
+      (set-base-value self (1+ (get-base-value self))))))
 
 (provide 'roguel-ike/stats/slot)
 

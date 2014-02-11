@@ -18,8 +18,8 @@
 (defmethod get-stat-face ((self rlk--graphics-widget-stats) slot)
   "Return the stat's face according to its levelr elatively to te maximum of the stat."
   (let* ((stat (get-current-value slot))
-         (max-stat (get-max-value slot))
-         (ratio (/ (float stat) (float max-stat))))
+         (base-stat (get-base-value slot))
+         (ratio (/ (float stat) (float base-stat))))
     (cond
      ((> ratio 0.75) 'rlk-face-good-stat)
      ((> ratio 0.25) 'rlk-face-average-stat)
@@ -29,7 +29,7 @@
   "Render the statistic."
   (concat
    (propertize (concat name " : ") 'face 'rlk-face-default)
-   (propertize (format "%d/%d" (get-current-value slot) (get-max-value slot))
+   (propertize (format "%d/%d" (get-current-value slot) (get-base-value slot))
                  'face (get-stat-face self slot))
    "\n"))
 

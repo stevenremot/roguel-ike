@@ -33,5 +33,14 @@
                 :stats-change '(:health -1)
                 :minimal-values '(:health 1))
 
+(rlk--defeffect :type :tough
+                :name "Tough"
+                :start-message '(Me ("feel" . "feels") "tough!")
+                :end-message ""
+                :period 1
+                :apply-number 1
+                :stats-change '(:strength 10
+                                :constitution 10))
+
 (provide 'roguel-ike/data/effects)
 ;;; effects.el ends here

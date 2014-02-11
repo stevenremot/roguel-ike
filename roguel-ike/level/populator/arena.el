@@ -36,7 +36,7 @@
   "Sum all the slots of STATS."
   (let ((sum 0))
     (dolist (slot-name (get-slot-names stats))
-      (setq sum (+ sum (get-max-value (get-slot stats slot-name)))))
+      (setq sum (+ sum (get-base-value (get-slot stats slot-name)))))
     sum))
 
 (defun rlk--level-populator-arena-sum-plist (stats-list)

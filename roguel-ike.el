@@ -81,6 +81,7 @@
 
 (require 'roguel-ike/data/skills)
 (require 'roguel-ike/data/races)
+(require 'roguel-ike/data/effects)
 
 (unless (fboundp 'defvar-local)
   (defmacro defvar-local (var val &optional docstring)

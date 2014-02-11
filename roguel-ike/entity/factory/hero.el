@@ -42,7 +42,7 @@
               (append stats-list
                       (list
                        slot-name
-                       (cons (get-max-value stat-slot)
+                       (cons (get-base-value stat-slot)
                              (get-experience stat-slot)))))))
     (rlk--hero-data "Hero data"
                     :name name

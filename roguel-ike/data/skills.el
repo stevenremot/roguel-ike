@@ -96,6 +96,26 @@
                      (display-message entity "There is no enemy here...")
                      nil))))
 
+(rlk--defskill :war-cry
+               "War cry"
+               '(:physical)
+               '((:strength . 5))
+               '((:stamina . 2))
+               (lambda (entity)
+                 (display-message entity '(Me ("are" . "is") "shouting !"))
+                 (dolist (dx '(-1 0 1))
+                   (dolist (dy '(-1 0 1))
+                     (unless (and (= dx 0)
+                                  (= dy 0))
+                       (let ((cell (get-neighbour-cell entity dx dy)))
+                         (when (and (is-container-p cell)
+                                    (has-entity-p cell))
+                           (add-motion (get-level entity)
+                                       (get-entity cell)
+                                       (cons dx dy)
+                                       (get-strength entity)))))))
+                 (apply-on (rlk--effect-get-effect :tough) entity)))
+
 (provide 'roguel-ike/data/skills)
 
 ;;; skills.el ends here

@@ -81,7 +81,8 @@
                :speed 5
                :spirit 5)
               (list
-               :punch))
+               :punch
+               :war-cry))
 
 (provide 'roguel-ike/data/races)
 
