@@ -39,6 +39,7 @@
          :protection :private
          :documentation "Name of the effect.")
    (start-message :initarg :start-message
+                  :initform ""
                   :type (or string list)
                   :reader get-start-message
                   :protection :private
@@ -46,10 +47,11 @@
 
 This message will be sent to entity's method `display-message'.")
    (end-message :initarg :end-message
-                  :type (or string list)
-                  :reader get-end-message
-                  :protection :private
-                  :documentation "The message displayed when the effect ends.
+                :initform ""
+                :type (or string list)
+                :reader get-end-message
+                :protection :private
+                :documentation "The message displayed when the effect ends.
 
 This message will be sent to entity's method `display-message'.")
    (period :initarg :period
@@ -69,9 +71,16 @@ This message will be sent to entity's method `display-message'.")
                  :documentation "A property list telling which stat will be impacted, and by how many.")
    (minimal-values :initarg :minimal-values
                    :type list
+                   :initform ()
                    :reader get-minimal-values
                    :protection :private
-                   :documentation "A property list telling the threshold for negative stats changes."))
+                   :documentation "A property list telling the threshold for negative stats changes.")
+   (immediate :initarg :immediate
+              :initform nil
+              :type boolean
+              :reader is-immediate-p
+              :protection :private
+              :documentation "Tell whether this effect should be applied on entity right at start."))
   "Stat effect applies temporary and periodical bonuses or penalties on entities.")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;
@@ -114,7 +123,10 @@ This message will be sent to entity's method `display-message'.")
       (display-message entity start-message))
 
     (register (get-dispatcher entity) :turns-spent (oref self turn-callback))
-    (register-effect-applier entity self)))
+    (register-effect-applier entity self)
+
+    (when (is-immediate-p (get-effect self))
+      (apply-effect self))))
 
 (defmethod stop ((self rlk--stats-effect-applier))
   "Stop applying the effect."
@@ -186,7 +198,8 @@ This message will be sent to entity's method `display-message'.")
                                period
                                apply-number
                                stats-change
-                               (minimal-values nil))
+                               (minimal-values nil)
+                               (immediate nil))
   "Define a new stat effect.
 
 TYPE is the identifier of the effect.
@@ -205,7 +218,10 @@ STATS-CHANGE is a property list containing the impacted slots, and by
 how much each one will increase / decrease.
 
 MINIMAL-VALUES is a property list containing for each impacted slot the
-threshold under which a negative effect does not apply anymore."
+threshold under which a negative effect does not apply anymore.
+
+IMMEDIATE is a boolean telling whether the effect should be applied one time
+right at effect start or not. It is usually set to true for one-time effects."
   (add-to-list 'rlk--effects (rlk--stats-effect (format "Effect %s" name)
                                                :type type
                                                :name name
@@ -214,7 +230,8 @@ threshold under which a negative effect does not apply anymore."
                                                :period period
                                                :apply-number apply-number
                                                :stats-change stats-change
-                                               :minimal-values minimal-values)))
+                                               :minimal-values minimal-values
+                                               :immediate immediate)))
 
 (defun rlk--effect-get-effect (type)
   "Return the effect whose type is TYPE.

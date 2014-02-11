@@ -38,6 +38,7 @@
                 :start-message '(Me ("feel" . "feels") "tough!")
                 :period 1
                 :apply-number 1
+                :immediate t
                 :stats-change '(:strength 10
                                 :constitution 10))
 
