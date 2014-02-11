@@ -30,6 +30,7 @@
 ;;; Code:
 (require 'roguel-ike/behaviour)
 (require 'roguel-ike/interactive-object/door)
+(require 'roguel-ike/level/cell/ground)
 
 (defgeneric call-renderers (controller)
   "Call the game's renderers.")

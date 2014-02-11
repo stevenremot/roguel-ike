@@ -102,7 +102,7 @@
                '((:strength . 5))
                '((:stamina . 2))
                (lambda (entity)
-                 (display-message entity '(Me ("are" . "is") "shouting !"))
+                 (display-message entity '(Me ("are" . "is") "shouting!"))
                  (dolist (dx '(-1 0 1))
                    (dolist (dy '(-1 0 1))
                      (unless (and (= dx 0)

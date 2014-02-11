@@ -82,18 +82,18 @@ The kind of controller on which it should be applied is specified
 by ARGS
 DOCSTRING is the documentation fo the method.
 BODY is the method definition."
-  (declare (indent defun))
-  (list
-   'progn
-   (append (list 'defmethod name args docstring)
-           (list '(hide-popup self))
-           body)
-   (list 'defun
-         (intern (concat "rlk-command-" (symbol-name name)))
-         '()
-         docstring
-         '(interactive)
-         (list name 'rlk--local-controller))))
+  (declare (indent defun)
+           (debug (place sexp form body)))
+  `(progn
+     (defmethod ,name ,args
+       ,docstring
+       (hide-popup self)
+       ,@body)
+
+     (defun ,(intern (concat "rlk-command-" (symbol-name name))) ()
+       ,docstring
+       (interactive)
+       (,name rlk--local-controller))))
 
 (defmethod get-hero ((self rlk--controller))
   "Return the hero in the game associated to the controller."
