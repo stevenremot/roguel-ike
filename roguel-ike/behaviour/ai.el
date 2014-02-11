@@ -41,6 +41,12 @@
                   :documentation "The behaviour won't hunt target over this value.
 
 If it is nil, there is no distance limitation.")
+   (skill-probability :initarg :skill-probability
+                      :initform 50
+                      :type integer
+                      :reader get-skill-probability
+                      :protection :private
+                      :documentation "The probability the entity will use a skill when it can.")
    (memorized-path :initform nil
                    :type list
                    :protection :private
@@ -72,22 +78,34 @@ Will attack it if it is nearby."
          (y-offset (- y1 y2))
          (distance (sqrt (+ (* x-offset x-offset)
                             (* y-offset y-offset))))
-         (line-of-sight (get-line-of-sight self)))
-    (if (or (null line-of-sight)
+         (line-of-sight (get-line-of-sight self))
+         (attacked nil))
+
+    ;; If it see the entity and it is at contact, attack it.
+    ;; If the entity is far away, maybe attack it, and find a path
+    ;; to go to it.
+    (when (or (null line-of-sight)
             (<= distance line-of-sight))
         (if (< distance 2)
             (progn
-              (attack entity target-entity)
-              1)
+              (attack-at-contact self)
+              (setq attacked t))
           (when (roguel-ike-los-can-see-p origin target level)
+            (setq attacked (try-attack-at-range self))
             (oset self memorized-path (cdr (rlk--path-finding-find-path origin
                                                                         target
-                                                                        level))))
-          (let ((direction (pop-next-direction self)))
-            (when direction
-              (if (try-move entity (car direction) (cdr direction))
-                  1
-                (oset self memorized-path nil))))))))
+                                                                        level))))))
+
+    ;; If no action have been done before, try to move with the memorized
+    ;; path if any. If it cannot move to the next path's direction (eg an
+    ;; entity is standing on the cell), forget it.
+    (if attacked
+        1
+      (let ((direction (pop-next-direction self)))
+        (when direction
+          (if (try-move entity (car direction) (cdr direction))
+              1
+            (oset self memorized-path nil)))))))
 
 (defmethod pop-next-direction ((self rlk--behaviour-ai))
   "Return the next direction of the followed path if any.
@@ -124,6 +142,71 @@ Return the number of turns spent if it could move, 1 for waiting otherwise."
       (try-move entity (car choosen-cell) (cdr choosen-cell)))
     1))
 
+(defmethod get-long-range-skills ((self rlk--behaviour-ai))
+  "Return the skills that could reach the target if ti is far away."
+  (let ((skills (get-usable-skills (get-entity self)))
+        (range-skills '()))
+    (dolist (skill skills)
+      (when (has-tag-p skill :long-range)
+        (push skill range-skills)))
+    range-skills))
+
+(defmethod get-contact-skills ((self rlk--behaviour-ai))
+  "Return the skills that can be used only at target's contact."
+  (let ((skills (get-usable-skills (get-entity self)))
+        (contact-skills '()))
+    (dolist (skill skills)
+      (unless (has-tag-p skill :long-range)
+        (push skill contact-skills)))
+    contact-skills))
+
+(defmethod attack-at-contact ((self rlk--behaviour-ai))
+  "Attack entity, assuming it is at contact."
+  (let ((target-entity (get-target self))
+        (contact-skills (get-contact-skills self)))
+    (unless (and contact-skills
+                 (> (random 100) (get-skill-probability self))
+                 (use-skill self (nth (random (length contact-skills))
+                                      contact-skills)))
+      (attack (get-entity self) target-entity))))
+
+(defmethod try-attack-at-range ((self rlk--behaviour-ai))
+  "Try to attack the target, assuming it is not at contact.
+
+Return t when it succeeded."
+  (let* ((range-skills (get-long-range-skills self))
+         (target-entity (get-target self))
+         (entity (get-entity self))
+         (x-offset (abs (- (get-x entity) (get-x target-entity))))
+         (y-offset (abs (- (get-y entity) (get-y target-entity)))))
+    (and range-skills
+         (or (= x-offset 0)
+             (= y-offset 0)
+             (= x-offset y-offset))
+         (> (random 100) (get-skill-probability self))
+         (use-skill self (nth (random (length range-skills))
+                              range-skills)))))
+
+(defmethod use-skill ((self rlk--behaviour-ai) skill)
+  "Use SKILL.
+
+Assume all checks have been done before.
+
+Return t when the skill's action could be done."
+  (let ((arguments '())
+        (target-entity (get-target self))
+        (entity (get-entity self)))
+    (when (has-tag-p skill :directional)
+      (let* ((x-offset (- (get-x target-entity) (get-x entity)))
+             (y-offset (- (get-y target-entity) (get-y entity)))
+             (dx (cond ((> x-offset 0) 1)
+                       ((< x-offset 0) -1)
+                       (t 0)))
+             (dy (cond ((> y-offset 0) 1)
+                       ((< y-offset 0) -1)
+                       (t 0))))
+        (setq arguments (append arguments (list dx dy)))))
+    (apply 'use-skill entity skill arguments)))
 
 (provide 'roguel-ike/behaviour/ai)
 

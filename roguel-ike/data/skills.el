@@ -60,7 +60,7 @@
 
 (rlk--defskill :fireball
                "Fireball"
-               '(:directional :magical)
+               '(:directional :magical :long-range)
                '((:spirit . 5))
                '((:stamina . 2))
                (lambda (entity dx dy)

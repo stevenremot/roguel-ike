@@ -42,9 +42,10 @@
          :documentation "A list of tags that classifies the skill.
 
 Current tags:
-- :directional : when it is present, it means the action also considers a direction.
-- :physical : when it is present, it means the action implies a physical effort.
-- :magical : when it is present, it means the action implies a magical effort")
+- :directional : when it is present, it means the action also considers a direction
+- :physical : when it is present, it means the action implies a physical effort
+- :magical : when it is present, it means the action implies a magical effort
+- :long-range : when it is present, it means the skill can reach far entities")
    (requirements :initarg :requirements
                  :type list
                  :reader get-requirements
