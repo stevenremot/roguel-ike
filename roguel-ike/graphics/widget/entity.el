@@ -5,6 +5,7 @@
 
 ;;; Code:
 (require 'roguel-ike/entity)
+(require 'roguel-ike/stats/effect)
 (require 'roguel-ike/graphics/widget/stats)
 
 (defclass rlk--graphics-widget-entity ()
@@ -13,10 +14,16 @@
            :protection :private
            :documentation "Entity to render.")
    (parts :initarg :parts
-          :initform (:name :stats :skills)
+          :initform (:name :effects :stats :skills)
           :type list
           :protection :private
-          :documentation "The parts of the entity to show.")
+          :documentation "The parts of the entity to show.
+
+There is currently:
+- :name
+- :stats
+- :skills
+- :effects")
    (stats-widget :type rlk--graphics-widget-stats
                  :protection :private
                  :documentation "Sub widget to render statistics."))
@@ -35,10 +42,22 @@
       (setq result (concat result
                            (get-name entity)
                            "\n\n")))
+
+    (when (and (member :effects parts)
+               (get-current-effects entity))
+      (setq result (concat result
+                           "["
+                           (mapconcat (lambda (applier)
+                                        (get-name (get-effect applier)))
+                                      (get-current-effects entity)
+                                      " ")
+                           "]\n\n")))
+
     (when (member :stats parts)
       (setq result (concat result
                            (render (oref self stats-widget))
                            "\n\n")))
+
     (when (member :skills parts)
       (setq result (apply 'concat
                           result

@@ -43,11 +43,9 @@
                                                         (* (get-base-damages entity)
                                                            2)))
                          (display-message entity
-                                          (format "%s %s %s for %i damages"
-                                                  (get-name entity)
-                                                  (get-verb entity "punch" "punches")
-                                                  (downcase (get-name target))
-                                                  damages))
+                                          '(Me ("punch" . "punches") "%s for %i damages")
+                                          (downcase (get-name target))
+                                          damages)
                          (hurt target damages)
                          ;; When the entity has at least 10 strength,
                          ;; Project the enemy
@@ -89,11 +87,9 @@
                                damages (compute-damages target
                                                         (get-base-damages entity)))
                          (display-message entity
-                                          (format "%s %s %s for %i damages"
-                                                  (get-name entity)
-                                                  (get-verb entity "bite" "bites")
-                                                  (downcase (get-name target))
-                                                  damages))
+                                          '(Me ("bite" . "bites") "%s for %i damages")
+                                          (downcase (get-name target))
+                                          damages)
                          (hurt target damages)
                          (apply-on (rlk--effect-get-effect :poison) target)
                          t)

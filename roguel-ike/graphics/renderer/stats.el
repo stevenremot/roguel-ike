@@ -23,12 +23,11 @@
 ;; Define the statistics renderer.
 
 ;;; Code:
-(require 'roguel-ike/stats)
-(require 'roguel-ike/graphics/widget/stats)
+(require 'roguel-ike/graphics/widget/entity)
 
 (defclass rlk--graphics-renderer-stats ()
   ((widget :initarg :widget
-           :type rlk--graphics-widget-stats
+           :type rlk--graphics-widget-entity
            :protection :private
            :documentation "Rendered statistics.")
    (buffer :initarg :buffer
@@ -40,8 +39,10 @@
 (defmethod initialize-instance ((self rlk--graphics-renderer-stats) slots)
   (let ((stats (plist-get slots :stats))
         (buffer (plist-get slots :buffer)))
-    (call-next-method self (list :widget (rlk--graphics-widget-stats "Stats widget"
-                                                                     :stats stats)
+    (call-next-method self (list :widget (rlk--graphics-widget-entity "Entity widget"
+                                                                      :entity (plist-get slots :entity)
+                                                                      :parts '(:effects
+                                                                               :stats))
                                  :buffer buffer))))
 
 (defmethod draw-stats ((self rlk--graphics-renderer-stats))

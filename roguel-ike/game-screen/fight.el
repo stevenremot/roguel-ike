@@ -61,7 +61,7 @@
                           :buffer-manager buffer-manager))
          (stats-renderer (rlk--graphics-renderer-stats "Stats renderer"
                                                        :buffer (get-stats-buffer buffer-manager)
-                                                       :stats (get-stats hero)))
+                                                       :entity hero))
          (game-renderer (rlk--graphics-renderer-game "Game renderer"
                                                      :buffer (get-game-buffer buffer-manager)))
          (controller (rlk--controller "Controller"
