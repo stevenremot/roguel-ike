@@ -39,7 +39,7 @@
                :stamina 2
                :strength 3
                :constitution 3
-               :speed 3
+               :speed 6
                :spirit 3)
               (list
                :punch
@@ -59,7 +59,7 @@
                :stamina 5
                :strength 5
                :constitution 5
-               :speed 2
+               :speed 4
                :spirit 10)
               (list
                :bite))
@@ -78,7 +78,7 @@
                :stamina 3
                :strength 1
                :constitution 1
-               :speed 5
+               :speed 8
                :spirit 5)
               (list
                :punch
