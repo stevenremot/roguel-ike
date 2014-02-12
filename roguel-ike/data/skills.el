@@ -160,7 +160,7 @@
 
 (rlk--defskill :healing
                "Healing"
-               '(:magical)
+               '(:magical :long-range)
                '((:spirit . 15)
                  (:health . 20))
                '((:stamina . 7))
