@@ -44,7 +44,8 @@
               (list
                :punch
                :fireball
-               :slash))
+               :slash
+               :healing))
 
 (rlk--defrace :rat
               "rat"

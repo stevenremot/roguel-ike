@@ -157,6 +157,16 @@
 
                    slashed)))
 
+(rlk--defskill :healing
+               "Healing"
+               '(:magical)
+               '((:spirit . 15)
+                 (:health . 20))
+               '((:stamina . 7))
+               (lambda (entity)
+                 (apply-on (rlk--effect-get-effect :healing) entity)
+                 t))
+
 (provide 'roguel-ike/data/skills)
 
 ;;; skills.el ends here

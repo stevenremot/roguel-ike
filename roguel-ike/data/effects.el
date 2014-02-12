@@ -50,5 +50,12 @@
                 :apply-number 10
                 :stats-change '(:health -1))
 
+(rlk--defeffect :type :healing
+                :name "Healing"
+                :start-message '(Me ("feel" . "feels") "healthier.")
+                :period 1
+                :apply-number 15
+                :stats-change '(:health 1))
+
 (provide 'roguel-ike/data/effects)
 ;;; effects.el ends here
