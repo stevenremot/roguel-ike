@@ -29,7 +29,12 @@
             :type list
             :reader get-motions
             :protection :private
-            :documentation "World's motions."))
+            :documentation "World's motions.")
+   (running :initform nil
+            :type boolean
+            :reader is-running-p
+            :protection :private
+            :documentation "Flag telling whether the world is running or not."))
   "Aggregate and update motions.")
 
 (defmethod add-motion ((self rlk--physics-world) motion)
@@ -43,11 +48,7 @@ Won't accept motion with null or negative energy."
 
 (defmethod remove-motion ((self rlk--physics-world) motion)
   "Remove a MOTION from the world."
-  (let ((new-motions '()))
-    (dolist (old-motion (get-motions self))
-      (unless (equal motion old-motion)
-        (add-to-list 'new-motions old-motion)))
-    (oset self motions new-motions)))
+  (oset self motions (delete motion (get-motions self))))
 
 (defmethod do-step ((self rlk--physics-world))
   "Update MOTIONS for one turn.
@@ -63,11 +64,16 @@ Return t if at least one MOTION remains, nil otherwise."
 (defmethod run ((self rlk--physics-world) draw-callback)
   "Update bodies as long as at least one is moving.
 DRAW-CALLBACK is called at each iteration."
-  (when (do-step self)
-    (funcall draw-callback)
-    (sleep-for 0 10)
-    (redisplay)
-    (run self draw-callback)))
+  (oset self running t)
+  (while (and (is-running-p self) (do-step self))
+    (when (is-running-p self)
+      (funcall draw-callback)
+      (sleep-for 0 10)
+      (redisplay))))
+
+(defmethod stop ((self rlk--physics-world))
+  "Stop current animation."
+  (oset self running nil))
 
 (provide 'roguel-ike/physics/world)
 

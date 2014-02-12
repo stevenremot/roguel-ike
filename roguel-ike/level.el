@@ -105,5 +105,10 @@ DIRECTION is a vector represented by a cons in the form (DX . DY)."
   (run (get-physics-world self) (apply-partially 'call-renderers
                                                  (get-controller self))))
 
+(defmethod stop ((self rlk--level))
+  "Stop the current level."
+  (stop (get-time-manager self))
+  (stop (get-physics-world self)))
+
 (provide 'roguel-ike/level)
 ;;; level.el ends here

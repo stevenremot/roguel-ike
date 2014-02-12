@@ -106,7 +106,7 @@
   "Stop the level and return to the mode selection screen.
 
 Return HERO-DATA to mode selection screen."
-  (stop (get-time-manager (get-current-level (get-game (get-controller self)))))
+  (stop (get-current-level (get-game (get-controller self))))
   (read-key-sequence "Press any key to leave")
   (call-end-callback self
                      'rlk--game-screen-select-mode

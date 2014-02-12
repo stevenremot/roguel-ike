@@ -67,5 +67,14 @@
                 :stats-change '(:speed 20
                                 :constitution -10))
 
+(rlk--defeffect :type :spiritual
+                :name "Spiritual"
+                :start-message '(Me ("feel" . "feels") "abstract.")
+                :period 1
+                :apply-number 1
+                :immediate t
+                :stats-change '(:spirit 20
+                                :constitution -10))
+
 (provide 'roguel-ike/data/effects)
 ;;; effects.el ends here

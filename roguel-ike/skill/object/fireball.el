@@ -19,7 +19,7 @@
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ;;; Commentary:
-;; Define a fireball object
+;;
 
 ;;; Code:
 (require 'roguel-ike/entity)
@@ -57,10 +57,8 @@
                                      (round (* (get-spirit caster)
                                                1.5))))
       (display-message entity
-                       (format "%s %s hurt by fireball for %s damages"
-                               (get-name entity)
-                               (get-verb entity "are" "is")
-                               damages))
+                       '(Me ("are" . "is")  "hurt by fireball for %i damages")
+                       damages)
       (hurt entity damages)
 
       (when (>= (get-spirit caster) 10)

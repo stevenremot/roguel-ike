@@ -26,6 +26,7 @@
 (require 'roguel-ike/skill)
 (require 'roguel-ike/entity)
 (require 'roguel-ike/skill/object/fireball)
+(require 'roguel-ike/skill/object/fractalball)
 (require 'roguel-ike/stats/effect)
 
 (rlk--defskill :punch
@@ -99,8 +100,8 @@
 (rlk--defskill :war-cry
                "War cry"
                '(:physical)
-               '((:strength . 5))
-               '((:stamina . 2))
+               '((:strength . 10))
+               '((:stamina . 5))
                (lambda (entity)
                  (display-message entity '(Me ("are" . "is") "shouting!"))
                  (dolist (dx '(-1 0 1))
@@ -169,12 +170,37 @@
 
 (rlk--defskill :supersonic
                "Supersonic"
-               '(:physical)
+               '(:physical :long-range)
                '((:speed . 15)
                  (:constitution . 10))
                '((:stamina . 3))
                (lambda (entity)
                  (apply-on (rlk--effect-get-effect :supersonic) entity)
+                 t))
+
+(rlk--defskill :fractalball
+               "Fractal ball"
+               '(:directional :magical :long-range)
+               '((:spirit . 25))
+               '((:stamina . 10))
+               (lambda (entity dx dy)
+                 (let ((fractalball (rlk--skill-object-fractalball "Fractal ball"
+                                                                   :caster entity
+                                                                   :power (round (/ (get-spirit entity) 10))))
+                       (level (get-level entity)))
+                   (set-level fractalball level)
+                   (set-pos fractalball (get-x entity) (get-y entity))
+                   (add-motion level fractalball (cons dx dy) nil)
+                   t)))
+
+(rlk--defskill :spiritualism
+               "Spiritualism"
+               '(:magical :long-range)
+               '((:spirit . 20)
+                 (:constitution . 10))
+               '((:stamina . 3))
+               (lambda (entity)
+                 (apply-on (rlk--effect-get-effect :spiritual) entity)
                  t))
 
 (provide 'roguel-ike/data/skills)

@@ -87,6 +87,27 @@
                :punch
                :war-cry))
 
+(rlk--defrace :gnome
+              "gnome"
+              (list
+               :health 7
+               :stamina 12
+               :strength 4
+               :constitution 4
+               :speed 5
+               :spirit 12)
+              (list
+               :health 3
+               :stamina 2
+               :strength 4
+               :constitution 4
+               :speed 5
+               :spirit 2)
+              (list
+               :fireball
+               :fractalball
+               :spiritualism))
+
 (provide 'roguel-ike/data/races)
 
 ;;; races.el ends here

@@ -100,11 +100,25 @@
   "Troll face"
   :group 'roguel-ike-faces)
 
+(defface rlk-face-gnome
+  '((((class color) (min-colors 8))
+    :inherit 'rlk-face-default
+    :foreground "blue"))
+  "Gnome face"
+  :group 'roguel-ike-faces)
+
 (defface rlk-face-fireball
   '((((class color) (min-colors 8))
     :inherit 'rlk-face-default
     :foreground "red"))
   "Fireball face"
+  :group 'roguel-ike-faces)
+
+(defface rlk-face-fractalball
+  '((((class color) (min-colors 8))
+    :inherit 'rlk-face-default
+    :foreground "purple"))
+  "Fractalball face"
   :group 'roguel-ike-faces)
 
 (defface rlk-face-good-stat
