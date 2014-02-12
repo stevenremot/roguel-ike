@@ -57,5 +57,15 @@
                 :apply-number 15
                 :stats-change '(:health 1))
 
+(rlk--defeffect :type :supersonic
+                :name "Supersonic"
+                :start-message '(Me ("are" . "is") "moving faster.")
+                :end-message '(Me ("are" . "is") "coming back to normal speed.")
+                :period 1
+                :apply-number 1
+                :immediate t
+                :stats-change '(:speed 20
+                                :constitution -10))
+
 (provide 'roguel-ike/data/effects)
 ;;; effects.el ends here

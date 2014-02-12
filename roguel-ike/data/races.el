@@ -64,7 +64,8 @@
                :speed 4
                :spirit 10)
               (list
-               :bite))
+               :bite
+               :supersonic))
 
 (rlk--defrace :troll
               "troll"

@@ -167,6 +167,16 @@
                  (apply-on (rlk--effect-get-effect :healing) entity)
                  t))
 
+(rlk--defskill :supersonic
+               "Supersonic"
+               '(:physical)
+               '((:speed . 15)
+                 (:constitution . 10))
+               '((:stamina . 3))
+               (lambda (entity)
+                 (apply-on (rlk--effect-get-effect :supersonic) entity)
+                 t))
+
 (provide 'roguel-ike/data/skills)
 
 ;;; skills.el ends here
