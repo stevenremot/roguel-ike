@@ -143,11 +143,12 @@ Return the number of turns spent if it could move, 1 for waiting otherwise."
     1))
 
 (defmethod get-long-range-skills ((self rlk--behaviour-ai))
-  "Return the skills that could reach the target if ti is far away."
+  "Return the skills that could be used even when the target is far away."
   (let ((skills (get-usable-skills (get-entity self)))
         (range-skills '()))
     (dolist (skill skills)
-      (when (has-tag-p skill :long-range)
+      (when (or (has-tag-p skill :long-range)
+                (has-tag-p skill :support))
         (push skill range-skills)))
     range-skills))
 
@@ -178,14 +179,16 @@ Return t when it succeeded."
          (target-entity (get-target self))
          (entity (get-entity self))
          (x-offset (abs (- (get-x entity) (get-x target-entity))))
-         (y-offset (abs (- (get-y entity) (get-y target-entity)))))
+         (y-offset (abs (- (get-y entity) (get-y target-entity))))
+         (skill (nth (random (length range-skills))
+                              range-skills)))
     (and range-skills
-         (or (= x-offset 0)
+         (or (not (has-tag-p skill :directional))
+             (= x-offset 0)
              (= y-offset 0)
              (= x-offset y-offset))
          (> (random 100) (get-skill-probability self))
-         (use-skill self (nth (random (length range-skills))
-                              range-skills)))))
+         (use-skill self skill))))
 
 (defmethod use-skill ((self rlk--behaviour-ai) skill)
   "Use SKILL.

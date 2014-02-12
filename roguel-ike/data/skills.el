@@ -160,7 +160,7 @@
 
 (rlk--defskill :healing
                "Healing"
-               '(:magical :long-range)
+               '(:magical :support)
                '((:spirit . 15)
                  (:health . 20))
                '((:stamina . 7))
@@ -170,7 +170,7 @@
 
 (rlk--defskill :supersonic
                "Supersonic"
-               '(:physical :long-range)
+               '(:physical :support)
                '((:speed . 15)
                  (:constitution . 10))
                '((:stamina . 3))
@@ -195,7 +195,7 @@
 
 (rlk--defskill :spiritualism
                "Spiritualism"
-               '(:magical :long-range)
+               '(:magical :support)
                '((:spirit . 20)
                  (:constitution . 10))
                '((:stamina . 3))

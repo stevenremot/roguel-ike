@@ -45,7 +45,8 @@ Current tags:
 - :directional : when it is present, it means the action also considers a direction
 - :physical : when it is present, it means the action implies a physical effort
 - :magical : when it is present, it means the action implies a magical effort
-- :long-range : when it is present, it means the skill can reach far entities")
+- :long-range : when it is present, it means the skill can reach far entities
+- :support : when it is present, it means the skill has only an impact on statistics")
    (requirements :initarg :requirements
                  :type list
                  :reader get-requirements
