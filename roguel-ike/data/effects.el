@@ -40,7 +40,15 @@
                 :apply-number 1
                 :immediate t
                 :stats-change '(:strength 10
-                                :constitution 10))
+                                          :constitution 10))
+
+(rlk--defeffect :type :burning
+                :name "Burning"
+                :start-message '(Me ("are" . "is") "burning!")
+                :end-message '(Me ("feel" . "feels") "cool now.")
+                :period 5
+                :apply-number 10
+                :stats-change '(:health -1))
 
 (provide 'roguel-ike/data/effects)
 ;;; effects.el ends here

@@ -23,6 +23,7 @@
 
 ;;; Code:
 (require 'roguel-ike/entity)
+(require 'roguel-ike/stats/effect)
 
 (defclass rlk--skill-object-fireball (rlk--level-cell-object)
   ((type :initform :fireball
@@ -53,15 +54,19 @@
     (when (and (is-container-p cell) (has-entity-p cell))
       (setq entity (get-entity cell)
             damages (compute-damages entity
-                                     (round (* (get-base-damages caster)
+                                     (round (* (get-spirit caster)
                                                1.5))))
       (display-message entity
                        (format "%s %s hurt by fireball for %s damages"
                                (get-name entity)
                                (get-verb entity "are" "is")
                                damages))
-      (hurt entity damages))
-    (when (>= (get-spirit caster) 10)
+      (hurt entity damages)
+
+      (when (>= (get-spirit caster) 10)
+        (apply-on (rlk--effect-get-effect :burning) entity)))
+
+    (when (>= (get-spirit caster) 15)
       (display-message caster "The fireball explodes!")
       (dolist (dx '(-1 0 1))
         (dolist (dy '(-1 0 1))
