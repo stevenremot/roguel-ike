@@ -153,7 +153,7 @@
                        (hurt target-entity damages)
 
                        (when (>= (get-strength entity) 25)
-                         (add-motion (get-level entity) target-entity direction (get-strength entity)))))
+                         (project target-entity direction (get-strength entity)))))
 
                    slashed)))
 

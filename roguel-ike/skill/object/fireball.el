@@ -71,10 +71,9 @@
                                      (+ y dy))))
               (when (and (is-container-p cell)
                          (has-entity-p cell))
-                (add-motion level
-                            (get-entity cell)
-                            (cons dx dy)
-                            (- (get-spirit caster) 5))))))))
+                (project (get-entity cell)
+                         (cons dx dy)
+                         (- (get-spirit caster) 5))))))))
     (remove-object (get-cell self) self)))
 
 (provide 'roguel-ike/skill/object/fireball)
