@@ -40,8 +40,8 @@
                    (if target
                        (progn
                          (setq damages (compute-damages target
-                                                        (* (get-base-damages entity)
-                                                           2)))
+                                                        (round (* (get-base-damages entity)
+                                                                  1.2))))
                          (display-message entity
                                           '(Me ("punch" . "punches") "%s for %i damages")
                                           (downcase (get-name target))
@@ -115,6 +115,47 @@
                                        (cons dx dy)
                                        (get-strength entity)))))))
                  (apply-on (rlk--effect-get-effect :tough) entity)))
+
+(rlk--defskill :slash
+               "Slash"
+               '(:directional :physical)
+               '((:strength . 15)
+                 (:speed . 15))
+               '((:stamina . 5))
+               (lambda (entity dx dy)
+                 (let ((directions (cond ((= dx 0)
+                                     `((0 . ,dy)
+                                       (1 . ,dy)
+                                       (-1 . ,dy)))
+                                    ((= dy 0)
+                                     `((,dx . 0)
+                                       (,dx . 1)
+                                       (,dx . -1)))
+                                    (t
+                                     `((,dx . ,dy)
+                                       (0 . ,dy)
+                                       (,dx . 0)))))
+                       (cell nil)
+                       (target-entity nil)
+                       (base-damages (round (* (get-base-damages entity) 1.5)))
+                       (damages 0)
+                       (slashed nil))
+                   (dolist (direction directions)
+                     (setq cell (get-neighbour-cell entity (car direction) (cdr direction)))
+
+                     (when (and (is-container-p cell) (has-entity-p cell))
+                       (setq target-entity (get-entity cell)
+                             damages (compute-damages target-entity base-damages)
+                             slashed t)
+                       (display-message entity '(Me ("slash" . "slashes") "%s for %i damages.")
+                                        (get-name target-entity)
+                                        damages)
+                       (hurt target-entity damages)
+
+                       (when (>= (get-strength entity) 25)
+                         (add-motion (get-level entity) target-entity direction (get-strength entity)))))
+
+                   slashed)))
 
 (provide 'roguel-ike/data/skills)
 

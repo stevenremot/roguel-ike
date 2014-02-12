@@ -23,9 +23,7 @@
 
 ;;; Code:
 (require 'roguel-ike/entity)
-(unless (require 'cl-lib nil :no-error)
-  (require 'cl)
-  (defalias 'cl-defun 'defun*))
+(require 'cl-lib)
 
 (defclass rlk--stats-effect ()
   ((type :initarg :type

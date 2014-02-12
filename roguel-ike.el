@@ -75,6 +75,11 @@
 
 
 ;;; Code:
+(unless (require 'cl-lib nil :no-error)
+  (require 'cl)
+  (defalias 'cl-defun 'defun*)
+  (provide 'cl-lib))
+
 (require 'roguel-ike/hero-data/manager)
 (require 'roguel-ike/buffer-manager)
 (require 'roguel-ike/game-screen/select-hero)

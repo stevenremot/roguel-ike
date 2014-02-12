@@ -43,7 +43,8 @@
                :spirit 3)
               (list
                :punch
-               :fireball))
+               :fireball
+               :slash))
 
 (rlk--defrace :rat
               "rat"
