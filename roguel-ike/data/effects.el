@@ -60,7 +60,6 @@
 (rlk--defeffect :type :supersonic
                 :name "Supersonic"
                 :start-message '(Me ("are" . "is") "moving faster.")
-                :end-message '(Me ("are" . "is") "coming back to normal speed.")
                 :period 1
                 :apply-number 1
                 :immediate t
