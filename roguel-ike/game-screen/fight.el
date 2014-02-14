@@ -45,7 +45,7 @@
                    :documentation "Message elogging system.")
    (base-hero-data :type rlk--hero-data
                    :reader get-base-hero-data
-                   :protection :private
+                   :protection :protected
                    :documentation "Hero data at the beginning of the fight."))
   "Base game screen for all fighting screens.")
 

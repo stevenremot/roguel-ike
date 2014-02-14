@@ -24,7 +24,6 @@
 ;;; Code:
 (require 'roguel-ike/level)
 (require 'roguel-ike/level/factory/all-rooms)
-(require 'roguel-ike-lib/dispatcher)
 (require 'roguel-ike/interactive-object/stairs)
 (require 'roguel-ike/entity)
 
@@ -37,8 +36,10 @@
                :protection :private
                :documentation "The event dispatcher of the dungeon.
 
-Currently, the only dispatched event is :changed-level LEVEL.
-It is dispatched when the hero go to the level LEVEL."))
+The dispatched events are:
+- :changed-level LEVEL when the hero moved to the level LEVEL
+- :reached-level LEVEL when the hero discovered the level LEVEL
+  for the first time."))
   "An infinite sequence of levels connected by stairs.")
 
 (defmethod initialize-instance :after ((self rlk--dungeon) slots)
@@ -52,7 +53,8 @@ It is dispatched when the hero go to the level LEVEL."))
                           (get-cell-at level (car pos) (cdr pos)))
                         (get-accessible-cells-pos level)))
          start-cell
-         end-cell)
+         end-cell
+         populator)
     (setq start-cell (nth (random (length cells)) cells)
           cells (delq start-cell cells)
           end-cell (nth (random (length cells)) cells))
@@ -79,13 +81,13 @@ FROM is the origin of the entity. It can be either :up or :down.
 
 If the level does not exist, :level-reached will be dispatched, and a new level will be created."
   (if (< level-number 0)
-      (display-message entity '(Me " won't leave so easily."))
+      (display-message entity '(Me "won't leave so easily."))
     (let ((levels (oref self levels))
           level
           position)
       (when (>= level-number (length levels))
         (oset self levels (append levels (list (create-level self level-number))))
-        (setq levels (oref self levels)))
+        (dispatch (get-dispatcher self) :reached-level level-number))
       (setq level (nth level-number levels)
             position (if (eq from :up)
                           (get-start-position self level)
@@ -120,6 +122,10 @@ If the level does not exist, :level-reached will be dispatched, and a new level 
               (when (eq :stairs-down (get-type object))
                 (throw 'end-position `(,x . ,y))))))))
     nil))
+
+(defmethod get-level ((self rlk--dungeon) level-number)
+  "Return the level at LEVEL-NUMBER."
+  (nth level-number (oref self levels)))
 
 (provide 'roguel-ike/dungeon)
 
