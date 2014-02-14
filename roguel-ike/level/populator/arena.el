@@ -59,15 +59,6 @@ STATS-LIST is a property list representing the stats evolution."
             stats-list (cddr stats-list)))
     sum))
 
-(defun rlk--level-populator-arena-get-accessible-cells (level)
-  "Return the accessible cells in the LEVEL."
-  (let ((cells '()))
-    (dotimes (x (get-width level))
-      (dotimes (y (get-height level))
-        (when (is-accessible-p (get-cell-at level x y))
-          (add-to-list 'cells (cons x y)))))
-    cells))
-
 (defun rlk--level-populator-arena-restrict-races (races max-stats)
   "Return all the races in RACES which base-stats is under MAX-STATS."
   (let ((valid-races '()))
@@ -122,7 +113,7 @@ GLOBAL-STATS is the goal for the sum of the entities' statistics.
 MAX-ENTITIES-NUMBER is the maximal number of entities the method can create.
 
 The population mechanism stops when it is reached."
-  (let* ((available-cells (rlk--level-populator-arena-get-accessible-cells level))
+  (let* ((available-cells (get-accessible-cells-pos level))
          (min-stats (ceiling global-stats max-entities-number))
          (max-stats global-stats)
          (available-races (rlk--level-populator-arena-restrict-races rlk--races

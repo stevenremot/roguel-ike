@@ -7,6 +7,7 @@
 (require 'roguel-ike/mode/menu)
 (require 'roguel-ike/game-screen/test)
 (require 'roguel-ike/game-screen/arena)
+(require 'roguel-ike/game-screen/dungeon-rampage)
 (require 'roguel-ike/entity/factory/hero)
 (require 'roguel-ike/graphics/widget/entity)
 (require 'roguel-ike/graphics/faces)
@@ -40,6 +41,13 @@
                       (lambda (self button)
                         (call-end-callback self
                                            'rlk--game-screen-arena
+                                           (get-hero-data self))))
+                     (list
+                      "Dungeon rampage"
+                      "Go as far as possible in an infinite dungeon."
+                      (lambda (self button)
+                        (call-end-callback self
+                                           'rlk--game-screen-dungeon-rampage
                                            (get-hero-data self))))
                      (list
                       "Test"

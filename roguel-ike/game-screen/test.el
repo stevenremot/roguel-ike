@@ -47,7 +47,7 @@
   (let* ((controller (get-controller self))
          (game (get-game controller))
          (hero (get-hero game))
-         (level (get-current-level game))
+         (level (create-level self))
          (rat (rlk--entity-create-new :rat
                                       (rlk--behaviour-ai "AI behaviour")))
          (door (rlk--interactive-object-door "Door"))

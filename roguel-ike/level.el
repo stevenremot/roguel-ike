@@ -27,6 +27,9 @@
 (require 'roguel-ike/physics/world)
 (require 'roguel-ike/level/cell)
 
+(defgeneric is-hero-p (entity)
+  "Return t is the ENTITY is the hero.")
+
 (defvar-local rlk--local-controller nil)
 
 (defclass rlk--level ()
@@ -68,6 +71,15 @@
   "Return the cell at position x, y."
   (nth x (nth y (get-cells self))))
 
+(defmethod get-accessible-cells-pos ((self rlk--level))
+  "Return all the accessible cells in the level."
+  (let ((cells '()))
+    (dotimes (x (get-width self))
+      (dotimes (y (get-height self))
+        (when (is-accessible-p (get-cell-at self x y))
+          (add-to-list 'cells (cons x y)))))
+    cells))
+
 (defmethod get-controller ((self rlk--level))
   "Return the current controller."
   rlk--local-controller)
@@ -78,7 +90,9 @@
 
 (defmethod remove-entity ((self rlk--level) entity)
   "Remove an entity from the level."
-  (remove-object (get-time-manager self) entity))
+  (remove-object (get-time-manager self) entity)
+  (when (is-hero-p entity)
+    (stop self)))
 
 (defmethod get-lit-entities ((self rlk--level))
   "Return all entities standing on lit cells in the level."

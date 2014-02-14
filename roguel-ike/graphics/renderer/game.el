@@ -32,6 +32,8 @@
     (:wall  . ("#" . rlk-face-wall))
     (:door-opened . ("~" . rlk-face-door))
     (:door-closed . ("+" . rlk-face-door))
+    (:stairs-up . ("<" . rlk-face-stairs))
+    (:stairs-down . (">" . rlk-face-stairs))
     (:void . (" " . rlk-face-default))
     (:hero . ("@" . rlk-face-hero))
     (:human . ("@" . rlk-face-human))

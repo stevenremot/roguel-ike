@@ -64,6 +64,13 @@
   "Door face"
   :group 'roguel-ike-faces)
 
+(defface rlk-face-stairs
+  '((((class color) (min-colors 88))
+     :inherit 'rlk-face-default
+     :foreground "chocolate"))
+  "Stairs face"
+  :group 'roguel-ike-faces)
+
 (defface rlk-face-shadow
   '((((class color) (min-colors 8))
      :inherit 'rlk-face-default

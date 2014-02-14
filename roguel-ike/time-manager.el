@@ -114,8 +114,7 @@ Can update priorities, and retrieve object with higher priority.")
                                      (- (cdr object-cons) (float turns-spent)))
                                     (t
                                      (+ (cdr object-cons)
-                                        (* (/ (float turns-spent) (float (get-speed updated-object)))
-                                           (float (get-speed object))))))))))
+                                        (/ (float turns-spent) (float (get-speed updated-object))))))))))
 
 (defmethod clear ((self rlk--time-priority-queue))
   "Empty the priority queue."
