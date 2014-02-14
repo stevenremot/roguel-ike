@@ -39,7 +39,7 @@
           :type integer
           :reader get-width
           :protection :private
-          :documentation "THe horizontal number of cells in the square.")
+          :documentation "The horizontal number of cells in the square.")
    (height :initarg :height
            :type integer
            :reader get-height
@@ -52,9 +52,9 @@
 
 It is either at the top or at left of the square.")
    (second-child :type roguel-ike-level-generator-binary-node
-                :reader get-second-child
-                :protection :private
-                :documentation "The second child of the node.
+                 :reader get-second-child
+                 :protection :private
+                 :documentation "The second child of the node.
 
 It is either at the bottom or at right of the square."))
   "A binary tree node representing a square in a level.
@@ -86,10 +86,10 @@ Apart from these two constraints, try-split operates with randomness, and won't
 always try to split as much as possible."
   (let* ((width (get-width self))
          (height (get-height self))
-         (horizontal-priority (cond ((< width (* 2 minimal-size)) -1)
+         (horizontal-priority (cond ((< width (1+ (* 2 minimal-size))) -1)
                                     ((> width maximal-size) 1)
                                     (t 0)))
-         (vertical-priority (cond ((< height (* 2 minimal-size)) -1)
+         (vertical-priority (cond ((< height (1+ (* 2 minimal-size))) -1)
                                   ((> height maximal-size) 1)
                                   (t 0)))
          split-direction)
@@ -139,16 +139,16 @@ MINIMAL-VALUE is the minimum width and height each node must have."
     (if (eq direction :horizontal)
         (setq first-width choosen-size
               first-height height
-              second-x (+ first-x first-width)
+              second-x (+ first-x first-width 1)
               second-y first-y
-              second-width (- width first-width)
+              second-width (- width first-width 1)
               second-height height)
       (setq first-width width
             first-height choosen-size
             second-x first-x
-            second-y (+ first-y first-height)
+            second-y (+ first-y first-height 1)
             second-width width
-            second-height (- height first-height)))
+            second-height (- height first-height 1)))
     (oset self first-child (roguel-ike-level-generator-binary-node "Binary node"
                                                                    :x first-x
                                                                    :y first-y
@@ -159,6 +159,24 @@ MINIMAL-VALUE is the minimum width and height each node must have."
                                                                     :y second-y
                                                                     :width second-width
                                                                     :height second-height))))
+
+(defmethod apply-to-layout ((self roguel-ike-level-generator-binary-node) layout)
+  "Recursively draw the level to LAYOUT."
+  (if (is-leaf-p self)
+      (progn
+        (dotimes (dx (get-width self))
+          (dotimes (dy (get-height self))
+            (setf (elt (elt layout (+ (get-y self) dy)) (+ (get-x self) dx)) :ground))))
+    (let* ((first-child (get-first-child self))
+           (second-child (get-second-child self))
+           (is-horizontal (< (get-x first-child) (get-x second-child)))
+           (x (cond (is-horizontal (+ (get-x first-child) (get-width first-child)))
+                    (t (+ (get-x self) (random (get-width self))))))
+           (y (cond (is-horizontal (+ (get-y self) (random (get-height self))))
+                    (t (+ (get-y first-child) (get-height first-child))))))
+      (apply-to-layout first-child layout)
+      (apply-to-layout second-child layout)
+      (setf (elt (elt layout y) x) :door))))
 
 (provide 'roguel-ike-lib/level/generator/binary-node)
 
