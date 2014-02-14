@@ -129,7 +129,20 @@ Apply the time callback."
                     (display-message entity "There is something on the way."))
                 (display-message entity "The door is already closed."))
             (display-message entity "There is no door here...")))
-          (display-message entity "There is no door here..."))))
+      (display-message entity "There is no door here..."))))
+
+(defmethod climb-stairs ((self rlk--behaviour-manual))
+  "If there are stairs on the entity's cell, climb them."
+  (let* ((entity (get-entity self))
+         (cell (get-cell entity))
+         (stairs (catch 'stairs
+                   (dolist (object (get-objects cell))
+                     (when (member (get-type object) '(:stairs-up :stairs-down))
+                       (throw 'stairs object)))
+                   nil)))
+    (if stairs
+        (do-action stairs entity :climb)
+      (display-message entity "There are no stairs here..."))))
 
 (defmethod select-and-use-skill ((self rlk--behaviour-manual))
   "Ask the user to select a skill and use it."

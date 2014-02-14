@@ -58,6 +58,8 @@
                             ("u" . move-right-up)
                             ("n" . move-right-down)
                             ("." . wait)
+                            ("<" . climb-stairs)
+                            (">" . climb-stairs)
                             ("s" . select-and-use-skill)
                             ("c" . close-door)
                             (":" . examine-next-enemy)
@@ -144,6 +146,10 @@ BODY is the method definition."
 (rlk--defcommand wait ((self rlk--controller))
   "Wait one turn without doing anything."
   (wait (get-hero-behaviour self)))
+
+(rlk--defcommand climb-stairs ((self rlk--controller))
+  "Try to climb stairs on the hero's cell."
+  (climb-stairs (get-hero-behaviour self)))
 
 (rlk--defcommand close-door ((self rlk--controller))
   "Ask the user for a direction, and try to close a door in this direction."

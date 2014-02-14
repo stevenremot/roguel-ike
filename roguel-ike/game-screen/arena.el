@@ -109,7 +109,7 @@
   (let* ((controller (get-controller self))
          (game (get-game controller))
          (hero (get-hero game))
-         (level (get-current-level game))
+         (level (create-level self))
          (message-logger (get-message-logger self))
          (available-positions '()))
     (dotimes (x (get-width level))

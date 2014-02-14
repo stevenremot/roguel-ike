@@ -51,12 +51,10 @@
 
 (defmethod setup ((self rlk--game-screen-fight) hero-data)
   (let* ((buffer-manager (get-buffer-manager self))
-         (level (create-level self))
          (message-logger (rlk--message-logger "Message logger"
                                               :message-buffer (get-message-buffer buffer-manager)))
          (hero (rlk--entity-create-from-hero-data hero-data))
          (game (rlk--game "Game"
-                          :level level
                           :hero hero
                           :buffer-manager buffer-manager))
          (stats-renderer (rlk--graphics-renderer-stats "Stats renderer"
@@ -80,14 +78,10 @@
     (set-buffer (get-game-buffer buffer-manager))
     (rlk--fight-mode)
     (setq rlk--local-controller controller)
-    (do-step (get-time-manager level))))
-
-(defmethod create-level ((self rlk--game-screen-fight))
-  "Abstract method for the first level creation."
-  (error "The method create-level must be overriden"))
+    (do-step (get-time-manager (get-current-level game)))))
 
 (defmethod setup-level ((self rlk--game-screen-fight))
-  "Abstract ethod for setting all the level's elements."
+  "Abstract method for creating level and setting all its elements."
   (error "The method setup-level must be overriden"))
 
 (defmethod win ((self rlk--game-screen-fight))
