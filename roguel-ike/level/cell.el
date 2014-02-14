@@ -64,6 +64,11 @@ e.g. wall, ground, etc...")
   "Return t if the cell blocks the light, nil otherwise."
   t)
 
+(defmethod set-lit :after ((self rlk--level-cell) lit)
+  "When the cell has been lit, set it as visited."
+  (when lit
+    (set-visited self t)))
+
 (defgeneric has-entity-p (cell)
   "Return t when a container entity has an entity standing on it.")
 

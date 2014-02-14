@@ -53,12 +53,6 @@ Setting LIT to t means the cell is currently visible.")
 (defgeneric block-light-p (cell)
   "Return t if nothing behing the cell should be visible.")
 
-(defgeneric set-visited (cell visited)
-  "Set the CELL's visited state.
-
-The VISITED flag means the cell has already been discovered in a previous
-fov.")
-
 (defmethod set-visited (cell visited)
   "Set the CELL's visited state.
 
