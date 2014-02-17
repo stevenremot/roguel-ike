@@ -87,6 +87,7 @@ If the level does not exist, :level-reached will be dispatched, and a new level 
           position)
       (when (>= level-number (length levels))
         (oset self levels (append levels (list (create-level self level-number))))
+        (setq levels (oref self levels))
         (dispatch (get-dispatcher self) :reached-level level-number))
       (setq level (nth level-number levels)
             position (if (eq from :up)
