@@ -23,6 +23,7 @@ Then, type `M-x roguel-ike`.
 
 * use _y, u, h, j, k, l, b, n_ for movements
 * use _._ to wait one turn
+* use _<_ or _>_ to use stairs
 * use _:_ to get information about your enemies
 * use _s_ to use a skill
 * use _q_ to quit
