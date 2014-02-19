@@ -81,7 +81,7 @@ Can update priorities, and retrieve object with higher priority.")
 
 (defmethod insert-object ((self rlk--time-priority-queue) object)
   "Insert OBJECT with the initial priority set to its speed."
-  (let ((object-cons (cons object (float (get-speed object))))
+  (let ((object-cons (cons object 0.0))
         (objects (oref self objects)))
     (add-to-list 'objects object-cons)
     (oset self objects objects)))
@@ -90,7 +90,7 @@ Can update priorities, and retrieve object with higher priority.")
   "Remove OBJECT from the priority queue."
   (let ((new-queue '()))
     (dolist (object-cons (oref self objects))
-      (unless (equal (car object-cons) object)
+      (unless (eq (car object-cons) object)
         (add-to-list 'new-queue object-cons)))
     (oset self objects new-queue)))
 
@@ -108,17 +108,28 @@ Can update priorities, and retrieve object with higher priority.")
 
 (defmethod update-priorities ((self rlk--time-priority-queue) updated-object turns-spent)
   "Update all priorities knowing that UPDATED-OBJECT has spent TURNS-SPENT turns."
-  (dolist (object-cons (oref self objects))
-    (let ((object (car object-cons)))
+  (let ((min-priority nil)
+        (object nil))
+    (dolist (object-cons (oref self objects))
+      (setq object (car object-cons))
       (setf (cdr object-cons) (cond ((equal object updated-object)
-                                     (- (cdr object-cons) (float turns-spent)))
+                                     (- (cdr object-cons)
+                                        (/ (float turns-spent) (float (get-speed updated-object)))))
                                     (t
                                      (+ (cdr object-cons)
-                                        (/ (float turns-spent) (float (get-speed updated-object))))))))))
+                                        (/ (float turns-spent) (float (get-speed updated-object)))))))
+      (when (or (null min-priority)
+                (< (cdr object-cons) min-priority))
+        (setq min-priority (cdr object-cons))))
+
+    ;; Normalization
+    (dolist (object-cons (oref self objects))
+      (setf (cdr object-cons) (- (cdr object-cons) min-priority)))))
 
 (defmethod clear ((self rlk--time-priority-queue))
   "Empty the priority queue."
-  (oset self objects '()))
+  (dolist (object-cons (oref self objects))
+    (setf (cdr object-cons) (get-speed (car object-cons)))))
 
 ;;;;;;;;;;;;;;;;;;
 ;; Time manager ;;
@@ -130,7 +141,11 @@ Can update priorities, and retrieve object with higher priority.")
           :documentation "Inner priority queue.")
    (after-step-hook :initform nil
                     :protection :private
-                    :documentation "Hook executed after an entity did an action."))
+                    :documentation "Hook executed after an entity did an action.")
+   (running :initform t
+            :reader is-running-p
+            :type boolean
+            :documentation "Boolean telling whether or not the time manager is running its loop."))
   "Time management algorithm.")
 
 (defmethod initialize-instance :after ((self rlk--time-manager) slots)
@@ -149,7 +164,8 @@ Can update priorities, and retrieve object with higher priority.")
   "Updates priorities with current object and TURNS-SPENT, and initiate a new step."
   (let ((after-step-hook (oref self after-step-hook)))
     (apply-turns self current-object turns-spent)
-    (do-step self)))
+    (when (is-running-p self)
+      (do-step self))))
 
 (defmethod get-resume-callback ((self rlk--time-manager) current-object)
   "Return a callback to call resume-step with SELF already binded."
@@ -163,7 +179,8 @@ if they can, to avoid deep recursion."
   (let ((object nil)
         (turns-spent nil)
         (continue t))
-    (while continue
+    (oset self running t)
+    (while (and continue (is-running-p self))
       (setq object (get-prioritized-object (oref self queue)))
       (if object
           (progn
@@ -187,6 +204,7 @@ if they can, to avoid deep recursion."
 
 (defmethod stop ((self rlk--time-manager))
   "Stop the time management loop."
+  (oset self running nil)
   (clear (oref self queue)))
 
 (provide 'roguel-ike/time-manager)
