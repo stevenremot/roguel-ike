@@ -102,6 +102,13 @@ Here are the events that can occur to an entity with their arguments:
   "Initializes entity's objects."
   (set-entity (get-behaviour self) self)
   (oset self dispatcher (roguel-ike-dispatcher "Entity dispatcher"))
+  (register (get-dispatcher (get-stat-slot self :health))
+            :current-value-changed
+            (apply-partially (lambda (self old-value new-value)
+                               (when (<= new-value 0)
+                                 (die self)))
+                             self))
+
   (let ((regenerator (rlk--stats-regenerator "Entity's stat regenerator"
                                              :stats (get-stats self)
                                              :slots '(:health
@@ -232,10 +239,8 @@ Return t if the entity could move, nil otherwise."
 
 (defmethod hurt ((self rlk--entity) points)
   "Substract to the entity's heatlh POINT health points."
-  (set-health self (- (get-health self) points))
   (dispatch (get-dispatcher self) :received-damages)
-  (when (<= (get-health self) 0)
-    (die self)))
+  (set-health self (- (get-health self) points)))
 
 (defmethod die ((self rlk--entity))
   "Make the entity disappear from the level."

@@ -22,7 +22,7 @@
 ;; The statstics slot are composed of a current value and a maximum value.
 
 ;;; Code:
-(require 'eieio)
+(require 'roguel-ike-lib/dispatcher)
 
 (defclass rlk--stats-slot ()
   ((base-value :initarg :base-value
@@ -47,23 +47,37 @@ When experience reaches a certain point, the max value increases.")
                     :type number
                     :reader get-experience-rate
                     :protection :private
-                    :documentation "The maximum value will be incremented when experience reached experience-rate * base-value."))
+                    :documentation "The maximum value will be incremented when experience reached experience-rate * base-value.")
+   (dispatcher :type roguel-ike-dispatcher
+               :reader get-dispatcher
+               :protection :private
+               :documentation "The event dispatcher for the slot.
+
+Currently, dispatched events are:
+- :current-value-changed OLD-VALUE NEW-VALUE"))
   "Statistic slot.
 Handle maximum value and current value.")
+
+(defmethod initialize-instance :after ((self rlk--stats-slot) slots)
+  "Initialize dispatcher."
+  (oset self dispatcher (roguel-ike-dispatcher "Slot dispatcher")))
 
 (defmethod get-current-value ((self rlk--stats-slot))
   "Return the current slot value.
 
 Set it to base-value if not set yet."
   (unless (slot-boundp self 'current-value)
-    (set-current-value self (get-base-value self)))
+    (oset self current-value (get-base-value self)))
   (oref self current-value))
 
 (defmethod set-current-value ((self rlk--stats-slot) current-value)
   "Set the current slot value.
 
 Restrain it to be positive."
-  (oset self current-value (max 0 current-value)))
+  (let ((old-value (get-current-value self))
+        (new-value (max 0 current-value)))
+    (oset self current-value new-value)
+    (dispatch (get-dispatcher self) :current-value-changed old-value new-value)))
 
 (defmethod add-experience ((self rlk--stats-slot) experience)
   "Add EXPERIENCE to current experience points."
