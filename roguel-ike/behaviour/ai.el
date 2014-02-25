@@ -101,11 +101,41 @@ Will attack it if it is nearby."
     ;; entity is standing on the cell), forget it.
     (if attacked
         1
-      (let ((direction (pop-next-direction self)))
+      (let ((direction (peek-next-direction self)))
         (when direction
           (if (try-move entity (car direction) (cdr direction))
-              1
-            (oset self memorized-path nil)))))))
+              (progn
+                (pop-next-direction self)
+                1)
+            (if (try-open-door self direction)
+                1
+              (oset self memorized-path nil))))))))
+
+(defmethod try-open-door ((self rlk--behaviour-ai) direction)
+  "Try to open a door in the relative DIRECTION.
+
+Return t if it could, nil otherwise."
+  (let* ((entity (get-entity self))
+         (cell (get-neighbour-cell entity (car direction) (cdr direction))))
+    (catch 'door-opened
+      (dolist (object (get-objects cell))
+        (when (equal (get-type object) :door-closed)
+          (do-action object entity :open)
+          (throw 'door-opened t)))
+      nil)))
+
+(defmethod get-relative-direction ((self rlk--behaviour-ai) point)
+  "Return the direction from ai's entity to POINT."
+  (let ((entity (get-entity self)))
+    (cons (- (car point) (get-x entity))
+          (- (cdr point) (get-y entity)))))
+
+(defmethod peek-next-direction ((self rlk--behaviour-ai))
+  "Return the next direction of the followed path if any."
+  (let ((entity (get-entity self))
+        (point (car (oref self memorized-path))))
+    (when point
+      (get-relative-direction self point))))
 
 (defmethod pop-next-direction ((self rlk--behaviour-ai))
   "Return the next direction of the followed path if any.
@@ -115,8 +145,7 @@ Remove it from the path."
         (point (car (oref self memorized-path))))
     (when point
       (oset self memorized-path (cdr (oref self memorized-path)))
-      (cons (- (car point) (get-x entity))
-            (- (cdr point) (get-y entity))))))
+      (get-relative-direction self point))))
 
 (defmethod move-randomly ((self rlk--behaviour-ai))
   "Try to move on a random neighbour cell.
