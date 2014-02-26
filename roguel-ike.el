@@ -61,8 +61,7 @@
 
 ;; Compatibilities:
 
-;; It has been tested on Emacs 24.3, it should work under Emacs 23 too.
-;; If not, feel free to open an issue.
+;; It has been tested on Emacs 24.3.  It doesn't work on Emacs 23.
 
 ;; Dependencies:
 
@@ -76,11 +75,6 @@
 
 
 ;;; Code:
-(unless (require 'cl-lib nil :no-error)
-  (require 'cl)
-  (defalias 'cl-defun 'defun*)
-  (provide 'cl-lib))
-
 (require 'roguel-ike/hero-data/manager)
 (require 'roguel-ike/buffer-manager)
 (require 'roguel-ike/game-screen/select-hero)
@@ -88,16 +82,6 @@
 (require 'roguel-ike/data/skills)
 (require 'roguel-ike/data/races)
 (require 'roguel-ike/data/effects)
-
-(unless (fboundp 'defvar-local)
-  (defmacro defvar-local (var val &optional docstring)
-    "Define VAR as a buffer-local variable with default value VAL.
-Like `defvar' but additionally marks the variable as being automatically
-buffer-local wherever it is set."
-    (declare (debug defvar) (doc-string 3))
-    ;; Can't use backquote here, it's too early in the bootstrap.
-    (list 'progn (list 'defvar var val docstring)
-          (list 'make-variable-buffer-local (list 'quote var)))))
 
 (defun rlk--start-screen (hero-data-manager buffer-manager screen-symbol &rest args)
   "Start a new screen.

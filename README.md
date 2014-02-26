@@ -41,8 +41,7 @@ This is an experiment :
 
 ## Compatibilities ##
 
-It has been tested on Emacs 24.3, it should work under Emacs 23 too.
-If not, feel free to open an issue.
+It has been tested on Emacs 24.3. It doesn't work on Emacs 23.
 
 ## Dependencies ##
 
