@@ -33,9 +33,7 @@ Type `M-x roguel-ike` to start the game.
 
 ## State of the project ##
 
-The project is in early stage of development.
-
-This is an experiment :
+This project is an experiment :
 
 * This is my first serious attempt to create a roguelike
 * I'm using Emacs Lisp because I want to make it run on Emacs,
