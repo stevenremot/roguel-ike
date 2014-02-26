@@ -12,14 +12,17 @@ There isn't any level system. Each stat can improve independently, by
 doing related actions. For example, sucessfull attacks will at term improve
 character's strength.
 
-## Usage ##
+## Installation ##
 
-To load the file write this in your Emacs configuration:
+You can get it through [MELPA](http://melpa.milkbox.net), or clone the repository
+and add this to your init file:
 
     (add-to-list 'load-path "/path/to/roguel-ike/")
     (require 'roguel-ike)
 
-Then, type `M-x roguel-ike`.
+## Usage ##
+
+Type `M-x roguel-ike` to start the game.
 
 * use _y, u, h, j, k, l, b, n_ for movements
 * use _._ to wait one turn
