@@ -58,7 +58,10 @@
   :group 'roguel-ike-faces)
 
 (defface rlk-face-door
-  '((((class color) (min-colors 88))
+  '((((class color) (min-colors 88) (background light))
+     :inherit 'rlk-face-default
+     :foreground "peru")
+    (((class color) (min-colors 88))
      :inherit 'rlk-face-default
      :foreground "sandy brown"))
   "Door face"
@@ -72,14 +75,20 @@
   :group 'roguel-ike-faces)
 
 (defface rlk-face-shadow
-  '((((class color) (min-colors 8))
+  '((((class color) (min-colors 8) (background light))
+     :inherit 'rlk-face-default
+     :foreground "gray60")
+    (((class color) (min-colors 8))
      :inherit 'rlk-face-default
      :foreground "gray25"))
   "Face for visited objects the player cannot see now."
   :group 'roguel-ike-faces)
 
 (defface rlk-face-hero
-  '((((class color) (min-colors 8))
+  '((((class color) (min-colors 8) (background light))
+     :inherit 'rlk-face-default
+     :foreground "yellow4")
+    (((class color) (min-colors 8))
      :inherit 'rlk-face-default
      :foreground "yellow3"))
   "Hero face"
@@ -101,9 +110,12 @@
   :group 'roguel-ike-faces)
 
 (defface rlk-face-troll
-  '((((class color) (min-colors 8))
-    :inherit 'rlk-face-default
-    :foreground "green"))
+  '((((class color) (min-colors 8) (background light))
+     :inherit 'rlk-face-default
+     :foreground "green4")
+    (((class color) (min-colors 8))
+     :inherit 'rlk-face-default
+     :foreground "green"))
   "Troll face"
   :group 'roguel-ike-faces)
 
@@ -129,14 +141,20 @@
   :group 'roguel-ike-faces)
 
 (defface rlk-face-good-stat
-  '((((class color) (min-colors 8))
+  '((((class color) (min-colors 8) (background light))
+     :inherit 'rlk-face-default
+     :foreground "green4")
+    (((class color) (min-colors 8))
      :inherit 'rlk-face-default
      :foreground "green"))
   "Good statistic face"
   :group 'roguel-ike-faces)
 
 (defface rlk-face-average-stat
-  '((((class color) (min-colors 8))
+  '((((class color) (min-colors 8) (background light))
+     :inherit 'rlk-face-default
+     :foreground "orange")
+    (((class color) (min-colors 8))
      :inherit 'rlk-face-default
      :foreground "yellow"))
   "Average statistic face"
