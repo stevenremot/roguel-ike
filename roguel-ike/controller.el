@@ -120,7 +120,7 @@ BODY is the method definition."
     (rlk--fov-apply level hero)
     (oset self visible-enemies '())
     (setq buffer-read-only nil)
-    (draw-level (get-game-renderer self) level)
+    (draw-level (get-game-renderer self) level (cons (get-x hero) (get-y hero)))
     (draw-stats (get-stats-renderer self))
     (setq buffer-read-only t)))
 

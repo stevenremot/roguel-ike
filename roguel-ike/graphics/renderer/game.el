@@ -66,14 +66,14 @@
                                :symbols-table roguel-ike-default-graphics
                                :unlit-face 'rlk-face-shadow))))
 
-(defmethod draw-level ((self rlk--graphics-renderer-game) level)
+(defmethod draw-level ((self rlk--graphics-renderer-game) level center)
   "Draw the level on the current buffer.
 Symbols is the hash table with cell types as key and characters
 as values."
   (with-current-buffer (get-target-buffer self)
     (setq buffer-read-only nil)
     (erase-buffer)
-    (render-level (get-renderer self) level)
+    (render-level (get-renderer self) level center)
     (setq buffer-read-only t)))
 
 (provide 'roguel-ike/graphics/renderer/game)

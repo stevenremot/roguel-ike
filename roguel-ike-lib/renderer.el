@@ -79,18 +79,42 @@ CELL must implement `get-visible-type'."
                  (cdr parameters))))
     (insert (propertize character 'face face))))
 
-(defmethod render-level ((self roguel-ike-renderer) level)
+(defmethod render-level ((self roguel-ike-renderer) level center)
   "Insert a colored string representation of LEVEL in the buffer.
+
+CENTER is a cons representing a point that must be displayed even
+when the window is smaller than the level.
 
 The text is inserted at the current point in the current buffer.
 The point is located at the end of the level representation at the
 end of the method.
 
 LEVEL's cells must implement `get-visible-type'."
-  (dotimes (y (get-height level))
-    (dotimes (x (get-width level))
-      (render-cell self (get-cell-at level x y)))
-    (insert "\n")))
+  (let* ((minimum-x 0)
+         (minimum-y 0)
+         (level-width (get-width level))
+         (level-height (get-height level))
+         (width level-width)
+         (height level-height)
+         (window (get-buffer-window (current-buffer)))
+         (window-width (window-width window))
+         (window-height (window-height window)))
+    (when (< window-width width)
+      (setq width window-width
+            minimum-x (max 0 (min (- (car center) (/ window-width 2))
+                                  (- level-width (/ window-width 2))))))
+
+    (when (< window-height height)
+      (setq height window-height
+            minimum-y (max 0 (min (- (car center) (/ window-height 2))
+                                  (- level-height (/ window-height 2))))))
+
+    (dotimes (y height)
+      (dotimes (x width)
+        (render-cell self (get-cell-at level
+                                       (+ minimum-x x)
+                                       (+ minimum-y y))))
+      (insert "\n"))))
 
 
 
