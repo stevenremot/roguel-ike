@@ -102,12 +102,12 @@ LEVEL's cells must implement `get-visible-type'."
     (when (< window-width width)
       (setq width window-width
             minimum-x (max 0 (min (- (car center) (/ window-width 2))
-                                  (- level-width (/ window-width 2))))))
+                                  (- level-width window-width)))))
 
     (when (< window-height height)
       (setq height window-height
-            minimum-y (max 0 (min (- (car center) (/ window-height 2))
-                                  (- level-height (/ window-height 2))))))
+            minimum-y (max 0 (min (- (cdr center) (/ window-height 2))
+                                  (- level-height window-height)))))
 
     (dotimes (y height)
       (dotimes (x width)
