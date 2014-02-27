@@ -79,42 +79,33 @@ CELL must implement `get-visible-type'."
                  (cdr parameters))))
     (insert (propertize character 'face face))))
 
-(defmethod render-level ((self roguel-ike-renderer) level center)
+(defmethod render-level ((self roguel-ike-renderer) level &optional offset size)
   "Insert a colored string representation of LEVEL in the buffer.
 
-CENTER is a cons representing a point that must be displayed even
-when the window is smaller than the level.
+OFFSET is the upper left point (as a cons) at which the rendering begins.
+
+SIZE is a cons which tells how many cells are drawn horizontally and vertically.
+
+If OFFSET and SIZE are null, it is set to '(0 . 0) and the level's width and
+height.
 
 The text is inserted at the current point in the current buffer.
 The point is located at the end of the level representation at the
 end of the method.
 
 LEVEL's cells must implement `get-visible-type'."
-  (let* ((minimum-x 0)
-         (minimum-y 0)
-         (level-width (get-width level))
-         (level-height (get-height level))
-         (width level-width)
-         (height level-height)
-         (window (get-buffer-window (current-buffer)))
-         (window-width (window-width window))
-         (window-height (window-height window)))
-    (when (< window-width width)
-      (setq width window-width
-            minimum-x (max 0 (min (- (car center) (/ window-width 2))
-                                  (- level-width window-width)))))
+  (when (null offset)
+    (setq offset '(0 . 0)))
 
-    (when (< window-height height)
-      (setq height window-height
-            minimum-y (max 0 (min (- (cdr center) (/ window-height 2))
-                                  (- level-height window-height)))))
+  (when (null size)
+    (setq size (cons (get-width level) (get-height level))))
 
-    (dotimes (y height)
-      (dotimes (x width)
-        (render-cell self (get-cell-at level
-                                       (+ minimum-x x)
-                                       (+ minimum-y y))))
-      (insert "\n"))))
+  (dotimes (y (cdr size))
+    (dotimes (x (car size))
+      (render-cell self (get-cell-at level
+                                     (+ (car offset) x)
+                                     (+ (cdr offset) y))))
+    (insert "\n")))
 
 
 

@@ -55,7 +55,11 @@
            :type buffer
            :reader get-target-buffer
            :protection :private
-           :documentation "The buffer on which the level will be rendered."))
+           :documentation "The buffer on which the level will be rendered.")
+   (offset :type cons
+           :reader get-offset
+           :protection :private
+           :documentation "The current offset for targeting the center."))
   "Renderer for game level")
 
 (defmethod initialize-instance :after ((self rlk--graphics-renderer-game) slots)
@@ -71,10 +75,31 @@
 Symbols is the hash table with cell types as key and characters
 as values."
   (with-current-buffer (get-target-buffer self)
+    (let* ((minimum-x 0)
+         (minimum-y 0)
+         (level-width (get-width level))
+         (level-height (get-height level))
+         (width level-width)
+         (height level-height)
+         (window (get-buffer-window (current-buffer)))
+         (window-width (window-width window))
+         (window-height (window-height window)))
+    (when (< window-width width)
+      (setq width window-width
+            minimum-x (max 0 (min (- (car center) (/ window-width 2))
+                                  (- level-width window-width)))))
+
+    (when (< window-height height)
+      (setq height window-height
+            minimum-y (max 0 (min (- (cdr center) (/ window-height 2))
+                                  (- level-height window-height)))))
+
+    (oset self offset (cons minimum-x minimum-y))
     (setq buffer-read-only nil)
     (erase-buffer)
-    (render-level (get-renderer self) level center)
-    (setq buffer-read-only t)))
+    (render-level (get-renderer self) level (get-offset self)
+                  (cons width height))
+    (setq buffer-read-only t))))
 
 (provide 'roguel-ike/graphics/renderer/game)
 
