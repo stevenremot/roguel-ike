@@ -83,7 +83,7 @@ as values."
          (height level-height)
          (window (get-buffer-window (current-buffer)))
          (window-width (window-width window))
-         (window-height (window-height window)))
+         (window-height (1- (window-height window))))
     (when (< window-width width)
       (setq width window-width
             minimum-x (max 0 (min (- (car center) (/ window-width 2))
@@ -99,7 +99,8 @@ as values."
     (erase-buffer)
     (render-level (get-renderer self) level (get-offset self)
                   (cons width height))
-    (setq buffer-read-only t))))
+    (setq buffer-read-only t)
+    (goto-char (point-min)))))
 
 (provide 'roguel-ike/graphics/renderer/game)
 
