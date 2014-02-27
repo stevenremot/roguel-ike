@@ -171,15 +171,16 @@ BODY is the method definition."
 
         (if (is-hero-p entity)
             (examine-next-enemy self)
-          (goto-char (point-min))
-          (beginning-of-line (1+ (get-y entity)))
-          (forward-char (get-x entity))
-          (oset self popup (popup-tip (render (rlk--graphics-widget-entity "Entity widget"
-                                                                           :entity entity
-                                                                           :parts '(:name :effects :stats)))
-                                      :point (point)
-                                      :nowait t))
-          (popup-draw (oref self popup)))))))
+          (let ((offset (get-offset (get-game-renderer self))))
+            (goto-char (point-min))
+            (beginning-of-line (1+ (- (get-y entity) (cdr offset))))
+            (forward-char (- (get-x entity) (car offset)))
+            (oset self popup (popup-tip (render (rlk--graphics-widget-entity "Entity widget"
+                                                                             :entity entity
+                                                                             :parts '(:name :effects :stats)))
+                                        :point (point)
+                                        :nowait t))
+            (popup-draw (oref self popup))))))))
 
 (rlk--defcommand quit-rlk ((self rlk--controller))
   "Quit roguel-ike."
