@@ -140,7 +140,7 @@ Here are the events that can occur to an entity with their arguments:
   "See rlk--level-cell-object."
   nil)
 
-(defmethod format-message ((self rlk--entity) message)
+(defmethod entity-format-message ((self rlk--entity) message)
   "Create a string from MESSAGE.
 
 If MESSAGE is a string, simply return it.
@@ -175,7 +175,7 @@ If MESSAGE is a list, each of its elements will be converted to a string using t
   "Use the message logger to display a message."
   (apply 'display-message
          (get-message-logger self)
-         (format-message self message)
+         (entity-format-message self message)
          format-arguments))
 
 
