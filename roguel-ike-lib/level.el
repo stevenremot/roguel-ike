@@ -30,15 +30,16 @@
 ;; The generics bellow define methods to manipulate level cells.
 
 ;;; Code:
+(require 'cl-generic)
 (require 'eieio)
 
-(defgeneric get-height (level)
+(cl-defgeneric get-height (level)
   "Return the number of rows of LEVEL.")
 
-(defgeneric get-width (level)
+(cl-defgeneric get-width (level)
   "Return the number of columns of LEVEL.")
 
-(defgeneric get-cell-at (level x y)
+(cl-defgeneric get-cell-at (level x y)
   "Return the cell of the level in the Xth column and the Yth row.
 
 The first column and row are at position 0.")

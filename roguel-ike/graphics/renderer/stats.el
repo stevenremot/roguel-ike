@@ -23,6 +23,7 @@
 ;; Define the statistics renderer.
 
 ;;; Code:
+(require 'cl-generic)
 (require 'roguel-ike/graphics/widget/entity)
 
 (defclass rlk--graphics-renderer-stats ()
@@ -36,7 +37,7 @@
            :documentation "Buffer on which statistcis are renderered."))
   "Render statistics")
 
-(defmethod initialize-instance ((self rlk--graphics-renderer-stats) slots)
+(cl-defmethod initialize-instance ((self rlk--graphics-renderer-stats) slots)
   (let ((stats (plist-get slots :stats))
         (buffer (plist-get slots :buffer)))
     (call-next-method self (list :widget (rlk--graphics-widget-entity "Entity widget"
@@ -45,7 +46,7 @@
                                                                                :stats))
                                  :buffer buffer))))
 
-(defmethod draw-stats ((self rlk--graphics-renderer-stats))
+(cl-defmethod draw-stats ((self rlk--graphics-renderer-stats))
   "Draw hero statistics on the buffer"
   (with-current-buffer (oref self buffer)
     (erase-buffer)

@@ -25,6 +25,7 @@
 ;; he wants.
 
 ;;; Code:
+(require 'cl-generic)
 (require 'roguel-ike/game-screen/fight)
 (require 'roguel-ike/level/factory/string)
 (require 'roguel-ike/level/populator/arena)
@@ -99,12 +100,12 @@
                 :documentation "The number of remaining enemies."))
   "Game screen for arena mode.")
 
-(defmethod create-level ((self rlk--game-screen-arena))
+(cl-defmethod create-level ((self rlk--game-screen-arena))
   "Choose a level in arena's predefined ones."
   (rlk--level-create-from-string-list (nth (random (length rlk--arenas))
                                            rlk--arenas)))
 
-(defmethod setup-level ((self rlk--game-screen-arena))
+(cl-defmethod setup-level ((self rlk--game-screen-arena))
   "Set all the level's elements."
   (let* ((controller (get-controller self))
          (game (get-game controller))
@@ -142,7 +143,7 @@
                   :died
                   (apply-partially 'decrement-enemy-count self))))))
 
-(defmethod decrement-enemy-count ((self rlk--game-screen-arena))
+(cl-defmethod decrement-enemy-count ((self rlk--game-screen-arena))
   "Decrement by one the enemy count.
 
 If the count reaches 0, the player wins the game."

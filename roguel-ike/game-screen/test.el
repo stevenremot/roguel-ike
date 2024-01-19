@@ -22,6 +22,7 @@
 ;;
 
 ;;; Code:
+(require 'cl-generic)
 (require 'roguel-ike/game-screen/fight)
 (require 'roguel-ike/interactive-object/door)
 (require 'roguel-ike/entity)
@@ -33,7 +34,7 @@
   ()
   "A test screen that creates a little level.")
 
-(defmethod create-level ((self rlk--game-screen-test))
+(cl-defmethod create-level ((self rlk--game-screen-test))
   "Create the level."
   (let* ((layout '("############"
                    "#..#####...#"
@@ -42,7 +43,7 @@
                    "############")))
     (rlk--level-create-from-string-list layout)))
 
-(defmethod setup-level ((self rlk--game-screen-test))
+(cl-defmethod setup-level ((self rlk--game-screen-test))
   "Set all the level's elements."
   (let* ((controller (get-controller self))
          (game (get-game controller))

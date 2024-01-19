@@ -24,6 +24,7 @@
 
 ;;; Code:
 
+(require 'cl-generic)
 (require 'eieio)
 (require 'roguel-ike/stats/slot)
 
@@ -34,11 +35,11 @@
           :documentation "An associated list whose keys are slot names and values are slots."))
    "Entity's statistics.")
 
-(defmethod get-slot ((self rlk--stats) slot)
+(cl-defmethod get-slot ((self rlk--stats) slot)
   "Return the slot named SLOT."
   (cdr (assoc slot (oref self slots))))
 
-(defmethod get-slot-names ((self rlk--stats))
+(cl-defmethod get-slot-names ((self rlk--stats))
   "Return all the slot's names."
   (mapcar (lambda (slot-cons)
             (car slot-cons))

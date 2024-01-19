@@ -25,6 +25,7 @@
 ;; its current environment.
 
 ;;; Code:
+(require 'cl-generic)
 (require 'roguel-ike/entity)
 
 (defclass rlk--behaviour ()
@@ -36,12 +37,12 @@
   "Base class for behaviour objects."
   :abstract t)
 
-(defmethod do-action ((self rlk--behaviour) callback)
+(cl-defmethod do-action ((self rlk--behaviour) callback)
   "Decide which action should be done now.
 Must call callback with the number of turns the action takes."
   (error "Method do-action for behaviour must be overriden"))
 
-(defmethod is-manual-p ((self rlk--behaviour))
+(cl-defmethod is-manual-p ((self rlk--behaviour))
   "Return t if the behaviour is manual, nil otherwise."
   nil)
 

@@ -23,6 +23,7 @@
 ;;
 
 ;;; Code:
+(require 'cl-generic)
 (require 'roguel-ike/entity)
 
 (defclass rlk--skill-object-fractalball (rlk--level-cell-object)
@@ -40,15 +41,15 @@
           :documentation "The remaining number of divisions."))
   "A magic projectile that can be divided at impact.")
 
-(defmethod get-layer ((self rlk--skill-object-fractalball))
+(cl-defmethod get-layer ((self rlk--skill-object-fractalball))
   "See `rlk--level-cell-object'."
   2)
 
-(defmethod accept-other-object-p ((self rlk--skill-object-fractalball))
+(cl-defmethod accept-other-object-p ((self rlk--skill-object-fractalball))
   "See `rlk--level-cell-object'."
   t)
 
-(defmethod collide-with-cell ((self rlk--skill-object-fractalball) cell direction energy)
+(cl-defmethod collide-with-cell ((self rlk--skill-object-fractalball) cell direction energy)
   "Handle collision between the fractalball and a cell."
   (let* ((caster (get-caster self))
          (entity nil)
@@ -79,7 +80,7 @@
                         (add-motion (get-level self) subball `(,dx . ,dy) nil)))))))))))
     (remove-object (get-cell self) self)))
 
-(defmethod strike-entity ((self rlk--skill-object-fractalball) entity)
+(cl-defmethod strike-entity ((self rlk--skill-object-fractalball) entity)
   "Hurt ENTITY."
   (let ((caster (get-caster self))
         (damages 0))

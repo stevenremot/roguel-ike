@@ -22,6 +22,7 @@
 ;; Define the game renderer.
 
 ;;; Code:
+(require 'cl-generic)
 (require 'roguel-ike/level)
 (require 'roguel-ike/entity)
 (require 'roguel-ike/graphics/faces)
@@ -62,7 +63,7 @@
            :documentation "The current offset for targeting the center."))
   "Renderer for game level")
 
-(defmethod initialize-instance :after ((self rlk--graphics-renderer-game) slots)
+(cl-defmethod initialize-instance :after ((self rlk--graphics-renderer-game) slots)
   "Initialize renderer."
   (unless (slot-boundp self 'renderer)
     (oset self renderer
@@ -70,7 +71,7 @@
                                :symbols-table roguel-ike-default-graphics
                                :unlit-face 'rlk-face-shadow))))
 
-(defmethod draw-level ((self rlk--graphics-renderer-game) level center)
+(cl-defmethod draw-level ((self rlk--graphics-renderer-game) level center)
   "Draw the level on the current buffer.
 Symbols is the hash table with cell types as key and characters
 as values."

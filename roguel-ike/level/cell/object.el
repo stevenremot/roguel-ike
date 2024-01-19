@@ -23,6 +23,7 @@
 ;; Here is the base class for objects present on a level cell.
 
 ;;; Code:
+(require 'cl-generic)
 (require 'roguel-ike/level/cell)
 (require 'roguel-ike/level)
 
@@ -50,35 +51,35 @@
   "Represent an object lying on a cell."
   :abstract t)
 
-(defmethod is-entity-p ((self rlk--level-cell-object))
+(cl-defmethod is-entity-p ((self rlk--level-cell-object))
   "Return t if the object is an entity, nil otherwise."
   nil)
 
-(defmethod get-layer ((self rlk--level-cell-object))
+(cl-defmethod get-layer ((self rlk--level-cell-object))
   "Return the layer on which the object is drawn."
   (error "Method get-layer must be overriden"))
 
-(defmethod accept-other-object-p ((self rlk--level-cell-object))
+(cl-defmethod accept-other-object-p ((self rlk--level-cell-object))
   "Return t if another object can stand on the cell, nil otherwise."
   (error "Method accept-other-object-p must be overriden"))
 
-(defmethod block-light-p ((self rlk--level-cell-object))
+(cl-defmethod block-light-p ((self rlk--level-cell-object))
   "Return t if the OBJECT blocks the light, nil otherwise."
   nil)
 
-(defmethod get-cell ((self rlk--level-cell-object))
+(cl-defmethod get-cell ((self rlk--level-cell-object))
   "Return the cell on which stands the object."
   (get-cell-at (get-level self)
                (get-x self)
                (get-y self)))
 
-(defmethod get-neighbour-cell ((self rlk--level-cell-object) dx dy)
+(cl-defmethod get-neighbour-cell ((self rlk--level-cell-object) dx dy)
   "Return the cell at the position x+DX, y+DY."
   (get-cell-at (get-level self)
                (+ (get-x self) dx)
                (+ (get-y self) dy)))
 
-(defmethod set-cell ((self rlk--level-cell-object) cell)
+(cl-defmethod set-cell ((self rlk--level-cell-object) cell)
   "Set the object's cell.
 This method is intended for private use ONLY.
 Use set-pos to change the object's position."
@@ -87,7 +88,7 @@ Use set-pos to change the object's position."
       (remove-object old-cell self))
     (add-object cell self)))
 
-(defmethod set-pos ((self rlk--level-cell-object) x y)
+(cl-defmethod set-pos ((self rlk--level-cell-object) x y)
   "Set the new cell pos."
   (let ((cell (get-cell-at (get-level self) x y)))
     (when cell
@@ -95,7 +96,7 @@ Use set-pos to change the object's position."
       (oset self x x)
       (oset self y y))))
 
-(defmethod try-move ((self rlk--level-cell-object) dx dy)
+(cl-defmethod try-move ((self rlk--level-cell-object) dx dy)
   "If the entity can move to the cell (x + DX, y + DY), will move to it.
 Return t if the entity could move, nil otherwise."
   (let* ((x (+ (get-x self) dx))

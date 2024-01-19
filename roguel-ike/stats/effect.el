@@ -22,8 +22,9 @@
 ;;
 
 ;;; Code:
-(require 'roguel-ike/entity)
+(require 'cl-generic)
 (require 'cl-lib)
+(require 'roguel-ike/entity)
 
 (defclass rlk--stats-effect ()
   ((type :initarg :type
@@ -109,11 +110,11 @@ This message will be sent to entity's method `display-message'.")
                   :documentation "The callback function called each time the entity spends a turn."))
   "Apply a stats effect to an entity.")
 
-(defmethod initialize-instance :after ((self rlk--stats-effect-applier) slots)
+(cl-defmethod initialize-instance :after ((self rlk--stats-effect-applier) slots)
   "Cache the callback function."
   (oset self turn-callback (apply-partially 'add-turns self)))
 
-(defmethod start ((self rlk--stats-effect-applier))
+(cl-defmethod start ((self rlk--stats-effect-applier))
   "Start applying the effect."
   (let ((entity (get-entity self))
         (start-message (get-start-message (get-effect self))))
@@ -126,7 +127,7 @@ This message will be sent to entity's method `display-message'.")
     (when (is-immediate-p (get-effect self))
       (apply-effect self))))
 
-(defmethod stop ((self rlk--stats-effect-applier))
+(cl-defmethod stop ((self rlk--stats-effect-applier))
   "Stop applying the effect."
   (let ((entity (get-entity self))
         (end-message (get-end-message (get-effect self))))
@@ -136,12 +137,12 @@ This message will be sent to entity's method `display-message'.")
     (unregister (get-dispatcher entity) :turns-spent (oref self turn-callback))
     (unregister-effect-applier entity self)))
 
-(defmethod reset ((self rlk--stats-effect-applier))
+(cl-defmethod reset ((self rlk--stats-effect-applier))
   "Reinitialize the counters."
   (oset self turn-count 0)
   (oset self application-count 0))
 
-(defmethod add-turns ((self rlk--stats-effect-applier) nb-turns)
+(cl-defmethod add-turns ((self rlk--stats-effect-applier) nb-turns)
   "Add NB-TURNS to current turn count, and apply the effect if necesary."
   (let ((period (get-period (get-effect self)))
         (apply-number (get-apply-number (get-effect self))))
@@ -155,7 +156,7 @@ This message will be sent to entity's method `display-message'.")
     (when (= (oref self application-count) apply-number)
       (stop self))))
 
-(defmethod apply-effect ((self rlk--stats-effect-applier))
+(cl-defmethod apply-effect ((self rlk--stats-effect-applier))
   "Apply the effect one time."
   (let ((stats-change (get-stats-change (get-effect self)))
         (entity (get-entity self))
@@ -171,7 +172,7 @@ This message will be sent to entity's method `display-message'.")
         (setq stats-change (cddr stats-change))))
     (oset self application-count (1+ (oref self application-count)))))
 
-(defmethod apply-on ((self rlk--stats-effect) entity)
+(cl-defmethod apply-on ((self rlk--stats-effect) entity)
   (unless (catch 'already-applied
             (dolist (applier (get-current-effects entity))
               (when (equal (get-type self) (get-type (get-effect applier)))

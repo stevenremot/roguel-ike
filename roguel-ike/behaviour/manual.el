@@ -28,17 +28,18 @@
 ;; This behaviour let the player control an entity.
 
 ;;; Code:
+(require 'cl-generic)
 (require 'roguel-ike/behaviour)
 (require 'roguel-ike/interactive-object/door)
 (require 'roguel-ike/level/cell/ground)
 
-(defgeneric call-renderers (controller)
+(cl-defgeneric call-renderers (controller)
   "Call the game's renderers.")
 
-(defgeneric ask-option (controller prompt collection)
+(cl-defgeneric ask-option (controller prompt collection)
   "Ask the user to select an option in COLLECTION.")
 
-(defgeneric ask-direction (controller)
+(cl-defgeneric ask-direction (controller)
   "Ask the user for a direction.")
 
 (defvar-local rlk--local-controller nil)
@@ -50,11 +51,11 @@
                   :documentation "The callback sent by the time manager."))
   "Behaviour of entities controlled by the player.")
 
-(defmethod is-manual-p ((self rlk--behaviour-manual))
+(cl-defmethod is-manual-p ((self rlk--behaviour-manual))
   "See rlk--behaviour."
   t)
 
-(defmethod get-controller ((self rlk--behaviour-manual))
+(cl-defmethod get-controller ((self rlk--behaviour-manual))
   "Return the behaviour's controller.
 
 It would be more elegant to avoid using the global variable, but it leads to
@@ -64,12 +65,12 @@ behaviour <-- hero <--- game <-- controller
    |---------------------------------A"
   rlk--local-controller)
 
-(defmethod spend-time ((self rlk--behaviour-manual) time)
+(cl-defmethod spend-time ((self rlk--behaviour-manual) time)
   "Call the time callback function with given TIME."
   (spend-time (get-entity self) time)
   (funcall (oref self time-callback) time))
 
-(defmethod interact-with-cell ((self rlk--behaviour-manual) dx dy)
+(cl-defmethod interact-with-cell ((self rlk--behaviour-manual) dx dy)
   "Try all sort of interaction with cell at DX, DY.
 
 If cell is accessible, will move to it.
@@ -97,11 +98,11 @@ Apply the time callback."
                             0))
                       0))))))
 
-(defmethod wait ((self rlk--behaviour-manual))
+(cl-defmethod wait ((self rlk--behaviour-manual))
   "Wait one turn."
   (spend-time self 1))
 
-(defmethod do-action ((self rlk--behaviour-manual) callback)
+(cl-defmethod do-action ((self rlk--behaviour-manual) callback)
   "Register the callback for a former use."
   (let ((controller (get-controller self)))
     (when controller
@@ -109,7 +110,7 @@ Apply the time callback."
     (oset self time-callback callback)
     nil))
 
-(defmethod close-door ((self rlk--behaviour-manual) dx dy)
+(cl-defmethod close-door ((self rlk--behaviour-manual) dx dy)
   "Try to close the door in the direction DX, DY."
   (let* ((entity (get-entity self))
          (cell (get-neighbour-cell entity dx dy)))
@@ -131,7 +132,7 @@ Apply the time callback."
             (display-message entity "There is no door here...")))
       (display-message entity "There is no door here..."))))
 
-(defmethod climb-stairs ((self rlk--behaviour-manual))
+(cl-defmethod climb-stairs ((self rlk--behaviour-manual))
   "If there are stairs on the entity's cell, climb them."
   (let* ((entity (get-entity self))
          (cell (get-cell entity))
@@ -144,7 +145,7 @@ Apply the time callback."
         (do-action stairs entity :climb)
       (display-message entity "There are no stairs here..."))))
 
-(defmethod select-and-use-skill ((self rlk--behaviour-manual))
+(cl-defmethod select-and-use-skill ((self rlk--behaviour-manual))
   "Ask the user to select a skill and use it."
   (let* ((entity (get-entity self))
          (skills (get-usable-skills entity))
@@ -164,7 +165,7 @@ Apply the time callback."
                   (throw 'skill-found nil))))))
       (display-message entity "You cannot use any skill now."))))
 
-(defmethod use-skill ((self rlk--behaviour-manual) skill)
+(cl-defmethod use-skill ((self rlk--behaviour-manual) skill)
   "Try to use the skill SKILL.
 
 If it could be used, spend a turn for it."

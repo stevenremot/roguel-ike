@@ -22,12 +22,13 @@
 ;; Defines roguel-ike level structure
 
 ;;; Code:
+(require 'cl-generic)
 (require 'eieio)
 (require 'roguel-ike/time-manager)
 (require 'roguel-ike/physics/world)
 (require 'roguel-ike/level/cell)
 
-(defgeneric is-hero-p (entity)
+(cl-defgeneric is-hero-p (entity)
   "Return t is the ENTITY is the hero.")
 
 (defvar-local rlk--local-controller nil)
@@ -48,7 +49,7 @@
                   :documentation "Physics world."))
   "Represents a game level")
 
-(defmethod initialize-instance :after ((self rlk--level) slots)
+(cl-defmethod initialize-instance :after ((self rlk--level) slots)
   "Initialize the time manager."
   (oset self time-manager (rlk--time-manager "Level time manager"))
   (oset self physics-world (rlk--physics-world "Physics world"))
@@ -57,21 +58,21 @@
                                           (run-world self))
                                         self)))
 
-(defmethod get-height ((self rlk--level))
+(cl-defmethod get-height ((self rlk--level))
   "Return the horizontal number of cells."
   (length (oref self cells)))
 
-(defmethod get-width ((self rlk--level))
+(cl-defmethod get-width ((self rlk--level))
   "Return the vertical number of cells."
   (if (eq (get-height self) 0)
       0
     (length (car (oref self cells)))))
 
-(defmethod get-cell-at ((self rlk--level) x y)
+(cl-defmethod get-cell-at ((self rlk--level) x y)
   "Return the cell at position x, y."
   (nth x (nth y (get-cells self))))
 
-(defmethod get-accessible-cells-pos ((self rlk--level))
+(cl-defmethod get-accessible-cells-pos ((self rlk--level))
   "Return all the accessible cells in the level."
   (let ((cells '()))
     (dotimes (x (get-width self))
@@ -80,21 +81,21 @@
           (add-to-list 'cells (cons x y)))))
     cells))
 
-(defmethod get-controller ((self rlk--level))
+(cl-defmethod get-controller ((self rlk--level))
   "Return the current controller."
   rlk--local-controller)
 
-(defmethod add-entity ((self rlk--level) entity)
+(cl-defmethod add-entity ((self rlk--level) entity)
   "Add an entity to the level."
   (insert-object (get-time-manager self) entity))
 
-(defmethod remove-entity ((self rlk--level) entity)
+(cl-defmethod remove-entity ((self rlk--level) entity)
   "Remove an entity from the level."
   (remove-object (get-time-manager self) entity)
   (when (is-hero-p entity)
     (stop self)))
 
-(defmethod get-lit-entities ((self rlk--level))
+(cl-defmethod get-lit-entities ((self rlk--level))
   "Return all entities standing on lit cells in the level."
   (let ((entities '()))
     (dolist (line (get-cells self))
@@ -105,7 +106,7 @@
           (add-to-list 'entities (get-entity cell)))))
     entities))
 
-(defmethod add-motion ((self rlk--level) entity direction energy)
+(cl-defmethod add-motion ((self rlk--level) entity direction energy)
   "Create a motion affecting ENTITY, for the given DIRECTION and ENERGY.
 
 DIRECTION is a vector represented by a cons in the form (DX . DY)."
@@ -114,12 +115,12 @@ DIRECTION is a vector represented by a cons in the form (DX . DY)."
                                                             :direction direction
                                                             :energy energy)))
 
-(defmethod run-world ((self rlk--level))
+(cl-defmethod run-world ((self rlk--level))
   "Update the world's motions."
   (run (get-physics-world self) (apply-partially 'call-renderers
                                                  (get-controller self))))
 
-(defmethod stop ((self rlk--level))
+(cl-defmethod stop ((self rlk--level))
   "Stop the current level."
   (stop (get-time-manager self))
   (stop (get-physics-world self)))

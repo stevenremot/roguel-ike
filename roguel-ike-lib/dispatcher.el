@@ -22,6 +22,7 @@
 ;; Defines a lightweight event dispatcher
 
 ;;; Code:
+(require 'cl-generic)
 (require 'eieio)
 
 (defclass roguel-ike-dispatcher ()
@@ -35,24 +36,24 @@ be called on event dispatch.
 
 There is no restriction regarding the arguments provided on dispatch.")
 
-(defmethod initialize-instance :after ((self roguel-ike-dispatcher) slots)
+(cl-defmethod initialize-instance :after ((self roguel-ike-dispatcher) slots)
   "Initialize hooks."
   (oset self hooks (make-hash-table)))
 
-(defmethod register ((self roguel-ike-dispatcher) event function)
+(cl-defmethod register ((self roguel-ike-dispatcher) event function)
   "Ask the dispatcher to call FUNCTION on EVENT dispatch."
   (let* ((hooks (oref self hooks))
          (hook (gethash event hooks '())))
     (add-to-list 'hook function)
     (puthash event hook hooks)))
 
-(defmethod unregister ((self roguel-ike-dispatcher) event function)
+(cl-defmethod unregister ((self roguel-ike-dispatcher) event function)
   "Ask the dispatcher not to call FUNCTION on EVENT dispatch."
   (let* ((hooks (oref self hooks))
          (hook (gethash event hooks '())))
     (puthash event (delete function hook) hooks)))
 
-(defmethod dispatch ((self roguel-ike-dispatcher) event &rest arguments)
+(cl-defmethod dispatch ((self roguel-ike-dispatcher) event &rest arguments)
   "Call all functions associated to EVENT with ARGUMENTS."
   (let* ((hooks (oref self hooks))
          (hook (gethash event hooks '())))

@@ -24,6 +24,7 @@
 
 ;;; Code:
 
+(require 'cl-generic)
 (require 'eieio)
 (require 'roguel-ike/skill)
 
@@ -62,15 +63,15 @@ The lesser is the period, the quicker is the evolution.")
 An entity of this race can potentially use any of these skills."))
   "A entity race.")
 
-(defmethod get-base-stat-slot ((self rlk--race) slot)
+(cl-defmethod get-base-stat-slot ((self rlk--race) slot)
   "Return the base stat for the slot SLOT."
   (plist-get (get-base-stats self) slot))
 
-(defmethod get-stat-slot-evolution ((self rlk--race) slot)
+(cl-defmethod get-stat-slot-evolution ((self rlk--race) slot)
   "Return the evolution of the stat slot SLOT."
   (plist-get (get-stats-evolution self) slot))
 
-(defmethod get-skills ((self rlk--race))
+(cl-defmethod get-skills ((self rlk--race))
   "Return the stat's skills as rlk--skill objects."
   (mapcar (lambda (id)
             (rlk--skill-get-skill id))

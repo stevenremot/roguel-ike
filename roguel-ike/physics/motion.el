@@ -22,6 +22,7 @@
 ;; A physical motion make an object move in the level.
 
 ;;; Code:
+(require 'cl-generic)
 (require 'eieio)
 
 ;;;;;;;;;;;;;;
@@ -30,20 +31,20 @@
 
 ;; An object must implement these methods to be affected by a motion
 
-(defgeneric get-x (object)
+(cl-defgeneric get-x (object)
   "Return the horizontal position of an object.")
 
-(defgeneric get-y (object)
+(cl-defgeneric get-y (object)
   "Return the vertical position of an object.")
 
-(defgeneric try-move (object dx dy)
+(cl-defgeneric try-move (object dx dy)
   "Try to move the object to the position x+DX, y+DY.
 Return t if it succeeded, nil otherwise.")
 
-(defgeneric get-neighbour-cell (object dx dy)
+(cl-defgeneric get-neighbour-cell (object dx dy)
   "Return the cell at position x+DX, y+DY.")
 
-(defgeneric collide-with-cell (object cell direction energy)
+(cl-defgeneric collide-with-cell (object cell direction energy)
   "Apply action on collision with CELL.
 DIRECTION is the base motion direction, and ENERGY is the current motion energy.")
 
@@ -70,7 +71,7 @@ A null value means the movement won't stop until it bumps into something.")
               :documentation "The direction of the movement."))
   "A motion is a attenuating movement applied to a given object.")
 
-(defmethod update ((self rlk--physics-motion))
+(cl-defmethod update ((self rlk--physics-motion))
   "Move the entity for one turn.
 Apply all effects, including collisions and movement attenuation."
   (let* ((object (get-object self))

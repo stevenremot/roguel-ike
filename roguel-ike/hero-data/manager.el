@@ -22,6 +22,7 @@
 ;;
 
 ;;; Code:
+(require 'cl-generic)
 (require 'roguel-ike/hero-data)
 (require 'roguel-ike/custom)
 
@@ -41,23 +42,23 @@
                    :documentation "The directory in which hero data are saved."))
   "Handle persistent storage of hero data.")
 
-(defmethod initialize-instance :after ((self rlk--hero-data-manager) slots)
+(cl-defmethod initialize-instance :after ((self rlk--hero-data-manager) slots)
   "Initialize base slots."
   (unless (slot-boundp self 'save-directory)
     (oset self save-directory roguel-ike-save-directory)))
 
-(defmethod get-hero-filename ((self rlk--hero-data-manager) hero-name)
+(cl-defmethod get-hero-filename ((self rlk--hero-data-manager) hero-name)
   "Return the file name correspondign to the save of HERO-NAME's data."
   (concat (get-save-directory self) hero-name ".el"))
 
-(defmethod save-hero ((self rlk--hero-data-manager) hero-data)
+(cl-defmethod save-hero ((self rlk--hero-data-manager) hero-data)
   "Save the HERO-DATA in the file system."
   (let ((hero-list (to-list hero-data))
         (file-name (get-hero-filename self (get-name hero-data))))
     (with-temp-file file-name
       (prin1 hero-list (current-buffer)))))
 
-(defmethod load-hero ((self rlk--hero-data-manager) hero-name)
+(cl-defmethod load-hero ((self rlk--hero-data-manager) hero-name)
   "Load the hero which name is HERO-NAME.
 
 Raise an error when this hero does not exist."
@@ -68,13 +69,13 @@ Raise an error when this hero does not exist."
           (rlk--hero-data-create-from-list (read (current-buffer))))
       (error "No saved game with the name %s" hero-name))))
 
-(defmethod delete-hero ((self rlk--hero-data-manager) hero-name)
+(cl-defmethod delete-hero ((self rlk--hero-data-manager) hero-name)
   "Delete the hero whcoh name is HERO-NAME."
   (let ((file-name (get-hero-filename self hero-name)))
     (when (file-exists-p file-name)
       (delete-file file-name))))
 
-(defmethod get-saved-heros ((self rlk--hero-data-manager))
+(cl-defmethod get-saved-heros ((self rlk--hero-data-manager))
   "Return the name of all the saved heros."
   (let ((save-files (directory-files (get-save-directory self)
                                      nil ".el$")))
