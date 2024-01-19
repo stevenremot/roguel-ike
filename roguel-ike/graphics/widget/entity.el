@@ -4,6 +4,7 @@
 ;;
 
 ;;; Code:
+(require 'cl-generic)
 (require 'roguel-ike/entity)
 (require 'roguel-ike/stats/effect)
 (require 'roguel-ike/graphics/widget/stats)
@@ -29,12 +30,12 @@ There is currently:
                  :documentation "Sub widget to render statistics."))
   "Render entity's information.")
 
-(defmethod initialize-instance :after ((self rlk--graphics-widget-entity) slots)
+(cl-defmethod initialize-instance :after ((self rlk--graphics-widget-entity) slots)
   "Initialize subwidgets."
   (oset self stats-widget (rlk--graphics-widget-stats "Stats widget"
                                                       :stats (get-stats (oref self entity)))))
 
-(defmethod render ((self rlk--graphics-widget-entity))
+(cl-defmethod render ((self rlk--graphics-widget-entity))
   (let ((parts (oref self parts))
         (entity (oref self entity))
         (result ""))

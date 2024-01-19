@@ -22,6 +22,7 @@
 ;; Represent a cell in a level
 
 ;;; Code:
+(require 'cl-generic)
 (require 'eieio)
 
 (defclass rlk--level-cell ()
@@ -46,33 +47,33 @@ e.g. wall, ground, etc...")
             :documentation "Tells if the cell has been seen or not."))
   "A class representing a level's cell")
 
-(defmethod get-visible-type ((self rlk--level-cell))
+(cl-defmethod get-visible-type ((self rlk--level-cell))
   "Return the visible type of the cell."
   (if (is-visited-p self)
       (get-type self)
     :void))
 
-(defmethod is-container-p ((self rlk--level-cell))
+(cl-defmethod is-container-p ((self rlk--level-cell))
   "Return t if the cell can contain objects, nil otherwise."
   nil)
 
-(defmethod is-accessible-p ((self rlk--level-cell))
+(cl-defmethod is-accessible-p ((self rlk--level-cell))
   "Return t if the cell can be the destination of an entity, nil otherwise."
   nil)
 
-(defmethod block-light-p ((self rlk--level-cell))
+(cl-defmethod block-light-p ((self rlk--level-cell))
   "Return t if the cell blocks the light, nil otherwise."
   t)
 
-(defmethod set-lit :after ((self rlk--level-cell) lit)
+(cl-defmethod set-lit :after ((self rlk--level-cell) lit)
   "When the cell has been lit, set it as visited."
   (when lit
     (set-visited self t)))
 
-(defgeneric has-entity-p (cell)
+(cl-defgeneric has-entity-p (cell)
   "Return t when a container entity has an entity standing on it.")
 
-(defgeneric get-entity (cell)
+(cl-defgeneric get-entity (cell)
   "Return the entity standing on the container cell.")
 
 (provide 'roguel-ike/level/cell)

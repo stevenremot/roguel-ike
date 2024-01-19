@@ -22,6 +22,7 @@
 ;; The statstics slot are composed of a current value and a maximum value.
 
 ;;; Code:
+(require 'cl-generic)
 (require 'roguel-ike-lib/dispatcher)
 
 (defclass rlk--stats-slot ()
@@ -58,11 +59,11 @@ Currently, dispatched events are:
   "Statistic slot.
 Handle maximum value and current value.")
 
-(defmethod initialize-instance :after ((self rlk--stats-slot) slots)
+(cl-defmethod initialize-instance :after ((self rlk--stats-slot) slots)
   "Initialize dispatcher."
   (oset self dispatcher (roguel-ike-dispatcher "Slot dispatcher")))
 
-(defmethod get-current-value ((self rlk--stats-slot))
+(cl-defmethod get-current-value ((self rlk--stats-slot))
   "Return the current slot value.
 
 Set it to base-value if not set yet."
@@ -70,7 +71,7 @@ Set it to base-value if not set yet."
     (oset self current-value (get-base-value self)))
   (oref self current-value))
 
-(defmethod set-current-value ((self rlk--stats-slot) current-value)
+(cl-defmethod set-current-value ((self rlk--stats-slot) current-value)
   "Set the current slot value.
 
 Restrain it to be positive."
@@ -79,7 +80,7 @@ Restrain it to be positive."
     (oset self current-value new-value)
     (dispatch (get-dispatcher self) :current-value-changed old-value new-value)))
 
-(defmethod add-experience ((self rlk--stats-slot) experience)
+(cl-defmethod add-experience ((self rlk--stats-slot) experience)
   "Add EXPERIENCE to current experience points."
   (let ((threshold (* (get-experience-rate self) (get-base-value self))))
     (oset self experience (+ (get-experience self) experience))

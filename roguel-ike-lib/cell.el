@@ -23,13 +23,14 @@
 ;; be used in various algorithms.
 
 ;;; Code:
+(require 'cl-generic)
 (require 'eieio)
 
 ;;;;;;;;;;;;;
 ;; Display ;;
 ;;;;;;;;;;;;;
 
-(defgeneric get-visible-type (cell)
+(cl-defgeneric get-visible-type (cell)
   "Return the type that should be used for the CELL display.
 
 For a wall, it could be :wall.
@@ -40,20 +41,20 @@ For a cell the player currently doesn't see, it could be :shadow.")
 ;; Lighting ;;
 ;;;;;;;;;;;;;;
 
-(defgeneric is-lit-p (cell)
+(cl-defgeneric is-lit-p (cell)
   "Return t is the cell is visible.
 
 A cell is visible for example when the hero can see it.")
 
-(defgeneric set-lit (cell lit)
+(cl-defgeneric set-lit (cell lit)
   "Set the CELL's lit state.
 
 Setting LIT to t means the cell is currently visible.")
 
-(defgeneric block-light-p (cell)
+(cl-defgeneric block-light-p (cell)
   "Return t if nothing behing the cell should be visible.")
 
-(defmethod set-visited (cell visited)
+(cl-defmethod set-visited (cell visited)
   "Set the CELL's visited state.
 
 VISITED is a boolean.

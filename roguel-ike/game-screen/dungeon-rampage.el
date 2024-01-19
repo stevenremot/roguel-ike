@@ -28,6 +28,7 @@
 ;;
 
 ;;; Code:
+(require 'cl-generic)
 (require 'roguel-ike/game-screen/fight)
 (require 'roguel-ike/dungeon)
 (require 'roguel-ike/level/populator/periodic)
@@ -41,10 +42,10 @@
 
 Monsters become harder and harder.")
 
-(defmethod initialize-instance :after ((self rlk--game-screen-dungeon-rampage) slots)
+(cl-defmethod initialize-instance :after ((self rlk--game-screen-dungeon-rampage) slots)
   (oset self dungeon (rlk--dungeon "Dungeon")))
 
-(defmethod setup-level ((self rlk--game-screen-dungeon-rampage))
+(cl-defmethod setup-level ((self rlk--game-screen-dungeon-rampage))
   (let* ((controller (get-controller self))
          (game (get-game controller))
          (hero (get-hero game))
@@ -56,11 +57,11 @@ Monsters become harder and harder.")
     (teleport-to-level dungeon 0 :up hero)
     (register dispatcher :changed-level (apply-partially 'run-level self))))
 
-(defmethod run-level ((self rlk--game-screen-dungeon-rampage) level-number)
+(cl-defmethod run-level ((self rlk--game-screen-dungeon-rampage) level-number)
   "Called when the level changed to run it."
   (do-step (get-time-manager (get-current-level (get-game (get-controller self))))))
 
-(defmethod setup-new-level ((self rlk--game-screen-dungeon-rampage) level-number)
+(cl-defmethod setup-new-level ((self rlk--game-screen-dungeon-rampage) level-number)
   "Called when a new level is created. Set it up."
   (let* ((hero (get-hero (get-game (get-controller self))))
          (populator (rlk--level-populator-periodic "Periodic populator"

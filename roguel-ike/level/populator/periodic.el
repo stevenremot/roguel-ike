@@ -22,6 +22,7 @@
 ;;
 
 ;;; Code:
+(require 'cl-generic)
 (require 'roguel-ike/level/populator/arena)
 
 (defclass rlk--level-populator-periodic ()
@@ -55,11 +56,11 @@
                    :documentation "The message logger to set to entities."))
   "Periodically add entities to a level.")
 
-(defmethod initialize-instance :after ((self rlk--level-populator-periodic) slots)
+(cl-defmethod initialize-instance :after ((self rlk--level-populator-periodic) slots)
   (register (get-dispatcher (get-hero self)) :turns-spent
             (apply-partially 'register-turn self)))
 
-(defmethod spawn-entity ((self rlk--level-populator-periodic))
+(cl-defmethod spawn-entity ((self rlk--level-populator-periodic))
   "Spawn a new entity in the level."
   (let ((entity (car (rlk--level-populator-arena-populate-level (get-level self)
                                                                 (* 30 (1+ (get-difficulty self)))
@@ -67,7 +68,7 @@
     (set-message-logger entity (get-message-logger self))
     (set-target (get-behaviour entity) (get-hero self))))
 
-(defmethod register-turn ((self rlk--level-populator-periodic) nb-turns)
+(cl-defmethod register-turn ((self rlk--level-populator-periodic) nb-turns)
   "Register a turn, and spawn entities if there have been enough time spent."
   (when (eq (get-level self) (get-level (get-hero self)))
     (oset self counter (+ nb-turns (oref self counter)))

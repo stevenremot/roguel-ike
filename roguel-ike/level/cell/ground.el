@@ -22,6 +22,7 @@
 ;; Special cell that can contain object.
 
 ;;; Code:
+(require 'cl-generic)
 (require 'roguel-ike/level/cell)
 (require 'roguel-ike/level/cell/object)
 
@@ -36,7 +37,7 @@
             :documentation "All the objects lying on the cell."))
   "A ground cell")
 
-(defmethod get-visible-type ((self rlk--level-cell-ground))
+(cl-defmethod get-visible-type ((self rlk--level-cell-ground))
   "Return the visible type of the cell."
   (let ((highest-object (get-highest-layer-object self)))
     (if (and (is-lit-p self)
@@ -44,20 +45,20 @@
         (get-type highest-object)
       (call-next-method))))
 
-(defmethod is-container-p ((self rlk--level-cell-ground))
+(cl-defmethod is-container-p ((self rlk--level-cell-ground))
   "Return t if the cell can contain objects, nil otherwise."
   t)
 
-(defmethod add-object ((self rlk--level-cell-ground) object)
+(cl-defmethod add-object ((self rlk--level-cell-ground) object)
   "Add OBJECT into CELL's objects if it is not already in."
   (let ((objects (get-objects self)))
     (set-objects self (add-to-list 'objects object))))
 
-(defmethod remove-object ((self rlk--level-cell-ground) object)
+(cl-defmethod remove-object ((self rlk--level-cell-ground) object)
   "Remove OBJECT from CELL's objects if it is in."
   (set-objects self (delete object (get-objects self))))
 
-(defmethod get-entity ((self rlk--level-cell-ground))
+(cl-defmethod get-entity ((self rlk--level-cell-ground))
   "Return the entity on the CELL if there is currently one.
 Return nil otherwise."
   (catch 'entity
@@ -66,7 +67,7 @@ Return nil otherwise."
         (throw 'entity object)))
     (throw 'entity nil)))
 
-(defmethod set-entity ((self rlk--level-cell-ground) entity)
+(cl-defmethod set-entity ((self rlk--level-cell-ground) entity)
   "Set the ENTITY standing on the CELL.
 If there is already an entity on it, it will be removed."
   (let ((old-entity (get-entity self)))
@@ -75,11 +76,11 @@ If there is already an entity on it, it will be removed."
     (when entity
       (add-object self entity))))
 
-(defmethod has-entity-p ((self rlk--level-cell-ground))
+(cl-defmethod has-entity-p ((self rlk--level-cell-ground))
   "Return `t' if the cell contains an entity, nil otherwise"
   (rlk--level-cell-object-child-p (get-entity self)))
 
-(defmethod get-highest-layer-object ((self rlk--level-cell-ground))
+(cl-defmethod get-highest-layer-object ((self rlk--level-cell-ground))
   "Return the object on the highest layer.
 If there is no object, return nil."
   (let ((highest-object nil)
@@ -91,7 +92,7 @@ If there is no object, return nil."
         (setq layer (get-layer object))))
   highest-object))
 
-(defmethod is-accessible-p ((self rlk--level-cell-ground))
+(cl-defmethod is-accessible-p ((self rlk--level-cell-ground))
   "Return t if cell can accept a new object, nil otherwise."
   (catch 'accessible
     (dolist (object (get-objects self))
@@ -99,7 +100,7 @@ If there is no object, return nil."
         (throw 'accessible nil)))
     t))
 
-(defmethod block-light-p ((self rlk--level-cell-ground))
+(cl-defmethod block-light-p ((self rlk--level-cell-ground))
   "See rlk--level-cell."
   (catch 'block-light
     (dolist (object (get-objects self))

@@ -23,6 +23,7 @@
 
 ;;; Code:
 
+(require 'cl-generic)
 (require 'eieio)
 (require 'roguel-ike/level)
 (require 'roguel-ike/entity)
@@ -41,7 +42,7 @@
                    :documentation "Game's buffer manager."))
   "Contain the game state.")
 
-(defmethod get-current-level ((self rlk--game))
+(cl-defmethod get-current-level ((self rlk--game))
   "Return the current level of the game."
   (get-level (get-hero self)))
 

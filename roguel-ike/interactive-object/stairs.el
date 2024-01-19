@@ -22,6 +22,7 @@
 ;;
 
 ;;; Code:
+(require 'cl-generic)
 (require 'roguel-ike/interactive-object)
 
 (defclass rlk--interactive-object-stairs (rlk--interactive-object)
@@ -38,17 +39,17 @@
 The function must take an entity as parameter."))
   "This object allow the player to travel from one level to another.")
 
-(defmethod get-type ((self rlk--interactive-object-stairs))
+(cl-defmethod get-type ((self rlk--interactive-object-stairs))
   (cond ((eq :up (get-direction self)) :stairs-up)
         (t :stairs-down)))
 
-(defmethod accept-other-object-p ((self rlk--interactive-object-stairs))
+(cl-defmethod accept-other-object-p ((self rlk--interactive-object-stairs))
   t)
 
-(defmethod block-light-p ((self rlk--interactive-object-stairs))
+(cl-defmethod block-light-p ((self rlk--interactive-object-stairs))
   nil)
 
-(defmethod do-action ((self rlk--interactive-object-stairs) entity action)
+(cl-defmethod do-action ((self rlk--interactive-object-stairs) entity action)
   (funcall (oref self callback) entity))
 
 (provide 'roguel-ike/interactive-object/stairs)

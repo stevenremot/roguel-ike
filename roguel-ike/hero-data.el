@@ -22,6 +22,7 @@
 ;;
 
 ;;; Code:
+(require 'cl-generic)
 (require 'eieio)
 
 (defclass rlk--hero-data ()
@@ -53,7 +54,7 @@ A hero data can be converted from / to a list in the form :
    :stamina 5
    ...))")
 
-(defmethod to-list ((self rlk--hero-data))
+(cl-defmethod to-list ((self rlk--hero-data))
   "Convert the data to a list representation."
   (list (get-name self)
         (get-race self)

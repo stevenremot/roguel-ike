@@ -27,6 +27,7 @@
 
 ;;; Code:
 
+(require 'cl-generic)
 (require 'eieio)
 
 (defclass rlk--skill ()
@@ -73,11 +74,11 @@ If the directionnal tag is present, the action must take two additionnal
 parameters dx and dy."))
   "Define a skill.")
 
-(defmethod has-tag-p ((self rlk--skill) tag)
+(cl-defmethod has-tag-p ((self rlk--skill) tag)
   "Return t if the skill has the tag TAG."
   (member tag (get-tags self)))
 
-(defmethod do-action ((self rlk--skill) &rest arguments)
+(cl-defmethod do-action ((self rlk--skill) &rest arguments)
   "Apply skill's action with ARGUMENTS."
   (apply (get-action self) arguments))
 

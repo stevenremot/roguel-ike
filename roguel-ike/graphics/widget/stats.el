@@ -4,6 +4,7 @@
 ;;
 
 ;;; Code:
+(require 'cl-generic)
 (require 'roguel-ike/stats)
 (require 'roguel-ike/graphics/faces)
 
@@ -15,7 +16,7 @@
           :documentation "Rendered statistics."))
   "Render statistics")
 
-(defmethod get-stat-face ((self rlk--graphics-widget-stats) slot)
+(cl-defmethod get-stat-face ((self rlk--graphics-widget-stats) slot)
   "Return the stat's face according to its levelr elatively to te maximum of the stat."
   (let* ((stat (get-current-value slot))
          (base-stat (get-base-value slot))
@@ -25,7 +26,7 @@
      ((> ratio 0.25) 'rlk-face-average-stat)
      (t 'rlk-face-bad-stat))))
 
-(defmethod render-stat-slot ((self rlk--graphics-widget-stats) name slot)
+(cl-defmethod render-stat-slot ((self rlk--graphics-widget-stats) name slot)
   "Render the statistic."
   (concat
    (propertize (concat name " : ") 'face 'rlk-face-default)
@@ -33,7 +34,7 @@
                  'face (get-stat-face self slot))
    "\n"))
 
-(defmethod render ((self rlk--graphics-widget-stats))
+(cl-defmethod render ((self rlk--graphics-widget-stats))
   "Render statistics on the current buffer at the current point."
   (let
       ((stats (oref self stats)))

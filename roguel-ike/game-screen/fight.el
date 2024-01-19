@@ -22,6 +22,7 @@
 ;;
 
 ;;; Code:
+(require 'cl-generic)
 (require 'roguel-ike/mode)
 (require 'roguel-ike/game-screen)
 (require 'roguel-ike/controller)
@@ -49,7 +50,7 @@
                    :documentation "Hero data at the beginning of the fight."))
   "Base game screen for all fighting screens.")
 
-(defmethod setup ((self rlk--game-screen-fight) hero-data)
+(cl-defmethod setup ((self rlk--game-screen-fight) hero-data)
   (let* ((buffer-manager (get-buffer-manager self))
          (message-logger (rlk--message-logger "Message logger"
                                               :message-buffer (get-message-buffer buffer-manager)))
@@ -80,23 +81,23 @@
     (setq rlk--local-controller controller)
     (do-step (get-time-manager (get-current-level game)))))
 
-(defmethod setup-level ((self rlk--game-screen-fight))
+(cl-defmethod setup-level ((self rlk--game-screen-fight))
   "Abstract method for creating level and setting all its elements."
   (error "The method setup-level must be overriden"))
 
-(defmethod win ((self rlk--game-screen-fight))
+(cl-defmethod win ((self rlk--game-screen-fight))
   "Called when the game is won."
   (display-message (get-message-logger self) "You win!")
   (end-fight self (rlk--entity-create-hero-data
                       (get-name (get-base-hero-data self))
                       (get-hero (get-game (get-controller self))))))
 
-(defmethod loose ((self rlk--game-screen-fight))
+(cl-defmethod loose ((self rlk--game-screen-fight))
   "Called when the game is lost."
   (display-message (get-message-logger self) "You lost.")
   (end-fight self (get-base-hero-data self)))
 
-(defmethod end-fight ((self rlk--game-screen-fight) hero-data)
+(cl-defmethod end-fight ((self rlk--game-screen-fight) hero-data)
   "Stop the level and return to the mode selection screen.
 
 Return HERO-DATA to mode selection screen."

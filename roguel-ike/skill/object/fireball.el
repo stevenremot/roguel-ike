@@ -22,6 +22,7 @@
 ;;
 
 ;;; Code:
+(require 'cl-generic)
 (require 'roguel-ike/entity)
 (require 'roguel-ike/stats/effect)
 
@@ -35,15 +36,15 @@
            :documentation "The entity that sent the fireball"))
   "A fireball object that harm entities on contact.")
 
-(defmethod get-layer ((self rlk--skill-object-fireball))
+(cl-defmethod get-layer ((self rlk--skill-object-fireball))
   "See `rlk--level-cell-object'."
   2)
 
-(defmethod accept-other-object-p ((self rlk--skill-object-fireball))
+(cl-defmethod accept-other-object-p ((self rlk--skill-object-fireball))
   "See `rlk--level-cell-object'."
   t)
 
-(defmethod collide-with-cell ((self rlk--skill-object-fireball) cell direction energy)
+(cl-defmethod collide-with-cell ((self rlk--skill-object-fireball) cell direction energy)
   "Handle collision between the fireball and a cell."
   (let* ((caster (get-caster self))
          (entity nil)

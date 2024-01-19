@@ -26,6 +26,7 @@
 ;; to get a introduction to the method.
 
 ;;; Code:
+(require 'cl-generic)
 (require 'roguel-ike-lib/level)
 (require 'roguel-ike-lib/cell)
 (require 'roguel-ike-lib/math)
@@ -48,13 +49,13 @@
   "Utility used in the iterator.
 It knows how to transform initial coordinates to go to the next row / next cell in the row.")
 
-(defmethod get-next-cell ((transformer roguel-ike-fov-coordinate-transformer) pos)
+(cl-defmethod get-next-cell ((transformer roguel-ike-fov-coordinate-transformer) pos)
   "Return the next cell's position in the row."
   (let ((row-direction (get-row-direction transformer)))
     (cons (+ (car pos) (car row-direction))
           (+ (cdr pos) (cdr row-direction)))))
 
-(defmethod get-cell-from-line ((transformer roguel-ike-fov-coordinate-transformer) line depth)
+(cl-defmethod get-cell-from-line ((transformer roguel-ike-fov-coordinate-transformer) line depth)
   "Return the cell intersecting the LINE at the given DEPTH."
   (let* ((column-direction (get-column-direction transformer))
          (x1 (caar line))
@@ -70,7 +71,7 @@ It knows how to transform initial coordinates to go to the next row / next cell 
              (y (round (roguel-ike-math-get-y-from-x line x))))
         (cons x y)))))
 
-(defmethod create-start-line ((transformer roguel-ike-fov-coordinate-transformer) origin start-cell)
+(cl-defmethod create-start-line ((transformer roguel-ike-fov-coordinate-transformer) origin start-cell)
   "Create a line going from ORIGIN to a START-CELL corner.
 
 This line is intended to be used as a start limit for the shadowcasting algorithm."
@@ -80,7 +81,7 @@ This line is intended to be used as a start limit for the shadowcasting algorith
           (cons (+ (car start-cell) (* 0.5 (+ (car column-direction) (car row-direction))))
                 (+ (cdr start-cell) (* 0.5 (+ (cdr column-direction) (cdr row-direction))))))))
 
-(defmethod create-end-line ((transformer roguel-ike-fov-coordinate-transformer) origin end-cell)
+(cl-defmethod create-end-line ((transformer roguel-ike-fov-coordinate-transformer) origin end-cell)
   "Create a line going from ORIGIN to an END-CELL corner.
 
 This line is intended to be used as an end limit for the shadowcasting algorithm."
@@ -90,7 +91,7 @@ This line is intended to be used as an end limit for the shadowcasting algorithm
           (cons (- (car end-cell) (* 0.5 (+ (car column-direction) (car row-direction))))
                 (- (cdr end-cell) (* 0.5 (+ (cdr column-direction) (cdr row-direction))))))))
 
-(defmethod end-reached-p ((self roguel-ike-fov-coordinate-transformer) origin current-cell-pos last-cell-pos)
+(cl-defmethod end-reached-p ((self roguel-ike-fov-coordinate-transformer) origin current-cell-pos last-cell-pos)
   "Return t is the end of the row is reached, nil otherwise."
   (let ((row-direction (get-row-direction self))
         (current-direction (cons (- (car current-cell-pos) (car origin))
