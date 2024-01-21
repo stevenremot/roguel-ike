@@ -62,8 +62,7 @@ A hero data can be converted from / to a list in the form :
 
 (defun rlk--hero-data-create-from-list (hero-list)
   "Create a hero data from its list representation HERO-LIST."
-  (rlk--hero-data "Hero data"
-                  :name (nth 0 hero-list)
+  (rlk--hero-data :name (nth 0 hero-list)
                   :race (nth 1 hero-list)
                   :stats (nth 2 hero-list)))
 

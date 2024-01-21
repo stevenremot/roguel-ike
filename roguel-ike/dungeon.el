@@ -45,7 +45,7 @@ The dispatched events are:
 
 (cl-defmethod initialize-instance :after ((self rlk--dungeon) slots)
   (oset self levels '())
-  (oset self dispatcher (roguel-ike-dispatcher "Dungeon dispatcher")))
+  (oset self dispatcher (roguel-ike-dispatcher)))
 
 (cl-defmethod create-level ((self rlk--dungeon) level-number)
   "Create a new level for LEVEL-NUMBER, adding stairs to it."
@@ -59,14 +59,14 @@ The dispatched events are:
     (setq start-cell (nth (random (length cells)) cells)
           cells (delq start-cell cells)
           end-cell (nth (random (length cells)) cells))
-    (add-object start-cell (rlk--interactive-object-stairs "Downstairs"
+    (add-object start-cell (rlk--interactive-object-stairs
                                                            :direction :up
                                                            :callback (apply-partially
                                                                       'teleport-to-level
                                                                       self
                                                                       (1- level-number)
                                                                       :down)))
-    (add-object end-cell (rlk--interactive-object-stairs "Upstairs"
+    (add-object end-cell (rlk--interactive-object-stairs
                                                            :direction :down
                                                            :callback (apply-partially
                                                                       'teleport-to-level

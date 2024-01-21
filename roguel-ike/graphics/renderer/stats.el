@@ -40,7 +40,7 @@
 (cl-defmethod initialize-instance ((self rlk--graphics-renderer-stats) slots)
   (let ((stats (plist-get slots :stats))
         (buffer (plist-get slots :buffer)))
-    (call-next-method self (list :widget (rlk--graphics-widget-entity "Entity widget"
+    (cl-call-next-method self (list :widget (rlk--graphics-widget-entity "Entity widget"
                                                                       :entity (plist-get slots :entity)
                                                                       :parts '(:effects
                                                                                :stats))

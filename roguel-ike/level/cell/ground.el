@@ -1,4 +1,4 @@
-;;; ground.el --- Cell representing ground
+;;; ground.el --- Cell representing ground -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2014 Steven Rémot
 
@@ -43,7 +43,7 @@
     (if (and (is-lit-p self)
              highest-object)
         (get-type highest-object)
-      (call-next-method))))
+      (cl-call-next-method))))
 
 (cl-defmethod is-container-p ((self rlk--level-cell-ground))
   "Return t if the cell can contain objects, nil otherwise."
@@ -52,7 +52,7 @@
 (cl-defmethod add-object ((self rlk--level-cell-ground) object)
   "Add OBJECT into CELL's objects if it is not already in."
   (let ((objects (get-objects self)))
-    (set-objects self (add-to-list 'objects object))))
+    (set-objects self (cl-pushnew object objects))))
 
 (cl-defmethod remove-object ((self rlk--level-cell-ground) object)
   "Remove OBJECT from CELL's objects if it is in."
@@ -78,7 +78,7 @@ If there is already an entity on it, it will be removed."
 
 (cl-defmethod has-entity-p ((self rlk--level-cell-ground))
   "Return `t' if the cell contains an entity, nil otherwise"
-  (rlk--level-cell-object-child-p (get-entity self)))
+  (cl-typep (get-entity self) 'rlk--level-cell-object))
 
 (cl-defmethod get-highest-layer-object ((self rlk--level-cell-ground))
   "Return the object on the highest layer.

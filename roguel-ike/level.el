@@ -51,8 +51,8 @@
 
 (cl-defmethod initialize-instance :after ((self rlk--level) slots)
   "Initialize the time manager."
-  (oset self time-manager (rlk--time-manager "Level time manager"))
-  (oset self physics-world (rlk--physics-world "Physics world"))
+  (oset self time-manager (rlk--time-manager))
+  (oset self physics-world (rlk--physics-world))
   (add-after-step-hook (get-time-manager self)
                        (apply-partially (lambda (self)
                                           (run-world self))
@@ -110,8 +110,7 @@
   "Create a motion affecting ENTITY, for the given DIRECTION and ENERGY.
 
 DIRECTION is a vector represented by a cons in the form (DX . DY)."
-  (add-motion (get-physics-world self) (rlk--physics-motion "Motion"
-                                                            :object entity
+  (add-motion (get-physics-world self) (rlk--physics-motion :object entity
                                                             :direction direction
                                                             :energy energy)))
 

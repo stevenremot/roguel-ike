@@ -1,4 +1,4 @@
-;;; entity.el --- Manages game entities
+;;; entity.el --- Manages game entities -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2014 Steven Rémot
 
@@ -102,7 +102,7 @@ Here are the events that can occur to an entity with their arguments:
 (cl-defmethod initialize-instance :after ((self rlk--entity) slots)
   "Initializes entity's objects."
   (set-entity (get-behaviour self) self)
-  (oset self dispatcher (roguel-ike-dispatcher "Entity dispatcher"))
+  (oset self dispatcher (roguel-ike-dispatcher))
   (register (get-dispatcher (get-stat-slot self :health))
             :current-value-changed
             (apply-partially (lambda (self old-value new-value)
@@ -110,7 +110,7 @@ Here are the events that can occur to an entity with their arguments:
                                  (die self)))
                              self))
 
-  (let ((regenerator (rlk--stats-regenerator "Entity's stat regenerator"
+  (let ((regenerator (rlk--stats-regenerator
                                              :stats (get-stats self)
                                              :slots '(:health
                                                       :stamina
@@ -203,7 +203,7 @@ If you want to change entity position, use set-pos instead."
 (cl-defmethod try-move ((self rlk--entity) dx dy)
   "If the entity can move to the cell (x + DX, y + DY), will move to it.
 Return t if the entity could move, nil otherwise."
-  (when (call-next-method)
+  (when (cl-call-next-method)
     (dispatch (get-dispatcher self) :moved)
     t))
 
@@ -458,8 +458,8 @@ SKILL's tags."
   (let ((usable-skills '()))
     (dolist (skill (get-skills (get-race self)))
       (when (can-use-skill-now-p self skill)
-        (add-to-list 'usable-skills skill)))
-    usable-skills))
+	(setq usable-skills (cl-pushnew skill usable-skills)) )
+    usable-skills)))
 
 ;;;;;;;;;;;;;;
 ;; Messages ;;
@@ -506,13 +506,14 @@ are base-values, or conses in the form (base-value . experience)."
                              0
                            (cdr slot-base-value)))
              (experience-rate (plist-get race-evolution name)))
-        (add-to-list 'stats-slots (cons name
+	(setq stats-slots (cl-pushnew
+			   (cons name
                                         (rlk--stats-slot (format "%s slot" name)
                                                          :base-value base-value
                                                          :experience experience
-                                                         :experience-rate experience-rate)))))
-    (rlk--stats "Stats"
-                :slots stats-slots)))
+                                                         :experience-rate experience-rate))
+			   stats-slots))))
+    (rlk--stats :slots stats-slots)))
 
 (defun rlk--entity-create (race stats behaviour)
   "Create an entity.
@@ -523,8 +524,7 @@ MESSAGE-LOGGER is the message logging system used by the entity."
   (when (symbolp race)
     (setq race (rlk--race-get-race race)))
 
-  (rlk--entity "Entity"
-               :race race
+  (rlk--entity :race race
                :stats (rlk--entity-create-stats-from-list-and-race race
                                                                    stats)
                :behaviour behaviour))

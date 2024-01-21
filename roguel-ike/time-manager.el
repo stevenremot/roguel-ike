@@ -151,7 +151,7 @@ Can update priorities, and retrieve object with higher priority.")
 
 (cl-defmethod initialize-instance :after ((self rlk--time-manager) slots)
   "Initialize priority queue."
-  (oset self queue (rlk--time-priority-queue "Priority queue")))
+  (oset self queue (rlk--time-priority-queue)))
 
 (cl-defmethod insert-object ((self rlk--time-manager) object)
   "Add an object to the priority queue."

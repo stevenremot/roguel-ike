@@ -72,8 +72,7 @@
                   (when (is-container-p target-cell)
                     (if (has-entity-p target-cell)
                         (strike-entity self (get-entity target-cell))
-                      (let ((subball (rlk--skill-object-fractalball "Fractal ball"
-                                                                    :caster caster
+                      (let ((subball (rlk--skill-object-fractalball :caster caster
                                                                     :power sub-power)))
                         (set-level subball (get-level self))
                         (set-pos subball (get-x self) (get-y self))
