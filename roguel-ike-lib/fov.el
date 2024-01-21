@@ -215,9 +215,9 @@ RADIUS.  If RADIUS is nil, there is not such limitation."
             (row-direction (nth 2 octan))
             (column-direction (nth 3 octan)))
         (roguel-ike-fov-compute-fov-part level
-                                         (roguel-ike-fov-coordinate-transformer "Transformer"
-                                                                                :row-direction row-direction
-                                                                                :column-direction column-direction)
+                                         (roguel-ike-fov-coordinate-transformer
+                                          :row-direction row-direction
+                                          :column-direction column-direction)
                                          (cons origin
                                                (cons (+ (car origin) (car start-direction))
                                                      (+ (cdr origin) (cdr start-direction))))

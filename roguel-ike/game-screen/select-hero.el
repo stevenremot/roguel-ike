@@ -98,10 +98,10 @@ It also allows to go to the hero creation screen.")
       (when (equal race-name (get-name available-race))
         (setq race available-race)))
 
-    (setq hero-data (rlk--hero-data "Hero data"
-                                    :name hero-name
-                                    :race (get-type race)
-                                    :stats (get-base-stats race)))
+    (setq hero-data (rlk--hero-data
+                     :name hero-name
+                     :race (get-type race)
+                     :stats (get-base-stats race)))
 
     (save-hero (get-hero-data-manager self) hero-data)
     (select-hero self hero-name)))

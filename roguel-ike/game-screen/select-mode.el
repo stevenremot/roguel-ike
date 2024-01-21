@@ -71,9 +71,9 @@
 
     (insert (propertize "Your character:" 'face 'rlk-face-title))
     (insert "\n\n")
-    (insert (render (rlk--graphics-widget-entity "Entity widget"
-                                                 :entity (rlk--entity-create-from-hero-data (get-hero-data self))
-                                                 :parts '(:stats :skills))))
+    (insert (render (rlk--graphics-widget-entity
+                     :entity (rlk--entity-create-from-hero-data (get-hero-data self))
+                     :parts '(:stats :skills))))
 
     (setq buffer-read-only t)))
 

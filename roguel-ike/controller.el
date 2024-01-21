@@ -50,21 +50,21 @@
                    :reader get-stats-renderer
                    :protection :private
                    :documentation "Statistics renderer.")
-   (key-bindings :initform (("h" . move-left)
-                            ("j" . move-down)
-                            ("k" . move-up)
-                            ("l" . move-right)
-                            ("y" . move-left-up)
-                            ("b" . move-left-down)
-                            ("u" . move-right-up)
-                            ("n" . move-right-down)
-                            ("." . wait)
-                            ("<" . climb-stairs)
-                            (">" . climb-stairs)
-                            ("s" . select-and-use-skill)
-                            ("c" . close-door)
-                            (":" . examine-next-enemy)
-                            ("q" . quit-rlk))
+   (key-bindings :initform '(("h" . move-left)
+                             ("j" . move-down)
+                             ("k" . move-up)
+                             ("l" . move-right)
+                             ("y" . move-left-up)
+                             ("b" . move-left-down)
+                             ("u" . move-right-up)
+                             ("n" . move-right-down)
+                             ("." . wait)
+                             ("<" . climb-stairs)
+                             (">" . climb-stairs)
+                             ("s" . select-and-use-skill)
+                             ("c" . close-door)
+                             (":" . examine-next-enemy)
+                             ("q" . quit-rlk))
                  :type list
                  :reader get-key-bindings
                  :protection :private
@@ -116,8 +116,8 @@ BODY is the method definition."
 (cl-defmethod call-renderers ((self rlk--controller))
   "Ask the game-renderer to render game's level."
   (let* ((game (get-game self))
-        (level (get-current-level game))
-        (hero (get-hero game)))
+         (level (get-current-level game))
+         (hero (get-hero game)))
     (rlk--fov-apply level hero)
     (oset self visible-enemies '())
     (setq buffer-read-only nil)
@@ -139,10 +139,10 @@ BODY is the method definition."
 ;; Direction commands definition
 (dolist (direction-cons rlk--direction-map)
   (eval `(rlk--defcommand ,(car direction-cons) ((self rlk--controller))
-                  "Move the hero."
-                  (interact-with-cell (get-hero-behaviour self)
-                                      ,(cadr direction-cons)
-                                      ,(cddr direction-cons)))))
+           "Move the hero."
+           (interact-with-cell (get-hero-behaviour self)
+                               ,(cadr direction-cons)
+                               ,(cddr direction-cons)))))
 
 (rlk--defcommand wait ((self rlk--controller))
   "Wait one turn without doing anything."
@@ -176,7 +176,7 @@ BODY is the method definition."
             (goto-char (point-min))
             (beginning-of-line (1+ (- (get-y entity) (cdr offset))))
             (forward-char (- (get-x entity) (car offset)))
-            (oset self popup (popup-tip (render (rlk--graphics-widget-entity "Entity widget"
+            (oset self popup (popup-tip (render (rlk--graphics-widget-entity
                                                                              :entity entity
                                                                              :parts '(:name :effects :stats)))
                                         :point (point)
@@ -242,7 +242,7 @@ Return nil when the action has been cancelled."
 ;; Controller setup ;;
 ;;;;;;;;;;;;;;;;;;;;;;
 
-(cl-defmethod get-keymap :static ((self rlk--controller))
+(cl-defmethod get-keymap ((self (subclass rlk--controller)))
   "Return a mode keymap according to the controller's key bindings."
   (let ((map (make-sparse-keymap)))
     (dolist (binding (oref-default self key-bindings))

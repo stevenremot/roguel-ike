@@ -96,10 +96,10 @@ Return nil if there is not path from ORIGIN to TARGET.
 
 LEVEL's cells must implement `is-accessible-p'."
     (let ((opened-list (list (cons (roguel-ike-math-get-distance origin target)
-                                   (roguel-ike-path-finding-node "Origin node"
-                                                           :point origin
-                                                           :parent nil
-                                                           :partial-cost 0))))
+                                   (roguel-ike-path-finding-node
+                                    :point origin
+                                    :parent nil
+                                    :partial-cost 0))))
         (closed-list '())
         (end-node nil))
     (while (and opened-list
@@ -119,14 +119,14 @@ LEVEL's cells must implement `is-accessible-p'."
                    (neighbour-node nil))
 
               (if (equal neighbour-point target)
-                  (setq end-node (roguel-ike-path-finding-node "End node"
-                                                               :point neighbour-point
-                                                               :parent considered-node))
+                  (setq end-node (roguel-ike-path-finding-node
+                                  :point neighbour-point
+                                  :parent considered-node))
                 (when cost
-                  (setq neighbour-node (roguel-ike-path-finding-node "Neighbour node"
-                                                                     :point neighbour-point
-                                                                     :parent considered-node
-                                                                     :partial-cost (+ cost (get-partial-cost considered-node))))
+                  (setq neighbour-node (roguel-ike-path-finding-node
+                                        :point neighbour-point
+                                        :parent considered-node
+                                        :partial-cost (+ cost (get-partial-cost considered-node))))
 
                   ;; If the point is in closed list, just check if this one use a better path
                   (unless (catch 'in-closed-list

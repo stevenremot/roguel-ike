@@ -44,13 +44,13 @@ Any other cell will be considered as void."
               (append cell-line
                       (list
                        (cond ((string-equal character "#")
-                              (rlk--level-cell "Wall cell" :type :wall))
+                              (rlk--level-cell :type :wall))
                              ((string-equal character ".")
-                              (rlk--level-cell-ground "Ground cell"))
+                              (rlk--level-cell-ground))
                              (t
-                              (rlk--level-cell "Unknown cell" :type :void)))))))
+                              (rlk--level-cell :type :void)))))))
       (setq cells (append cells (list cell-line))))
-    (rlk--level "Level" :cells cells)))
+    (rlk--level :cells cells)))
 
 (provide 'roguel-ike/level/factory/string)
 

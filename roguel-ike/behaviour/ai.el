@@ -210,8 +210,10 @@ Return t when it succeeded."
          (entity (get-entity self))
          (x-offset (abs (- (get-x entity) (get-x target-entity))))
          (y-offset (abs (- (get-y entity) (get-y target-entity))))
-         (skill (nth (random (length range-skills))
-                              range-skills)))
+         (skill (if range-skills
+		    (nth (random (length range-skills))
+                         range-skills)
+		  nil)))
     (and range-skills
          (or (not (has-tag-p skill :directional))
              (= x-offset 0)

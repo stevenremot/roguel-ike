@@ -67,8 +67,7 @@
   "Initialize renderer."
   (unless (slot-boundp self 'renderer)
     (oset self renderer
-          (roguel-ike-renderer "Level renderer"
-                               :symbols-table roguel-ike-default-graphics
+          (roguel-ike-renderer :symbols-table roguel-ike-default-graphics
                                :unlit-face 'rlk-face-shadow))))
 
 (cl-defmethod draw-level ((self rlk--graphics-renderer-game) level center)

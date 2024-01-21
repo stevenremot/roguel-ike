@@ -150,16 +150,16 @@ MINIMAL-VALUE is the minimum width and height each node must have."
             second-y (+ first-y first-height 1)
             second-width width
             second-height (- height first-height 1)))
-    (oset self first-child (roguel-ike-level-generator-binary-node "Binary node"
-                                                                   :x first-x
-                                                                   :y first-y
-                                                                   :width first-width
-                                                                   :height first-height))
-    (oset self second-child (roguel-ike-level-generator-binary-node "Binary node"
-                                                                    :x second-x
-                                                                    :y second-y
-                                                                    :width second-width
-                                                                    :height second-height))))
+    (oset self first-child (roguel-ike-level-generator-binary-node
+                            :x first-x
+                            :y first-y
+                            :width first-width
+                            :height first-height))
+    (oset self second-child (roguel-ike-level-generator-binary-node
+                             :x second-x
+                             :y second-y
+                             :width second-width
+                             :height second-height))))
 
 (cl-defmethod apply-to-layout ((self roguel-ike-level-generator-binary-node) layout)
   "Recursively draw the level to LAYOUT."

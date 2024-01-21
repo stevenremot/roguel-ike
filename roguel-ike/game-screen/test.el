@@ -23,11 +23,11 @@
 
 ;;; Code:
 (require 'cl-generic)
-(require 'roguel-ike/game-screen/fight)
 (require 'roguel-ike/interactive-object/door)
 (require 'roguel-ike/entity)
 (require 'roguel-ike/behaviour/ai)
 (require 'roguel-ike/level/factory/string)
+(require 'roguel-ike/game-screen/fight)
 
 
 (defclass rlk--game-screen-test (rlk--game-screen-fight)
@@ -50,8 +50,8 @@
          (hero (get-hero game))
          (level (create-level self))
          (rat (rlk--entity-create-new :rat
-                                      (rlk--behaviour-ai "AI behaviour")))
-         (door (rlk--interactive-object-door "Door"))
+                                      (rlk--behaviour-ai)))
+         (door (rlk--interactive-object-door))
          (message-logger (get-message-logger self)))
     (set-level hero level)
     (set-pos hero 1 1)

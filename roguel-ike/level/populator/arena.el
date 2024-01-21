@@ -103,7 +103,7 @@ All AVAILABLE-RACES's base stats must be under MAX-STATS."
 
     (rlk--entity-create race
                         stats
-                        (rlk--behaviour-ai "AI Behaviour"))))
+                        (rlk--behaviour-ai))))
 
 (defun rlk--level-populator-arena-populate-level (level global-stats max-entities-number)
   "Populate LEVEL with entities.

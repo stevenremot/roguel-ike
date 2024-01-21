@@ -32,8 +32,8 @@ There is currently:
 
 (cl-defmethod initialize-instance :after ((self rlk--graphics-widget-entity) slots)
   "Initialize subwidgets."
-  (oset self stats-widget (rlk--graphics-widget-stats "Stats widget"
-                                                      :stats (get-stats (oref self entity)))))
+  (oset self stats-widget (rlk--graphics-widget-stats
+                           :stats (get-stats (oref self entity)))))
 
 (cl-defmethod render ((self rlk--graphics-widget-entity))
   (let ((parts (oref self parts))

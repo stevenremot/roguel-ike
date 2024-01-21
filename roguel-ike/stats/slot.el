@@ -61,7 +61,7 @@ Handle maximum value and current value.")
 
 (cl-defmethod initialize-instance :after ((self rlk--stats-slot) slots)
   "Initialize dispatcher."
-  (oset self dispatcher (roguel-ike-dispatcher "Slot dispatcher")))
+  (oset self dispatcher (roguel-ike-dispatcher)))
 
 (cl-defmethod get-current-value ((self rlk--stats-slot))
   "Return the current slot value.
