@@ -22,6 +22,7 @@
 ;; This behaviour let the computer control the entity.
 
 ;;; Code:
+(require 'cl-generic)
 (require 'roguel-ike/behaviour)
 (require 'roguel-ike-lib/los)
 (require 'roguel-ike/path-finding)
@@ -53,7 +54,7 @@ If it is nil, there is no distance limitation.")
                    :documentation "The current path the entity is following."))
   "Behaviour of entities controlled by the computer.")
 
-(defmethod do-action ((self rlk--behaviour-ai) callback)
+(cl-defmethod do-action ((self rlk--behaviour-ai) callback)
   "See rlk--behaviour."
   (let ((nb-turns (try-hunt-target self)))
     (unless (numberp nb-turns)
@@ -61,7 +62,7 @@ If it is nil, there is no distance limitation.")
     (spend-time (get-entity self) nb-turns)
     nb-turns))
 
-(defmethod try-hunt-target ((self rlk--behaviour-ai))
+(cl-defmethod try-hunt-target ((self rlk--behaviour-ai))
   "Try to move to the target.
 
 Will attack it if it is nearby."
@@ -111,7 +112,7 @@ Will attack it if it is nearby."
                 1
               (oset self memorized-path nil))))))))
 
-(defmethod try-open-door ((self rlk--behaviour-ai) direction)
+(cl-defmethod try-open-door ((self rlk--behaviour-ai) direction)
   "Try to open a door in the relative DIRECTION.
 
 Return t if it could, nil otherwise."
@@ -124,20 +125,20 @@ Return t if it could, nil otherwise."
           (throw 'door-opened t)))
       nil)))
 
-(defmethod get-relative-direction ((self rlk--behaviour-ai) point)
+(cl-defmethod get-relative-direction ((self rlk--behaviour-ai) point)
   "Return the direction from ai's entity to POINT."
   (let ((entity (get-entity self)))
     (cons (- (car point) (get-x entity))
           (- (cdr point) (get-y entity)))))
 
-(defmethod peek-next-direction ((self rlk--behaviour-ai))
+(cl-defmethod peek-next-direction ((self rlk--behaviour-ai))
   "Return the next direction of the followed path if any."
   (let ((entity (get-entity self))
         (point (car (oref self memorized-path))))
     (when point
       (get-relative-direction self point))))
 
-(defmethod pop-next-direction ((self rlk--behaviour-ai))
+(cl-defmethod pop-next-direction ((self rlk--behaviour-ai))
   "Return the next direction of the followed path if any.
 
 Remove it from the path."
@@ -147,7 +148,7 @@ Remove it from the path."
       (oset self memorized-path (cdr (oref self memorized-path)))
       (get-relative-direction self point))))
 
-(defmethod move-randomly ((self rlk--behaviour-ai))
+(cl-defmethod move-randomly ((self rlk--behaviour-ai))
   "Try to move on a random neighbour cell.
 Return the number of turns spent if it could move, 1 for waiting otherwise."
   (let* ((entity (get-entity self))
@@ -171,7 +172,7 @@ Return the number of turns spent if it could move, 1 for waiting otherwise."
       (try-move entity (car choosen-cell) (cdr choosen-cell)))
     1))
 
-(defmethod get-long-range-skills ((self rlk--behaviour-ai))
+(cl-defmethod get-long-range-skills ((self rlk--behaviour-ai))
   "Return the skills that could be used even when the target is far away."
   (let ((skills (get-usable-skills (get-entity self)))
         (range-skills '()))
@@ -181,7 +182,7 @@ Return the number of turns spent if it could move, 1 for waiting otherwise."
         (push skill range-skills)))
     range-skills))
 
-(defmethod get-contact-skills ((self rlk--behaviour-ai))
+(cl-defmethod get-contact-skills ((self rlk--behaviour-ai))
   "Return the skills that can be used only at target's contact."
   (let ((skills (get-usable-skills (get-entity self)))
         (contact-skills '()))
@@ -190,7 +191,7 @@ Return the number of turns spent if it could move, 1 for waiting otherwise."
         (push skill contact-skills)))
     contact-skills))
 
-(defmethod attack-at-contact ((self rlk--behaviour-ai))
+(cl-defmethod attack-at-contact ((self rlk--behaviour-ai))
   "Attack entity, assuming it is at contact."
   (let ((target-entity (get-target self))
         (contact-skills (get-contact-skills self)))
@@ -200,7 +201,7 @@ Return the number of turns spent if it could move, 1 for waiting otherwise."
                                       contact-skills)))
       (attack (get-entity self) target-entity))))
 
-(defmethod try-attack-at-range ((self rlk--behaviour-ai))
+(cl-defmethod try-attack-at-range ((self rlk--behaviour-ai))
   "Try to attack the target, assuming it is not at contact.
 
 Return t when it succeeded."
@@ -209,8 +210,10 @@ Return t when it succeeded."
          (entity (get-entity self))
          (x-offset (abs (- (get-x entity) (get-x target-entity))))
          (y-offset (abs (- (get-y entity) (get-y target-entity))))
-         (skill (nth (random (length range-skills))
-                              range-skills)))
+         (skill (if range-skills
+		    (nth (random (length range-skills))
+                         range-skills)
+		  nil)))
     (and range-skills
          (or (not (has-tag-p skill :directional))
              (= x-offset 0)
@@ -219,7 +222,7 @@ Return t when it succeeded."
          (> (random 100) (get-skill-probability self))
          (use-skill self skill))))
 
-(defmethod use-skill ((self rlk--behaviour-ai) skill)
+(cl-defmethod use-skill ((self rlk--behaviour-ai) skill)
   "Use SKILL.
 
 Assume all checks have been done before.

@@ -100,8 +100,8 @@ ARGS are the arguments to transfer to screen setup."
 (defun roguel-ike ()
   "Start a roguel-ike game."
   (interactive)
-  (rlk--start-screen (rlk--hero-data-manager "Hero data manager")
-                     (rlk--buffer-manager "Buffer manager")
+  (rlk--start-screen (rlk--hero-data-manager)
+                     (rlk--buffer-manager)
                      'rlk--game-screen-select-hero))
 
 (provide 'roguel-ike)

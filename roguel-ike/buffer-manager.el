@@ -23,6 +23,7 @@
 
 ;;; Code:
 
+(require 'cl-generic)
 (require 'eieio)
 
 (defclass rlk--buffer-manager ()
@@ -38,7 +39,7 @@
   "Buffer management system.
 In charge of buffers instanciation and layout organization.")
 
-(defmethod get-game-buffer ((self rlk--buffer-manager))
+(cl-defmethod get-game-buffer ((self rlk--buffer-manager))
   "Return the game buffer.
 Create a new one if not set yet."
   (unless (and (slot-boundp self 'game-buffer)
@@ -46,7 +47,7 @@ Create a new one if not set yet."
     (oset self game-buffer (get-buffer-create "*rlk-game*")))
   (oref self game-buffer))
 
-(defmethod get-stats-buffer ((self rlk--buffer-manager))
+(cl-defmethod get-stats-buffer ((self rlk--buffer-manager))
   "Return the statistics buffer.
 Create a new one if not set yet."
   (unless (and (slot-boundp self 'stats-buffer)
@@ -54,7 +55,7 @@ Create a new one if not set yet."
     (oset self stats-buffer (get-buffer-create "*rlk-statistics*")))
   (oref self stats-buffer))
 
-(defmethod get-message-buffer ((self rlk--buffer-manager))
+(cl-defmethod get-message-buffer ((self rlk--buffer-manager))
   "Return the message buffer.
 Create a new one if not set yet."
   (unless (and (slot-boundp self 'message-buffer)
@@ -62,7 +63,7 @@ Create a new one if not set yet."
     (oset self message-buffer (get-buffer-create "*rlk-messages*")))
   (oref self message-buffer))
 
-(defmethod setup-menu-layout ((self rlk--buffer-manager))
+(cl-defmethod setup-menu-layout ((self rlk--buffer-manager))
   "Setup buffers for the menu layout.
 
 It consists of a single window with the game buffer."
@@ -72,7 +73,7 @@ It consists of a single window with the game buffer."
     (display-buffer-same-window game-buffer '())
     (select-window window)))
 
-(defmethod setup-game-layout ((self rlk--buffer-manager))
+(cl-defmethod setup-game-layout ((self rlk--buffer-manager))
   "Setup buffers for the in-game layout.
 
 It consists of the screen split in three buffers."
@@ -93,7 +94,7 @@ It consists of the screen split in three buffers."
   (display-buffer-same-window message-buffer '())
   (select-window game-window)))
 
-(defmethod kill-buffers ((self rlk--buffer-manager))
+(cl-defmethod kill-buffers ((self rlk--buffer-manager))
   "Kill buffers."
   (kill-buffer (get-message-buffer self))
   (kill-buffer (get-stats-buffer self))

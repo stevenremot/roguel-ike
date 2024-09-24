@@ -30,7 +30,7 @@
   "Create an entity controlled by the user using HERO-DATA."
   (rlk--entity-create (get-race hero-data)
                       (get-stats hero-data)
-                      (rlk--behaviour-manual "Manual behaviour")))
+                      (rlk--behaviour-manual)))
 
 (defun rlk--entity-create-hero-data (name entity)
   "Create hero data for name NAME from ENTITY."
@@ -44,8 +44,7 @@
                        slot-name
                        (cons (get-base-value stat-slot)
                              (get-experience stat-slot)))))))
-    (rlk--hero-data "Hero data"
-                    :name name
+    (rlk--hero-data :name name
                     :race (get-type (get-race entity))
                     :stats stats-list)))
 

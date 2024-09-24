@@ -22,6 +22,7 @@
 ;; Defines interactive objects in the level
 
 ;;; Code:
+(require 'cl-generic)
 (require 'roguel-ike/level)
 (require 'roguel-ike/level/cell/object)
 
@@ -30,11 +31,11 @@
   "Base class for interactive objects."
   :abstract t)
 
-(defmethod get-layer ((self rlk--interactive-object))
+(cl-defmethod get-layer ((self rlk--interactive-object))
   "See rlk--level-cell-object."
   2)
 
-(defmethod do-action ((self rlk--interactive-object) hero action)
+(cl-defmethod do-action ((self rlk--interactive-object) hero action)
   "Do the ACTION when the HERO interacts with it.
 Return t when the action was successfull, nil otherwise."
   (error "Method do-action must be overriden"))

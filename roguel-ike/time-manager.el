@@ -49,6 +49,7 @@
 
 ;;; Code:
 
+(require 'cl-generic)
 (require 'eieio)
 
 ;;;;;;;;;;;;;;
@@ -58,10 +59,10 @@
 ;; The objects handled by the time management system
 ;; must implemented these generics.
 
-(defgeneric get-speed (object)
+(cl-defgeneric get-speed (object)
   "Return the speed of an object.")
 
-(defgeneric do-action (object callback)
+(cl-defgeneric do-action (object callback)
   "Do an action.
 Must send the number of turns took by the action in the callback.")
 
@@ -79,14 +80,14 @@ Must send the number of turns took by the action in the callback.")
 Handle objects with given priority.
 Can update priorities, and retrieve object with higher priority.")
 
-(defmethod insert-object ((self rlk--time-priority-queue) object)
+(cl-defmethod insert-object ((self rlk--time-priority-queue) object)
   "Insert OBJECT with the initial priority set to its speed."
   (let ((object-cons (cons object 0.0))
         (objects (oref self objects)))
     (add-to-list 'objects object-cons)
     (oset self objects objects)))
 
-(defmethod remove-object ((self rlk--time-priority-queue) object)
+(cl-defmethod remove-object ((self rlk--time-priority-queue) object)
   "Remove OBJECT from the priority queue."
   (let ((new-queue '()))
     (dolist (object-cons (oref self objects))
@@ -94,7 +95,7 @@ Can update priorities, and retrieve object with higher priority.")
         (add-to-list 'new-queue object-cons)))
     (oset self objects new-queue)))
 
-(defmethod get-prioritized-object ((self rlk--time-priority-queue))
+(cl-defmethod get-prioritized-object ((self rlk--time-priority-queue))
   "Return the object with the highest priority."
   (let ((prioritized-object nil)
         (max-priority 0))
@@ -106,7 +107,7 @@ Can update priorities, and retrieve object with higher priority.")
           (setq prioritized-object object))))
     prioritized-object))
 
-(defmethod update-priorities ((self rlk--time-priority-queue) updated-object turns-spent)
+(cl-defmethod update-priorities ((self rlk--time-priority-queue) updated-object turns-spent)
   "Update all priorities knowing that UPDATED-OBJECT has spent TURNS-SPENT turns."
   (let ((min-priority nil)
         (object nil))
@@ -126,7 +127,7 @@ Can update priorities, and retrieve object with higher priority.")
     (dolist (object-cons (oref self objects))
       (setf (cdr object-cons) (- (cdr object-cons) min-priority)))))
 
-(defmethod clear ((self rlk--time-priority-queue))
+(cl-defmethod clear ((self rlk--time-priority-queue))
   "Empty the priority queue."
   (dolist (object-cons (oref self objects))
     (setf (cdr object-cons) (get-speed (car object-cons)))))
@@ -148,30 +149,30 @@ Can update priorities, and retrieve object with higher priority.")
             :documentation "Boolean telling whether or not the time manager is running its loop."))
   "Time management algorithm.")
 
-(defmethod initialize-instance :after ((self rlk--time-manager) slots)
+(cl-defmethod initialize-instance :after ((self rlk--time-manager) slots)
   "Initialize priority queue."
-  (oset self queue (rlk--time-priority-queue "Priority queue")))
+  (oset self queue (rlk--time-priority-queue)))
 
-(defmethod insert-object ((self rlk--time-manager) object)
+(cl-defmethod insert-object ((self rlk--time-manager) object)
   "Add an object to the priority queue."
   (insert-object (oref self queue) object))
 
-(defmethod remove-object ((self rlk--time-manager) object)
+(cl-defmethod remove-object ((self rlk--time-manager) object)
   "Remove an object from the priority queue."
   (remove-object (oref self queue) object))
 
-(defmethod resume-step ((self rlk--time-manager) current-object turns-spent)
+(cl-defmethod resume-step ((self rlk--time-manager) current-object turns-spent)
   "Updates priorities with current object and TURNS-SPENT, and initiate a new step."
   (let ((after-step-hook (oref self after-step-hook)))
     (apply-turns self current-object turns-spent)
     (when (is-running-p self)
       (do-step self))))
 
-(defmethod get-resume-callback ((self rlk--time-manager) current-object)
+(cl-defmethod get-resume-callback ((self rlk--time-manager) current-object)
   "Return a callback to call resume-step with SELF already binded."
   (apply-partially 'resume-step self current-object))
 
-(defmethod do-step ((self rlk--time-manager))
+(cl-defmethod do-step ((self rlk--time-manager))
   "Ask an object to do an action, giving it the callback to resume the algorithm.
 
 Objects are not required to apply the callback. They should return the number of turns they spent
@@ -190,19 +191,19 @@ if they can, to avoid deep recursion."
               (setq continue nil)))
         (setq continue nil)))))
 
-(defmethod apply-turns ((self rlk--time-manager) object turns-spent)
+(cl-defmethod apply-turns ((self rlk--time-manager) object turns-spent)
   "Update priority queue doing as OBJECT spent TURNS-SPENT turns."
   (let ((after-step-hook (oref self after-step-hook)))
     (update-priorities (oref self queue) object turns-spent)
     (run-hooks 'after-step-hook)))
 
-(defmethod add-after-step-hook ((self rlk--time-manager) hook)
+(cl-defmethod add-after-step-hook ((self rlk--time-manager) hook)
   "Register a HOOK to execute after each step."
   (let ((after-step-hook (oref self after-step-hook)))
     (add-hook 'after-step-hook hook)
     (oset self after-step-hook after-step-hook)))
 
-(defmethod stop ((self rlk--time-manager))
+(cl-defmethod stop ((self rlk--time-manager))
   "Stop the time management loop."
   (oset self running nil)
   (clear (oref self queue)))

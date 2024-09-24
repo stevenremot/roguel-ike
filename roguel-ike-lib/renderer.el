@@ -24,6 +24,7 @@
 ;; using a basic configuration.
 
 ;;; Code:
+(require 'cl-generic)
 (require 'roguel-ike-lib/level)
 (require 'roguel-ike-lib/cell)
 
@@ -62,7 +63,7 @@ is non-nil."))
 
 In order to be displayed, a cell must implement the generic `get-visible-type'.")
 
-(defmethod render-cell ((self roguel-ike-renderer) cell)
+(cl-defmethod render-cell ((self roguel-ike-renderer) cell)
   "Insert a colored string representation of CELL in the buffer.
 
 The character is inserted at the current point in the buffer. The
@@ -79,7 +80,7 @@ CELL must implement `get-visible-type'."
                  (cdr parameters))))
     (insert (propertize character 'face face))))
 
-(defmethod render-level ((self roguel-ike-renderer) level &optional offset size)
+(cl-defmethod render-level ((self roguel-ike-renderer) level &optional offset size)
   "Insert a colored string representation of LEVEL in the buffer.
 
 OFFSET is the upper left point (as a cons) at which the rendering begins.

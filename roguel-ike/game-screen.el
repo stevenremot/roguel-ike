@@ -22,6 +22,7 @@
 ;;
 
 ;;; Code:
+(require 'cl-generic)
 (require 'roguel-ike/buffer-manager)
 (require 'roguel-ike/hero-data/manager)
 
@@ -53,21 +54,21 @@ of the next screen.")
 A game screen is for example a menu screen, or a special game mode."
   :abstract t)
 
-(defmethod setup ((self rlk--game-screen) &rest args)
+(cl-defmethod setup ((self rlk--game-screen) &rest args)
   "Starts the game screen. THis method must be overriden."
   (error "The method setup must be overriden"))
 
-(defmethod call-end-callback ((self rlk--game-screen) next-screen &rest args)
+(cl-defmethod call-end-callback ((self rlk--game-screen) next-screen &rest args)
   "Call the end callback for NEXT-SCREEN, populating setup with ARGS."
   (apply (get-end-callback self) next-screen args))
 
-(defmethod register-in-buffers ((self rlk--game-screen) &rest buffers)
+(cl-defmethod register-in-buffers ((self rlk--game-screen) &rest buffers)
   "Register the game screen in the buffers."
   (dolist (buffer buffers)
     (with-current-buffer buffer
       (setq rlk--local-game-screen self))))
 
-(defmethod quit-game ((self rlk--game-screen))
+(cl-defmethod quit-game ((self rlk--game-screen))
   (kill-buffers (get-buffer-manager self))
   (call-end-callback self nil))
 

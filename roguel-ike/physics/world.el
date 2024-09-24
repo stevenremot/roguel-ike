@@ -22,6 +22,7 @@
 ;; A physical world computes a set of motions.
 
 ;;; Code:
+(require 'cl-generic)
 (require 'roguel-ike/physics/motion)
 
 (defclass rlk--physics-world ()
@@ -37,7 +38,7 @@
             :documentation "Flag telling whether the world is running or not."))
   "Aggregate and update motions.")
 
-(defmethod add-motion ((self rlk--physics-world) motion)
+(cl-defmethod add-motion ((self rlk--physics-world) motion)
   "Add a MOTION to the world.
 
 Won't accept motion with null or negative energy."
@@ -46,11 +47,11 @@ Won't accept motion with null or negative energy."
     (let ((motions (get-motions self)))
       (oset self motions (add-to-list 'motions motion)))))
 
-(defmethod remove-motion ((self rlk--physics-world) motion)
+(cl-defmethod remove-motion ((self rlk--physics-world) motion)
   "Remove a MOTION from the world."
   (oset self motions (delete motion (get-motions self))))
 
-(defmethod do-step ((self rlk--physics-world))
+(cl-defmethod do-step ((self rlk--physics-world))
   "Update MOTIONS for one turn.
 Return t if at least one MOTION remains, nil otherwise."
   (let ((motions (get-motions self)))
@@ -61,7 +62,7 @@ Return t if at least one MOTION remains, nil otherwise."
         (remove-motion self motion)))
     (> (length (get-motions self)) 0)))
 
-(defmethod run ((self rlk--physics-world) draw-callback)
+(cl-defmethod run ((self rlk--physics-world) draw-callback)
   "Update bodies as long as at least one is moving.
 DRAW-CALLBACK is called at each iteration."
   (oset self running t)
@@ -71,7 +72,7 @@ DRAW-CALLBACK is called at each iteration."
       (sleep-for 0 10)
       (redisplay))))
 
-(defmethod stop ((self rlk--physics-world))
+(cl-defmethod stop ((self rlk--physics-world))
   "Stop current animation."
   (oset self running nil))
 

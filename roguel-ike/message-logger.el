@@ -23,6 +23,7 @@
 
 ;;; Code:
 
+(require 'cl-generic)
 (require 'eieio)
 
 (defclass rlk--message-logger ()
@@ -33,7 +34,7 @@
                    :documentation "Buffer in which messages are displayed."))
   "Display game messages in a buffer.")
 
-(defmethod display-message ((self rlk--message-logger) message &rest format-arguments)
+(cl-defmethod display-message ((self rlk--message-logger) message &rest format-arguments)
   "Display a message in the message buffer
 
 MESSAGE and FORMAT-ARGUMENTS are passed to the `format' function."
@@ -41,7 +42,7 @@ MESSAGE and FORMAT-ARGUMENTS are passed to the `format' function."
     (goto-char (point-min))
     (insert (concat (apply 'format message format-arguments) "\n"))))
 
-(defmethod clear ((self rlk--message-logger))
+(cl-defmethod clear ((self rlk--message-logger))
   "Erase all the previous messages."
   (with-current-buffer (get-message-buffer self)
     (erase-buffer)))

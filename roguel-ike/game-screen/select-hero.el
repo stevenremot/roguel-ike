@@ -22,6 +22,7 @@
 ;;
 
 ;;; Code:
+(require 'cl-generic)
 (require 'roguel-ike/mode/menu)
 (require 'roguel-ike/hero-data/manager)
 (require 'roguel-ike/race)
@@ -36,7 +37,7 @@
 
 It also allows to go to the hero creation screen.")
 
-(defmethod setup ((self rlk--game-screen-select-hero))
+(cl-defmethod setup ((self rlk--game-screen-select-hero))
   "Display the selection screen."
   (let ((buffer-manager (get-buffer-manager self)))
     (setup-menu-layout buffer-manager)
@@ -45,7 +46,7 @@ It also allows to go to the hero creation screen.")
     (rlk--select-hero-mode)
     (register-in-buffers self (get-game-buffer buffer-manager))))
 
-(defmethod draw-screen ((self rlk--game-screen-select-hero))
+(cl-defmethod draw-screen ((self rlk--game-screen-select-hero))
   "Render the user interface on the current buffer."
   (let ((hero-data-manager (get-hero-data-manager self)))
     (setq buffer-read-only nil)
@@ -63,7 +64,7 @@ It also allows to go to the hero creation screen.")
                         'action (apply-partially 'create-hero self))
     (setq buffer-read-only t)))
 
-(defmethod select-hero ((self rlk--game-screen-select-hero) hero-name)
+(cl-defmethod select-hero ((self rlk--game-screen-select-hero) hero-name)
   "End the screen by loading and selecting the hero with HERO-NAME."
   (when (markerp hero-name)
     (setq hero-name (button-label hero-name)))
@@ -73,7 +74,7 @@ It also allows to go to the hero creation screen.")
                        'rlk--game-screen-select-mode
                        hero-data)))
 
-(defmethod create-hero ((self rlk--game-screen-select-hero) &optional button)
+(cl-defmethod create-hero ((self rlk--game-screen-select-hero) &optional button)
   "Ask the user information to create a new hero and start the game with it."
   (let ((hero-name "")
         (race-name "")
@@ -97,15 +98,15 @@ It also allows to go to the hero creation screen.")
       (when (equal race-name (get-name available-race))
         (setq race available-race)))
 
-    (setq hero-data (rlk--hero-data "Hero data"
-                                    :name hero-name
-                                    :race (get-type race)
-                                    :stats (get-base-stats race)))
+    (setq hero-data (rlk--hero-data
+                     :name hero-name
+                     :race (get-type race)
+                     :stats (get-base-stats race)))
 
     (save-hero (get-hero-data-manager self) hero-data)
     (select-hero self hero-name)))
 
-(defmethod delete-hero ((self rlk--game-screen-select-hero) hero-name)
+(cl-defmethod delete-hero ((self rlk--game-screen-select-hero) hero-name)
   "Ask the user for confirmation before deleting HERO-NAME."
   (when (yes-or-no-p (format "Are you sure you want to delete %s? "
                              hero-name))

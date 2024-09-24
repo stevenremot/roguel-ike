@@ -22,6 +22,7 @@
 ;; Define roguel-ike controls system
 
 ;;; Code:
+(require 'cl-generic)
 (require 'roguel-ike/game)
 (require 'roguel-ike/graphics/renderer/game)
 (require 'roguel-ike/graphics/renderer/stats)
@@ -49,21 +50,21 @@
                    :reader get-stats-renderer
                    :protection :private
                    :documentation "Statistics renderer.")
-   (key-bindings :initform (("h" . move-left)
-                            ("j" . move-down)
-                            ("k" . move-up)
-                            ("l" . move-right)
-                            ("y" . move-left-up)
-                            ("b" . move-left-down)
-                            ("u" . move-right-up)
-                            ("n" . move-right-down)
-                            ("." . wait)
-                            ("<" . climb-stairs)
-                            (">" . climb-stairs)
-                            ("s" . select-and-use-skill)
-                            ("c" . close-door)
-                            (":" . examine-next-enemy)
-                            ("q" . quit-rlk))
+   (key-bindings :initform '(("h" . move-left)
+                             ("j" . move-down)
+                             ("k" . move-up)
+                             ("l" . move-right)
+                             ("y" . move-left-up)
+                             ("b" . move-left-down)
+                             ("u" . move-right-up)
+                             ("n" . move-right-down)
+                             ("." . wait)
+                             ("<" . climb-stairs)
+                             (">" . climb-stairs)
+                             ("s" . select-and-use-skill)
+                             ("c" . close-door)
+                             (":" . examine-next-enemy)
+                             ("q" . quit-rlk))
                  :type list
                  :reader get-key-bindings
                  :protection :private
@@ -87,7 +88,7 @@ BODY is the method definition."
   (declare (indent defun)
            (debug (place sexp form body)))
   `(progn
-     (defmethod ,name ,args
+     (cl-defmethod ,name ,args
        ,docstring
        (hide-popup self)
        ,@body)
@@ -97,26 +98,26 @@ BODY is the method definition."
        (interactive)
        (,name rlk--local-controller))))
 
-(defmethod get-hero ((self rlk--controller))
+(cl-defmethod get-hero ((self rlk--controller))
   "Return the hero in the game associated to the controller."
   (get-hero (get-game self)))
 
-(defmethod get-hero-behaviour ((self rlk--controller))
+(cl-defmethod get-hero-behaviour ((self rlk--controller))
   "Return the hero's behaviour for the game associated to the controller."
   (get-behaviour (get-hero self)))
 
-(defmethod hide-popup ((self rlk--controller))
+(cl-defmethod hide-popup ((self rlk--controller))
   "Hide the popup if there is any."
   (when (slot-boundp self 'popup)
     (popup-hide (oref self popup))
     (slot-makeunbound self 'popup)))
 
 ;; TODO try to displace fov elsewhere
-(defmethod call-renderers ((self rlk--controller))
+(cl-defmethod call-renderers ((self rlk--controller))
   "Ask the game-renderer to render game's level."
   (let* ((game (get-game self))
-        (level (get-current-level game))
-        (hero (get-hero game)))
+         (level (get-current-level game))
+         (hero (get-hero game)))
     (rlk--fov-apply level hero)
     (oset self visible-enemies '())
     (setq buffer-read-only nil)
@@ -138,10 +139,10 @@ BODY is the method definition."
 ;; Direction commands definition
 (dolist (direction-cons rlk--direction-map)
   (eval `(rlk--defcommand ,(car direction-cons) ((self rlk--controller))
-                  "Move the hero."
-                  (interact-with-cell (get-hero-behaviour self)
-                                      ,(cadr direction-cons)
-                                      ,(cddr direction-cons)))))
+           "Move the hero."
+           (interact-with-cell (get-hero-behaviour self)
+                               ,(cadr direction-cons)
+                               ,(cddr direction-cons)))))
 
 (rlk--defcommand wait ((self rlk--controller))
   "Wait one turn without doing anything."
@@ -175,7 +176,7 @@ BODY is the method definition."
             (goto-char (point-min))
             (beginning-of-line (1+ (- (get-y entity) (cdr offset))))
             (forward-char (- (get-x entity) (car offset)))
-            (oset self popup (popup-tip (render (rlk--graphics-widget-entity "Entity widget"
+            (oset self popup (popup-tip (render (rlk--graphics-widget-entity
                                                                              :entity entity
                                                                              :parts '(:name :effects :stats)))
                                         :point (point)
@@ -190,7 +191,7 @@ BODY is the method definition."
 ;; Input queries ;;
 ;;;;;;;;;;;;;;;;;;;
 
-(defmethod call-with-direction ((self rlk--controller) function)
+(cl-defmethod call-with-direction ((self rlk--controller) function)
   "Ask the user for a direction and execute FUNCTION with the provided direction.
 
 The direction takes the form of two arguments: dx and dy.
@@ -205,7 +206,7 @@ an error message is displayed."
         (funcall function (car direction) (cdr direction))
       (message "This is not a valid direction."))))
 
-(defmethod ask-direction ((self rlk--controller))
+(cl-defmethod ask-direction ((self rlk--controller))
   "Ask the user to input a direction.
 If a direction is given, return a cons representing it.
 
@@ -223,7 +224,7 @@ the input is invalid."
             (ask-direction self)))
       (ask-direction self))))
 
-(defmethod ask-option ((self rlk--controller) prompt collection)
+(cl-defmethod ask-option ((self rlk--controller) prompt collection)
   "Ask the user to select an element of a collection.
 
 PROMPT is the message displayed to invite the user to give an input.
@@ -241,7 +242,7 @@ Return nil when the action has been cancelled."
 ;; Controller setup ;;
 ;;;;;;;;;;;;;;;;;;;;;;
 
-(defmethod get-keymap :static ((self rlk--controller))
+(cl-defmethod get-keymap ((self (subclass rlk--controller)))
   "Return a mode keymap according to the controller's key bindings."
   (let ((map (make-sparse-keymap)))
     (dolist (binding (oref-default self key-bindings))

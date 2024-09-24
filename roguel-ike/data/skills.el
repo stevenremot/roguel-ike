@@ -65,8 +65,7 @@
                '((:spirit . 5))
                '((:stamina . 2))
                (lambda (entity dx dy)
-                 (let ((fireball (rlk--skill-object-fireball "Fireball"
-                                                             :caster entity))
+                 (let ((fireball (rlk--skill-object-fireball :caster entity))
                        (level (get-level entity)))
                    (set-level fireball level)
                    (set-pos fireball (get-x entity) (get-y entity))
@@ -184,8 +183,7 @@
                '((:spirit . 25))
                '((:stamina . 10))
                (lambda (entity dx dy)
-                 (let ((fractalball (rlk--skill-object-fractalball "Fractal ball"
-                                                                   :caster entity
+                 (let ((fractalball (rlk--skill-object-fractalball :caster entity
                                                                    :power (round (/ (get-spirit entity) 10))))
                        (level (get-level entity)))
                    (set-level fractalball level)

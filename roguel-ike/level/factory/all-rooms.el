@@ -45,11 +45,11 @@ It considers the whole level and split it in two parts recursively.
 SPLIT-PROBABILITY is a number between 0 and 100 that tell the algorithm
 to do or not to do the smallest rooms possible.  100 means always trying
 to do the smallest rooms, 0 will just return one big room."
-  (let ((node (roguel-ike-level-generator-binary-node "Binary node"
-                                                      :x 0
-                                                      :y 0
-                                                      :width width
-                                                      :height height))
+  (let ((node (roguel-ike-level-generator-binary-node
+               :x 0
+               :y 0
+               :width width
+               :height height))
         (layout (make-vector height nil))
         (frame-layout (make-vector (+ 2 height) nil)))
     (dotimes (y height)

@@ -4,6 +4,7 @@
 ;;
 
 ;;; Code:
+(require 'cl-generic)
 (require 'roguel-ike/mode/menu)
 (require 'roguel-ike/game-screen/test)
 (require 'roguel-ike/game-screen/arena)
@@ -19,7 +20,7 @@
               :documentation "Current hero data."))
   "Mode selection screen.")
 
-(defmethod setup ((self rlk--game-screen-select-mode) hero-data)
+(cl-defmethod setup ((self rlk--game-screen-select-mode) hero-data)
   "Save hero data and draw menu."
   (let* ((buffer-manager (get-buffer-manager self))
          (game-buffer (get-game-buffer buffer-manager)))
@@ -32,7 +33,7 @@
     (rlk--menu-mode)
     (register-in-buffers self game-buffer)))
 
-(defmethod draw-screen ((self rlk--game-screen-select-mode))
+(cl-defmethod draw-screen ((self rlk--game-screen-select-mode))
   "Render the user interface on the current buffer."
   (let ((game-modes (list
                      (list
@@ -70,9 +71,9 @@
 
     (insert (propertize "Your character:" 'face 'rlk-face-title))
     (insert "\n\n")
-    (insert (render (rlk--graphics-widget-entity "Entity widget"
-                                                 :entity (rlk--entity-create-from-hero-data (get-hero-data self))
-                                                 :parts '(:stats :skills))))
+    (insert (render (rlk--graphics-widget-entity
+                     :entity (rlk--entity-create-from-hero-data (get-hero-data self))
+                     :parts '(:stats :skills))))
 
     (setq buffer-read-only t)))
 

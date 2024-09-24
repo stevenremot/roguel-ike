@@ -22,18 +22,19 @@
 ;;
 
 ;;; Code:
-(require 'roguel-ike/game-screen/fight)
+(require 'cl-generic)
 (require 'roguel-ike/interactive-object/door)
 (require 'roguel-ike/entity)
 (require 'roguel-ike/behaviour/ai)
 (require 'roguel-ike/level/factory/string)
+(require 'roguel-ike/game-screen/fight)
 
 
 (defclass rlk--game-screen-test (rlk--game-screen-fight)
   ()
   "A test screen that creates a little level.")
 
-(defmethod create-level ((self rlk--game-screen-test))
+(cl-defmethod create-level ((self rlk--game-screen-test))
   "Create the level."
   (let* ((layout '("############"
                    "#..#####...#"
@@ -42,15 +43,15 @@
                    "############")))
     (rlk--level-create-from-string-list layout)))
 
-(defmethod setup-level ((self rlk--game-screen-test))
+(cl-defmethod setup-level ((self rlk--game-screen-test))
   "Set all the level's elements."
   (let* ((controller (get-controller self))
          (game (get-game controller))
          (hero (get-hero game))
          (level (create-level self))
          (rat (rlk--entity-create-new :rat
-                                      (rlk--behaviour-ai "AI behaviour")))
-         (door (rlk--interactive-object-door "Door"))
+                                      (rlk--behaviour-ai)))
+         (door (rlk--interactive-object-door))
          (message-logger (get-message-logger self)))
     (set-level hero level)
     (set-pos hero 1 1)

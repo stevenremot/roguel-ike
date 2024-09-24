@@ -22,6 +22,7 @@
 ;;
 
 ;;; Code:
+(require 'cl-generic)
 (require 'eieio)
 
 (defclass roguel-ike-level-generator-binary-node ()
@@ -62,11 +63,11 @@ It is either at the bottom or at right of the square."))
 This node, if big enough, can be split horizontally or vertically on two
 sub squares, which will be represented by its child nodes.")
 
-(defmethod is-leaf-p ((self roguel-ike-level-generator-binary-node))
+(cl-defmethod is-leaf-p ((self roguel-ike-level-generator-binary-node))
   "Return t if it is a leaf node."
   (not (slot-boundp self 'first-child)))
 
-(defmethod try-split ((self roguel-ike-level-generator-binary-node) minimal-size maximal-size split-probability)
+(cl-defmethod try-split ((self roguel-ike-level-generator-binary-node) minimal-size maximal-size split-probability)
   "May recursively split the node's square in two and use these two squares as children.
 
 The split can be operated either horizontaly or vertically.
@@ -118,7 +119,7 @@ always try to split as much as possible."
         (try-split (get-first-child self) minimal-size maximal-size split-probability)
         (try-split (get-second-child self) minimal-size maximal-size split-probability)))))
 
-(defmethod split ((self roguel-ike-level-generator-binary-node) direction minimal-size)
+(cl-defmethod split ((self roguel-ike-level-generator-binary-node) direction minimal-size)
   "Split the square's node, using the two subsquares as children.
 
 DIRECTION is either :horizontal or :vertical.
@@ -149,18 +150,18 @@ MINIMAL-VALUE is the minimum width and height each node must have."
             second-y (+ first-y first-height 1)
             second-width width
             second-height (- height first-height 1)))
-    (oset self first-child (roguel-ike-level-generator-binary-node "Binary node"
-                                                                   :x first-x
-                                                                   :y first-y
-                                                                   :width first-width
-                                                                   :height first-height))
-    (oset self second-child (roguel-ike-level-generator-binary-node "Binary node"
-                                                                    :x second-x
-                                                                    :y second-y
-                                                                    :width second-width
-                                                                    :height second-height))))
+    (oset self first-child (roguel-ike-level-generator-binary-node
+                            :x first-x
+                            :y first-y
+                            :width first-width
+                            :height first-height))
+    (oset self second-child (roguel-ike-level-generator-binary-node
+                             :x second-x
+                             :y second-y
+                             :width second-width
+                             :height second-height))))
 
-(defmethod apply-to-layout ((self roguel-ike-level-generator-binary-node) layout)
+(cl-defmethod apply-to-layout ((self roguel-ike-level-generator-binary-node) layout)
   "Recursively draw the level to LAYOUT."
   (if (is-leaf-p self)
       (progn

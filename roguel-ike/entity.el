@@ -1,4 +1,4 @@
-;;; entity.el --- Manages game entities
+;;; entity.el --- Manages game entities -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2014 Steven Rémot
 
@@ -22,6 +22,7 @@
 ;; Define roguel-ike moving entities
 
 ;;; Code:
+(require 'cl-generic)
 (require 'roguel-ike/stats/regenerator)
 (require 'roguel-ike/level/cell/object)
 (require 'roguel-ike/message-logger)
@@ -32,7 +33,7 @@
 ;; Generics ;;
 ;;;;;;;;;;;;;;
 
-(defgeneric set-entity (cell entity)
+(cl-defgeneric set-entity (cell entity)
   "Set the ENTITY standing on CELL.")
 
 ;;;;;;;;;;;;;;;;;;;;;
@@ -98,10 +99,10 @@ Here are the events that can occur to an entity with their arguments:
                     :documentation "Return the current effects appliers associated to the entity."))
   "The base class for game entities.")
 
-(defmethod initialize-instance :after ((self rlk--entity) slots)
+(cl-defmethod initialize-instance :after ((self rlk--entity) slots)
   "Initializes entity's objects."
   (set-entity (get-behaviour self) self)
-  (oset self dispatcher (roguel-ike-dispatcher "Entity dispatcher"))
+  (oset self dispatcher (roguel-ike-dispatcher))
   (register (get-dispatcher (get-stat-slot self :health))
             :current-value-changed
             (apply-partially (lambda (self old-value new-value)
@@ -109,7 +110,7 @@ Here are the events that can occur to an entity with their arguments:
                                  (die self)))
                              self))
 
-  (let ((regenerator (rlk--stats-regenerator "Entity's stat regenerator"
+  (let ((regenerator (rlk--stats-regenerator
                                              :stats (get-stats self)
                                              :slots '(:health
                                                       :stamina
@@ -122,25 +123,25 @@ Here are the events that can occur to an entity with their arguments:
               (apply-partially 'add-turns regenerator))
     (setup-experience-system self)))
 
-(defmethod get-layer ((self rlk--entity))
+(cl-defmethod get-layer ((self rlk--entity))
   "See rlk--level-cell-object."
   3)
 
-(defmethod is-entity-p ((self rlk--entity))
+(cl-defmethod is-entity-p ((self rlk--entity))
   "See rlk--level-cell-object."
   t)
 
-(defmethod get-type ((self rlk--entity))
+(cl-defmethod get-type ((self rlk--entity))
   "See rlk--level-cell-object."
   (if (is-hero-p self)
       :hero
     (get-type (get-race self))))
 
-(defmethod accept-other-object-p ((self rlk--entity))
+(cl-defmethod accept-other-object-p ((self rlk--entity))
   "See rlk--level-cell-object."
   nil)
 
-(defmethod rlk--format-message ((self rlk--entity) message)
+(cl-defmethod rlk--format-message ((self rlk--entity) message)
   "Create a string from MESSAGE.
 
 If MESSAGE is a string, simply return it.
@@ -171,7 +172,7 @@ If MESSAGE is a list, each of its elements will be converted to a string using t
                                     (prin1-to-string item))))))
       result)))
 
-(defmethod display-message ((self rlk--entity) message &rest format-arguments)
+(cl-defmethod display-message ((self rlk--entity) message &rest format-arguments)
   "Use the message logger to display a message."
   (apply 'display-message
          (get-message-logger self)
@@ -179,18 +180,18 @@ If MESSAGE is a list, each of its elements will be converted to a string using t
          format-arguments))
 
 
-(defmethod set-level :before ((self rlk--entity) level)
+(cl-defmethod set-level :before ((self rlk--entity) level)
   "See rlk--level-cell-object.
 Unregister from the old level"
   (when (slot-boundp self 'level)
     (remove-entity (get-level self) self)))
 
-(defmethod set-level :after ((self rlk--entity) level)
+(cl-defmethod set-level :after ((self rlk--entity) level)
   "See rlk--level-cell-object.
 Register to the new level."
   (add-entity level self))
 
-(defmethod set-cell ((self rlk--entity) cell)
+(cl-defmethod set-cell ((self rlk--entity) cell)
   "Set the new cell of the entity.
 This method is instead for private use ONLY.
 If you want to change entity position, use set-pos instead."
@@ -199,21 +200,21 @@ If you want to change entity position, use set-pos instead."
       (set-entity old-cell nil))
     (set-entity cell self)))
 
-(defmethod try-move ((self rlk--entity) dx dy)
+(cl-defmethod try-move ((self rlk--entity) dx dy)
   "If the entity can move to the cell (x + DX, y + DY), will move to it.
 Return t if the entity could move, nil otherwise."
-  (when (call-next-method)
+  (when (cl-call-next-method)
     (dispatch (get-dispatcher self) :moved)
     t))
 
-(defmethod is-alive-p ((self rlk--entity))
+(cl-defmethod is-alive-p ((self rlk--entity))
   "Return t if the entity is alive, nil otherwise."
   (> (get-health self) 0))
 
-(defgeneric is-manual-p (behaviour)
+(cl-defgeneric is-manual-p (behaviour)
   "Return t when the behaviour is manual, nil otherwise.")
 
-(defmethod is-hero-p ((self rlk--entity))
+(cl-defmethod is-hero-p ((self rlk--entity))
   "Return t if the entity is the hero, nil otherwise."
   (is-manual-p (get-behaviour self)))
 
@@ -221,57 +222,57 @@ Return t if the entity could move, nil otherwise."
 ;; Slot interaction ;;
 ;;;;;;;;;;;;;;;;;;;;;;
 
-(defmethod get-stat-slot ((self rlk--entity) slot)
+(cl-defmethod get-stat-slot ((self rlk--entity) slot)
   "Return the stat slot SLOT."
   (get-slot (get-stats self) slot))
 
-(defmethod get-max-health ((self rlk--entity))
+(cl-defmethod get-max-health ((self rlk--entity))
   "Return the maximum health the entity can have."
   (get-base-value (get-stat-slot self :health)))
 
-(defmethod get-health ((self rlk--entity))
+(cl-defmethod get-health ((self rlk--entity))
   "Return the entity's current health."
   (get-current-value (get-stat-slot self :health)))
 
-(defmethod set-health ((self rlk--entity) health)
+(cl-defmethod set-health ((self rlk--entity) health)
   "Set entity's current health to HEALTH."
   (set-current-value (get-stat-slot self :health) health))
 
-(defmethod hurt ((self rlk--entity) points)
+(cl-defmethod hurt ((self rlk--entity) points)
   "Substract to the entity's heatlh POINT health points."
   (dispatch (get-dispatcher self) :received-damages)
   (set-health self (- (get-health self) points)))
 
-(defmethod die ((self rlk--entity))
+(cl-defmethod die ((self rlk--entity))
   "Make the entity disappear from the level."
   (display-message self '(Me ("die." . "dies.")))
   (dispatch (get-dispatcher self) :died)
   (remove-entity (get-level self) self)
   (set-entity (get-cell self) nil))
 
-(defmethod heal ((self rlk--entity) points)
+(cl-defmethod heal ((self rlk--entity) points)
   "Add to the entity's current health POINT health points."
   (set-health self (+ (get-health self) points))
   (when (> (get-health self) (get-max-health self))
     (set-health self (get-max-health self))))
 
-(defmethod get-strength ((self rlk--entity))
+(cl-defmethod get-strength ((self rlk--entity))
   "Return the entity's current strength."
   (get-current-value (get-stat-slot self :strength)))
 
-(defmethod get-constitution ((self rlk--entity))
+(cl-defmethod get-constitution ((self rlk--entity))
   "Return the entity's constitution."
   (get-current-value (get-stat-slot self :constitution)))
 
-(defmethod get-speed ((self rlk--entity))
+(cl-defmethod get-speed ((self rlk--entity))
   "Return the entity's current speed."
   (get-current-value (get-stat-slot self :speed)))
 
-(defmethod get-spirit ((self rlk--entity))
+(cl-defmethod get-spirit ((self rlk--entity))
   "Return the entity's current spirit."
   (get-current-value (get-stat-slot self :spirit)))
 
-(defmethod add-experience ((self rlk--entity) slot experience)
+(cl-defmethod add-experience ((self rlk--entity) slot experience)
   "Add experience point to a slot.
 
 SLOT is a stat slot name.
@@ -279,7 +280,7 @@ SLOT is a stat slot name.
 EXPERIENCE is the amount of experience to add."
   (add-experience (get-stat-slot self slot) experience))
 
-(defmethod setup-experience-system ((self rlk--entity))
+(cl-defmethod setup-experience-system ((self rlk--entity))
   "Register all handlers for the experience system."
   (let ((dispatcher (get-dispatcher self)))
     (register dispatcher :attacked (apply-partially 'add-experience
@@ -308,11 +309,11 @@ EXPERIENCE is the amount of experience to add."
 ;; Effects ;;
 ;;;;;;;;;;;;;
 
-(defmethod register-effect-applier ((self rlk--entity) applier)
+(cl-defmethod register-effect-applier ((self rlk--entity) applier)
   "Add the APPLIER to the list of the current applied effects."
   (oset self current-effects (append (get-current-effects self) (list applier))))
 
-(defmethod unregister-effect-applier ((self rlk--entity) applier)
+(cl-defmethod unregister-effect-applier ((self rlk--entity) applier)
   "Remove APPLIER from registered effect appliers."
   (oset self current-effects (delete applier (get-current-effects self))))
 
@@ -320,11 +321,11 @@ EXPERIENCE is the amount of experience to add."
 ;; Action ;;
 ;;;;;;;;;;;;
 
-(defmethod do-action ((self rlk--entity) callback)
+(cl-defmethod do-action ((self rlk--entity) callback)
   "Update the ennemy, returning the turns spent to CALLBACK."
   (do-action (get-behaviour self) callback))
 
-(defmethod spend-time ((self rlk--entity) nb-turns)
+(cl-defmethod spend-time ((self rlk--entity) nb-turns)
   "Dispach an event :turns-spent, with NB-TURNS as parameter."
   (dispatch (get-dispatcher self) :turns-spent nb-turns))
 
@@ -332,7 +333,7 @@ EXPERIENCE is the amount of experience to add."
 ;; Physics ;;
 ;;;;;;;;;;;;;
 
-(defmethod collide-with-cell ((self rlk--entity) cell direction energy)
+(cl-defmethod collide-with-cell ((self rlk--entity) cell direction energy)
   "If CELL has an entity, transfer half of ENERGY to it.
 The entity is hurt with the remaining ENERGY."
   (let ((damages energy)
@@ -349,7 +350,7 @@ The entity is hurt with the remaining ENERGY."
                      damages)
     (hurt self damages)))
 
-(defmethod project ((self rlk--entity) direction energy)
+(cl-defmethod project ((self rlk--entity) direction energy)
   "Create a motion projection itself in DIRECTION for the given ENERGY.
 
 Won't project itself if dead."
@@ -361,16 +362,16 @@ Won't project itself if dead."
 ;; Combat system ;;
 ;;;;;;;;;;;;;;;;;;;
 
-(defmethod attack-successfull-p ((self rlk--entity) target)
+(cl-defmethod attack-successfull-p ((self rlk--entity) target)
   "Return nil if the TARGET dodged the attack, t otherwise.
 This method contains randomness."
   (= 0 (random (floor (max (- (get-speed target) (get-speed self)) 1)))))
 
-(defmethod get-base-damages ((self rlk--entity))
+(cl-defmethod get-base-damages ((self rlk--entity))
   "Return the base damages the entity can inflict."
   (get-strength self))
 
-(defmethod compute-damages ((self rlk--entity) base-damages)
+(cl-defmethod compute-damages ((self rlk--entity) base-damages)
   "Return the number of damages that will be inflicted to itself.
 
 BASE-DAMAGES is the initial damages inflicted. This method computes
@@ -379,7 +380,7 @@ the effective damages according to the entity's constitution.
 This method contains randomness."
   (random (1+ (max  (- base-damages (get-constitution self)) 1))))
 
-(defmethod attack ((self rlk--entity) target)
+(cl-defmethod attack ((self rlk--entity) target)
   "Try to attack the target.
 This method contains randomness."
   (if (attack-successfull-p self target)
@@ -396,7 +397,7 @@ This method contains randomness."
 ;; Skills ;;
 ;;;;;;;;;;;;
 
-(defmethod fulfill-skill-requirements-p ((self rlk--entity) skill)
+(cl-defmethod fulfill-skill-requirements-p ((self rlk--entity) skill)
   "Return t if the entity's stats fulfill the skill's requirements.
 
 Return nil otherwise."
@@ -407,7 +408,7 @@ Return nil otherwise."
         (throw 'fulfilled nil)))
     t))
 
-(defmethod can-use-skill-now-p ((self rlk--entity) skill)
+(cl-defmethod can-use-skill-now-p ((self rlk--entity) skill)
   "Return t if the entity can use the SKILL.
 
 An entity can use a skill when its stats fulfill the requirements
@@ -420,14 +421,14 @@ and it has enough to be spend by the skill."
              (throw 'can-spend nil)))
          t)))
 
-(defmethod spend-stats-for-skill ((self rlk--entity) skill)
+(cl-defmethod spend-stats-for-skill ((self rlk--entity) skill)
   "Withdraw from entity's stats the SKILL's spend numbers."
   (let ((slot nil))
     (dolist (spend-cons (get-spend skill))
       (setq slot (get-stat-slot self (car spend-cons)))
       (set-current-value slot (- (get-current-value slot) (cdr spend-cons))))))
 
-(defmethod use-skill ((self rlk--entity) skill &rest action-arguments)
+(cl-defmethod use-skill ((self rlk--entity) skill &rest action-arguments)
   "Use the skill SKILL.
 
 Assume all checks have been done before.
@@ -452,25 +453,25 @@ SKILL's tags."
           t)
       nil)))
 
-(defmethod get-usable-skills ((self rlk--entity))
+(cl-defmethod get-usable-skills ((self rlk--entity))
   "Return the skills the entity can use now."
   (let ((usable-skills '()))
     (dolist (skill (get-skills (get-race self)))
       (when (can-use-skill-now-p self skill)
-        (add-to-list 'usable-skills skill)))
-    usable-skills))
+	(setq usable-skills (cl-pushnew skill usable-skills)) )
+    usable-skills)))
 
 ;;;;;;;;;;;;;;
 ;; Messages ;;
 ;;;;;;;;;;;;;;
 
-(defmethod get-name ((self rlk--entity))
+(cl-defmethod get-name ((self rlk--entity))
   "Return the entity name."
   (if (is-hero-p self)
       "You"
     (concat "The " (get-name (get-race self)))))
 
-(defmethod get-verb ((self rlk--entity) you-verb other-verb)
+(cl-defmethod get-verb ((self rlk--entity) you-verb other-verb)
   "Return YOU-VERB when entity is the main character, OTHER-VERB otherwise."
   (if (is-hero-p self)
       you-verb
@@ -505,13 +506,14 @@ are base-values, or conses in the form (base-value . experience)."
                              0
                            (cdr slot-base-value)))
              (experience-rate (plist-get race-evolution name)))
-        (add-to-list 'stats-slots (cons name
+	(setq stats-slots (cl-pushnew
+			   (cons name
                                         (rlk--stats-slot (format "%s slot" name)
                                                          :base-value base-value
                                                          :experience experience
-                                                         :experience-rate experience-rate)))))
-    (rlk--stats "Stats"
-                :slots stats-slots)))
+                                                         :experience-rate experience-rate))
+			   stats-slots))))
+    (rlk--stats :slots stats-slots)))
 
 (defun rlk--entity-create (race stats behaviour)
   "Create an entity.
@@ -522,8 +524,7 @@ MESSAGE-LOGGER is the message logging system used by the entity."
   (when (symbolp race)
     (setq race (rlk--race-get-race race)))
 
-  (rlk--entity "Entity"
-               :race race
+  (rlk--entity :race race
                :stats (rlk--entity-create-stats-from-list-and-race race
                                                                    stats)
                :behaviour behaviour))

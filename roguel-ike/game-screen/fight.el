@@ -22,6 +22,7 @@
 ;;
 
 ;;; Code:
+(require 'cl-generic)
 (require 'roguel-ike/mode)
 (require 'roguel-ike/game-screen)
 (require 'roguel-ike/controller)
@@ -30,6 +31,7 @@
 (require 'roguel-ike/game)
 (require 'roguel-ike/graphics/renderer/game)
 (require 'roguel-ike/graphics/renderer/stats)
+(require 'roguel-ike/controller)
 
 (defvar-local rlk--local-controller nil
   "Game controller associated to the buffer.")
@@ -49,21 +51,16 @@
                    :documentation "Hero data at the beginning of the fight."))
   "Base game screen for all fighting screens.")
 
-(defmethod setup ((self rlk--game-screen-fight) hero-data)
+(cl-defmethod setup ((self rlk--game-screen-fight) hero-data)
   (let* ((buffer-manager (get-buffer-manager self))
-         (message-logger (rlk--message-logger "Message logger"
-                                              :message-buffer (get-message-buffer buffer-manager)))
+         (message-logger (rlk--message-logger :message-buffer (get-message-buffer buffer-manager)))
          (hero (rlk--entity-create-from-hero-data hero-data))
-         (game (rlk--game "Game"
-                          :hero hero
+         (game (rlk--game :hero hero
                           :buffer-manager buffer-manager))
-         (stats-renderer (rlk--graphics-renderer-stats "Stats renderer"
-                                                       :buffer (get-stats-buffer buffer-manager)
+         (stats-renderer (rlk--graphics-renderer-stats :buffer (get-stats-buffer buffer-manager)
                                                        :entity hero))
-         (game-renderer (rlk--graphics-renderer-game "Game renderer"
-                                                     :buffer (get-game-buffer buffer-manager)))
-         (controller (rlk--controller "Controller"
-                                      :game game
+         (game-renderer (rlk--graphics-renderer-game :buffer (get-game-buffer buffer-manager)))
+         (controller (rlk--controller :game game
                                       :game-renderer game-renderer
                                       :stats-renderer stats-renderer)))
     (oset self controller controller)
@@ -80,23 +77,23 @@
     (setq rlk--local-controller controller)
     (do-step (get-time-manager (get-current-level game)))))
 
-(defmethod setup-level ((self rlk--game-screen-fight))
+(cl-defmethod setup-level ((self rlk--game-screen-fight))
   "Abstract method for creating level and setting all its elements."
   (error "The method setup-level must be overriden"))
 
-(defmethod win ((self rlk--game-screen-fight))
+(cl-defmethod win ((self rlk--game-screen-fight))
   "Called when the game is won."
   (display-message (get-message-logger self) "You win!")
   (end-fight self (rlk--entity-create-hero-data
                       (get-name (get-base-hero-data self))
                       (get-hero (get-game (get-controller self))))))
 
-(defmethod loose ((self rlk--game-screen-fight))
+(cl-defmethod loose ((self rlk--game-screen-fight))
   "Called when the game is lost."
   (display-message (get-message-logger self) "You lost.")
   (end-fight self (get-base-hero-data self)))
 
-(defmethod end-fight ((self rlk--game-screen-fight) hero-data)
+(cl-defmethod end-fight ((self rlk--game-screen-fight) hero-data)
   "Stop the level and return to the mode selection screen.
 
 Return HERO-DATA to mode selection screen."
